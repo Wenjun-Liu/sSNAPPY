@@ -20,6 +20,9 @@ sample <- sample %>%
 logFC <- matrix(rep(c(1, 2, 1,2), each = 5), 5, 4)
 rownames(logFC) <- paste("Gene",1:5)
 colnames(logFC) <- c("patient1_treat1", "patient1_treat2",  "patient2_treat1", "patient2_treat2")
+weighted_FC <- matrix(rep(c(0.2, 0.4 ,0.2, 0.4), each = 5), 5, 4)
+rownames(weighted_FC) <- paste("Gene",1:5)
+colnames(weighted_FC) <- c("patient1_treat1", "patient1_treat2",  "patient2_treat1", "patient2_treat2")
 
 # Generate sample metadata df that will produce error
 sample_nofactor <- colnames(y) %>%
@@ -42,15 +45,29 @@ sample_wrongDim <- sample[1:5,]
 sample_onlyContr <- sample %>%
     dplyr::mutate(treatment = "control")
 
-test_that("compute_ssFC produces expected output", {
-    ssFC <- compute_ssFC(y, sample, factor = "patient", control = "control")
+# Generate logCPM matrix with random NA values
+y_NA <- apply(y, 2, function(x){
+    x[sample(c(1:nrow(y)), 1)] <-NA; x
+})
+
+test_that(".compute_ssFC produces expected output", {
+    ssFC <- .compute_ssFC(y, sample, factor = "patient", control = "control")
     expect_equal(ssFC, logFC)
 })
 
-test_that("compute_ssFC returns erros when expected",{
-    expect_error(compute_ssFC(y, sample_wrongDim, factor = "patient", control = "control"), "Sample metadata dimesion does not match with logCPM")
-    expect_error(compute_ssFC(y, sample_nofactor, factor = "patient", control = "control"), "factor %in% colnames(metadata) is not TRUE ")
-    expect_error(compute_ssFC(y, sample_notreat, factor = "patient", control = "control"), "Sample metadata must contain a column named treatment")
-    expect_error(compute_ssFC(y, sample_noCont, factor = "patient", control = "control"), "Control level not detected in sample metadata")
-    expect_error(compute_ssFC(y, sample_onlyContr, factor = "patient", control = "control"), "At least 2 levels are required treatment")
+test_that(".compute_ssFC returns erros when expected",{
+    expect_error(.compute_ssFC(y, sample_wrongDim, factor = "patient", control = "control"), )
+    expect_error(.compute_ssFC(y, sample_nofactor, factor = "patient", control = "control"))
+    expect_error(.compute_ssFC(y, sample_notreat, factor = "patient", control = "control"), "Sample metadata must contain a column named treatment")
+    expect_error(.compute_ssFC(y, sample_noCont, factor = "patient", control = "control"), "Control level not detected in sample metadata")
+    expect_error(.compute_ssFC(y, sample_onlyContr, factor = "patient", control = "control"), "At least 2 levels are required treatment")
+    expect_error(.compute_ssFC(y, sample[,c("patient", "treatment")], factor = "patient", control = "control"), "Sample name must be specific in a column named sample")
+    expect_error(.compute_ssFC(y, sample_onlyContr, control = "control"), "Factor defining matching samples must be provided")
+    expect_error(.compute_ssFC(y, sample_onlyContr, factor = "patient"), "Control treatment must be specified")
+    expect_error(.compute_ssFC(y_NA,sample, factor = "patient", control = "control"), "NA values not allowed")
+})
+
+test_that("weight_ssFC produces expected output", {
+    output <- weight_ssFC(y, sample, factor = "patient", control = "control")
+    expect_equal(output, weighted_FC)
 })
