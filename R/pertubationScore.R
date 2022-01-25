@@ -1,3 +1,86 @@
+
+#' Title
+#'
+#' @param weightedFC
+#' @param kegg_dir
+#'
+#' @import purrr set_names
+#' @import plyr compact
+#' @return
+#' @export
+#'
+#' @examples
+perturbationScore <- function(weightedFC, kegg_dir){
+
+    BminsI <- readRDS(here::here(kegg_dir))
+    #  remove pathway with 0 expressed gene in it
+    kg2keep <- sapply(names(BminsI), function(x){
+        length(intersect(rownames(weightedFC),
+                         rownames(BminsI[[x]]))) >5
+    })
+    BminsI <- BminsI[kg2keep]
+    if(length(BminsI) == 0) stop("None of the expressed gene was matched to pathways")
+
+    weightedFC <- apply(weightedFC, 2, function(x){
+        purrr::set_names(x, rownames(weightedFC))
+    })
+
+    PF <- sapply(names(BminsI), function(x){
+        # if BminsI is invertible, solve for (B-I)PF = -delE
+        if (abs(det(BminsI[[x]])) > 1e-7){
+            sapply(colnames(weightedFC), function(y){
+                delE  <- weightedFC[,y]
+                delE  <- delE[rownames(BminsI[[x]])]
+                # If any of the pathway gene was not expressed, set the ssLogFC to 0
+                delE  <- replace(delE, is.na(delE), 0)
+                solve(BminsI[[x]], -delE)
+            })
+        } else {
+             NULL
+        }
+    }, simplify = FALSE)
+
+    # Remove list elements that are null
+    compact(PF)
+}
+
+perturbationScore_alt <- function(weightedFC, kegg_dir){
+
+    BminsI <- readRDS(here::here(kegg_dir))
+    #  remove pathway with 0 expressed gene in it
+    kg2keep <- sapply(names(BminsI), function(x){
+        length(intersect(rownames(weightedFC),
+                         rownames(BminsI[[x]]))) >5
+    })
+    BminsI <- BminsI[kg2keep]
+    if(length(BminsI) == 0) stop("None of the expressed gene was matched to pathways")
+
+    weightedFC <- apply(weightedFC, 2, function(x){
+        purrr::set_names(x, rownames(weightedFC))
+    })
+
+    .ssPertScore(weightedFC, BminsI)
+
+    .ssPertScore <- function()
+    PF <- sapply(names(BminsI), function(x){
+        # if BminsI is invertible, solve for (B-I)PF = -delE
+        if (abs(det(BminsI[[x]])) > 1e-7){
+            sapply(colnames(weightedFC), function(y){
+                delE  <- weightedFC[,y]
+                delE  <- delE[rownames(BminsI[[x]])]
+                # If any of the pathway gene was not expressed, set the ssLogFC to 0
+                delE  <- replace(delE, is.na(delE), 0)
+                solve(BminsI[[x]], -delE)
+            })
+        } else {
+            NULL
+        }
+    }, simplify = FALSE)
+
+    # Remove list elements that are null
+    compact(PF)
+}
+
 rel<-c("activation","compound","binding/association","expression","inhibition",
        "activation_phosphorylation","phosphorylation","inhibition_phosphorylation",
        "inhibition_dephosphorylation","dissociation","dephosphorylation",
@@ -7,7 +90,17 @@ rel<-c("activation","compound","binding/association","expression","inhibition",
        "indirect effect_phosphorylation","activation_binding/association",
        "indirect effect","activation_compound","activation_ubiquination")
 
-.weightedAdjMatrix <- function(list, beta, ){
+#' Title Create weighted adjacent matrix
+#'
+#' @param list
+#' @param beta
+#' @param filename
+#'
+#' @return
+#' @export
+#'
+#' @examples
+.weightedAdjMatrix <- function(list, beta, filename){
 
     if(is.null(beta)){
         beta=c(1,0,0,1,-1,1,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,1,0,1,1)
@@ -19,7 +112,7 @@ rel<-c("activation","compound","binding/association","expression","inhibition",
     }
 
 
-    test <- sapply(names(datpT), function(x){
+    BminsI <- sapply(names(datpT), function(x){
         g2gInteraction <- sapply(rel, function(y){
             datpT[[x]][[y]] * beta[y]
 
@@ -38,7 +131,11 @@ rel<-c("activation","compound","binding/association","expression","inhibition",
 
     }, simplify = FALSE)
 
+    saveRDS(BminsI, filename)
+
 
 }
 
-perturbationScore <- function()
+
+
+
