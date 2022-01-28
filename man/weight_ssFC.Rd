@@ -7,7 +7,7 @@
 weight_ssFC(logCPM, metadata, factor, control)
 }
 \arguments{
-\item{logCPM}{Matrix of normaslised logCPM}
+\item{logCPM}{Matrix of normaslised logCPM where rows are genes and columns are samples. Rownames need to be gene entrez ID.}
 
 \item{metadata}{Sample metadata data frame as described in the details section.}
 
@@ -16,7 +16,7 @@ weight_ssFC(logCPM, metadata, factor, control)
 \item{control}{The treatment level that is the control.}
 }
 \value{
-A matrix of weighted single sample logFC
+A list
 }
 \description{
 Compute weighted single sample logFCs for each treated samples using normalised logCPM values. Fit a lowess
@@ -29,8 +29,8 @@ Since genes with smaller logCPM turn to have a larger variance among single samp
 relationship between variance of single sample logFCs and mean of logCPM, and use this relationship to estimate the variance of each
 mean logCPM value. Weights, which are inverse variance, are then multiplied to single sample logFCs to downweight genes with low counts.
 
-It is assumed that the genes with extremely low counts have been removed and the count matrix has been normalised prior to lgoCPM
-matrix was derived.
+It is assumed that the genes with extremely low counts have been removed and the count matrix has been normalised prior to logCPM
+matrix was derived. Rownames of the matrix must be genes' entrez ID. To convert ensemble ID to entrz ID, see example.
 
 The number of rows in the sample metadata must equal to the number of columns in the logCPM matrix.
 Metadata also must have a column called "sample" storing sample names, and a column called "treatment" storing

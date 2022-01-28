@@ -11,8 +11,8 @@
 #' relationship between variance of single sample logFCs and mean of logCPM, and use this relationship to estimate the variance of each
 #' mean logCPM value. Weights, which are inverse variance, are then multiplied to single sample logFCs to downweight genes with low counts.
 #'
-#' It is assumed that the genes with extremely low counts have been removed and the count matrix has been normalised prior to lgoCPM
-#' matrix was derived.
+#' It is assumed that the genes with extremely low counts have been removed and the count matrix has been normalised prior to logCPM
+#' matrix was derived. Rownames of the matrix must be genes' entrez ID. To convert ensemble ID to entrz ID, see example.
 #'
 #' The number of rows in the sample metadata must equal to the number of columns in the logCPM matrix.
 #' Metadata also must have a column called "sample" storing sample names, and a column called "treatment" storing
@@ -22,15 +22,16 @@
 #' same patient were treated with different treatments. Parameter `factor` tells the function how samples can be put into pairs. It must also
 #' be a column of the metadata.
 #'
-#' @param logCPM Matrix of normaslised logCPM
+#' @param logCPM Matrix of normaslised logCPM where rows are genes and columns are samples. Rownames need to be gene entrez ID.
 #' @param metadata Sample metadata data frame as described in the details section.
 #' @param factor The factor defines how samples can be put into matching pairs.
 #' @param control The treatment level that is the control.
 #'
 #' @importFrom stats approxfun lowess
-#' @return A matrix of weighted single sample logFC
+#' @return A list
 #' @export
 weight_ssFC <- function(logCPM, metadata, factor, control){
+
     ssFC <- .compute_ssFC(logCPM, metadata, factor, control)
     varFC <- apply(ssFC, 1, var)
     meanCPM <- apply(logCPM, 1, mean)
@@ -41,7 +42,11 @@ weight_ssFC <- function(logCPM, metadata, factor, control){
     f <- approxfun(l, rule = 2, ties = list("ordered", mean))
     weight <- 1/f(meanCPM)
     scaled_w <- weight/sum(weight)
-    ssFC * scaled_w
+    rownames(ssFC) <- paste("ENTREZID:", rownames(ssFC), sep = "")
+    list(
+        weight = scaled_w,
+        logFC = ssFC * scaled_w
+    )
 }
 
 
@@ -69,24 +74,17 @@ weight_ssFC <- function(logCPM, metadata, factor, control){
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
-    ##
     logCPM <- as.matrix(logCPM)
     metadata <- as.data.frame(metadata)
     if(length(unique(metadata[,"treatment"])) <2) stop("At least 2 levels are required treatment")
     pairs <- unique(metadata[,factor])
     sapply(pairs, function(x){
-       contrSample <- metadata %>%
-           dplyr::filter(
-               treatment == control,
-               !!sym(factor) == x
-           ) %>%
-           pull(sample)
-       treatedSample <- metadata %>%
-           dplyr::filter(
-               treatment != control,
-               !!sym(factor) ==x
-           ) %>%
-           pull(sample)
+       contrSample <- dplyr::filter(metadata, treatment == control, !!sym(factor) == x)
+       contrSample <- pull(contrSample, sample)
+
+       treatedSample <- dplyr::filter(metadata, treatment != control, !!sym(factor) == x)
+       treatedSample <- pull(treatedSample, sample)
+
        logCPM[, treatedSample] - logCPM[, contrSample]
     }, simplify = FALSE) %>%
         do.call(cbind,.)
