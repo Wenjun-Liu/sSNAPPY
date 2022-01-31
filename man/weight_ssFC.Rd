@@ -16,7 +16,7 @@ weight_ssFC(logCPM, metadata, factor, control)
 \item{control}{The treatment level that is the control.}
 }
 \value{
-A list
+A list with two elements: gene-wise weights and weighted single sample logFC matrix
 }
 \description{
 Compute weighted single sample logFCs for each treated samples using normalised logCPM values. Fit a lowess

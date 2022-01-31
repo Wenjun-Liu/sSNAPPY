@@ -4,14 +4,20 @@
 \alias{weightedAdjMatrix}
 \title{Create weighted adjacent matrix}
 \usage{
-weightedAdjMatrix(list, beta = NULL, filename)
+weightedAdjMatrix(
+  species,
+  database,
+  pathwayName = NULL,
+  beta = NULL,
+  outputDir
+)
 }
 \arguments{
-\item{list}{Pathway topology information retrieved using \code{graphite}. See example}
+\item{pathwayName}{Optional.}
 
-\item{beta}{A named numeric vector of weights to be assigned to each type of gene/protein relation type. See details for more information.}
+\item{beta}{Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type. See details for more information.}
 
-\item{filename}{A file directory specifying where the output should be stored.}
+\item{outputDir}{A file directory specifying where the output should be stored.}
 }
 \description{
 Convert pathway topology matrices to normalized weighted directed adjacency matrices describing the gene signaling network.

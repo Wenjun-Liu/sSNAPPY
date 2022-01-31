@@ -80,9 +80,11 @@ perturbationScore <- function(weightedFC, filePath){
 #'
 #' @description Convert pathway topology matrices to normalized weighted directed adjacency matrices describing the gene signaling network.
 #'
-#' @param list Pathway topology information retrieved using `graphite`. See example
-#' @param beta A named numeric vector of weights to be assigned to each type of gene/protein relation type. See details for more information.
-#' @param filename A file directory specifying where the output should be stored.
+#' @param species
+#' @param database
+#' @param pathwayName Optional.
+#' @param beta Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type. See details for more information.
+#' @param outputDir A file directory specifying where the output should be stored.
 #'
 #' @details
 #'
@@ -101,7 +103,14 @@ perturbationScore <- function(weightedFC, filePath){
 #' @export
 #'
 #' @examples
-weightedAdjMatrix <- function(list, beta = NULL, filename){
+weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL, outputDir){
+
+    supportedDatabase <- graphite::pathwayDatabases()
+    if(any(c(!species %in% supportedDatabase$species,!database %in% supportedDatabase$database)))stop(
+        "Requested species or database currently not supported by `grahpite`. Run `pathwayDatabses`
+        to get databases available."
+    )
+    if(is.null(outputDir)) stop("Output directory must be specified")
 
     rel<-c("activation","compound","binding/association","expression","inhibition",
            "activation_phosphorylation","phosphorylation","inhibition_phosphorylation",
@@ -121,18 +130,19 @@ weightedAdjMatrix <- function(list, beta = NULL, filename){
         }
     }
 
-    if(is.null(filename)) stop("Output directory must be specified")
+    .retrieveTopology(species, database, pathwayName)
+    # datpT <- path.info
+    # rm(path.info)
 
-
-    BminsI <- sapply(names(datpT), function(x){
+    BminsI <- sapply(names(path.info), function(x){
         g2gInteraction <- sapply(rel, function(y){
-            datpT[[x]][[y]] * beta[y]
+            path.info[[x]][[y]] * beta[y]
 
         }, simplify = FALSE)
         g2gInteraction <-   Reduce('+', g2gInteraction)
 
         numDownstream <- sapply(rel, function(y){
-            datpT[[x]][[y]] * abs(sign(beta[y]))
+            path.info[[x]][[y]] * abs(sign(beta[y]))
         }, simplify = FALSE)
         numDownstream <- Reduce('+', numDownstream)
         numDownstream <- apply(numDownstream, 2, sum)
@@ -143,18 +153,36 @@ weightedAdjMatrix <- function(list, beta = NULL, filename){
 
     }, simplify = FALSE)
 
-    saveRDS(BminsI, filename)
+    saveRDS(BminsI, outputDir)
 
 
 }
 
 
-retrieveTopology <- function(species, database){
+#' Title
+#'
+#' @param species
+#' @param database
+#' @param pathwayName
+#'
+#' @return
+#' @export
+#'
+#' @examples
+.retrieveTopology <- function(species, database, pathwayName = NULL){
     pys <- pathways(species, database)
+    if(!is.null(pathwayName)){
+        if (any(pathwayName %in% names(pys))){
+            pys[names(pys) %in% pathwayName]
+        } else stop("Pathway names provided not detected in retrieved database")
+    }
     # always convert pathway nodes identifier to entrez ID
-    kegg <- convertIdentifiers(pys, "ENTREZID")
-    # prepare the topologies for SPIA algorithm
-    prepareSPIA(kegg, "keggEX")
-    load(here::here("keggEXSPIA.RData"))
+    pys <- suppressMessages(convertIdentifiers(pys, "ENTREZID"))
+    # prepare the topologies for SPIA algorithm and store as a temporary file
+    outputDir <- tempfile()
+    prepareSPIA(pys, outputDir)
+    # read the RData into the env as "path.info"
+    load(paste(outputDir, "SPIA.RData", sep = ""))
+    get(ls()[ls() != paste(outputDir, "SPIA.RData", sep = "")])
 }
 
