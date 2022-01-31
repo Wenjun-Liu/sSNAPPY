@@ -28,7 +28,7 @@
 #' @param control The treatment level that is the control.
 #'
 #' @importFrom stats approxfun lowess
-#' @return A list
+#' @return A list with two elements: gene-wise weights and weighted single sample logFC matrix
 #' @export
 weight_ssFC <- function(logCPM, metadata, factor, control){
 
@@ -61,22 +61,18 @@ weight_ssFC <- function(logCPM, metadata, factor, control){
 #' @keywords internal
 .compute_ssFC <- function(logCPM, metadata, factor, control){
 
-    ## checks
-    # if (is.null(logCPM)) stop("LogCPM has to be provided")
-    # if (is.null(metadata)) stop("Sample metadata has to be provided")
+    # checks
     if (missing(factor)) stop("Factor defining matching samples must be provided")
     if (missing(control)) stop("Control treatment must be specified")
-    if (!"treatment" %in% colnames(metadata)) stop("Sample metadata must contain a column named treatment")
-    if (!control %in% unique(metadata$treatment)) stop("Control level not detected in sample metadata")
-    if (!"sample" %in% colnames(metadata)) stop ("Sample name must be specific in a column named sample")
-    stopifnot(factor %in% colnames(metadata))
+    if (!all(c("treatment", "sample", factor) %in% colnames(metadata))) stop("Sample metadata must include factor, treatment and sample")
+    if (!control %in% unique(metadata$treatment) | length(unique(metadata[,"treatment"])) <2) stop(
+        "Treatment needs at least 2 levels where one is the control specified")
     stopifnot(ncol(logCPM) == nrow(metadata))
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
     logCPM <- as.matrix(logCPM)
     metadata <- as.data.frame(metadata)
-    if(length(unique(metadata[,"treatment"])) <2) stop("At least 2 levels are required treatment")
     pairs <- unique(metadata[,factor])
     sapply(pairs, function(x){
        contrSample <- dplyr::filter(metadata, treatment == control, !!sym(factor) == x)

@@ -12,7 +12,7 @@ normaliseByPermutation(
   seed = sample.int(1e+06, 1),
   NB = 1000,
   scores,
-  filPath,
+  filePath,
   weight
 )
 }

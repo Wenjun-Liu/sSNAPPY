@@ -21,4 +21,5 @@ Imports:
     stats,
     plyr,
     purrr,
-    BiocParallel
+    BiocParallel,
+    graphite

@@ -18,12 +18,13 @@
 #' @export
 perturbationScore <- function(weightedFC, filePath){
 
-    if (missing(filePath) | !file.exists(filePath)) stop("Pathway topology matrices not detected")
+    if (missing(filePath) | !file.exists(filePath)) stop("Pathway topology matrices not detected. Check the file path provided.")
 
     BminsI <- readRDS(filePath)
 
-    if (is.null(rownames(weightedFC))) stop("Rownames of weightedFC matrix need to be entrez ID")
-    if (length(intersect(rownames(weightedFC), rownames(BminsI[[1]]))) == 0) stop("Rownames of weightedFC need to be converted to entrez ID. See example")
+    if (length(intersect(rownames(weightedFC), rownames(BminsI[[1]]))) == 0)
+        stop("Weighted ssFCs and pathwy topologies must use the same gene identifiers")
+
     #  remove pathway with 0 expressed gene in it
     kg2keep <- sapply(names(BminsI), function(x){
         length(intersect(rownames(weightedFC),
@@ -31,10 +32,6 @@ perturbationScore <- function(weightedFC, filePath){
     })
     BminsI <- BminsI[kg2keep]
     if(length(BminsI) == 0) stop("None of the expressed gene was matched to pathways")
-
-    # weightedFC <- apply(weightedFC, 2, function(x){
-    #     purrr::set_names(x, rownames(weightedFC))
-    # })
 
     PF <- .ssPertScore(BminsI, weightedFC)
 
@@ -57,11 +54,8 @@ perturbationScore <- function(weightedFC, filePath){
 #'
 #' @param BminsI
 #' @param weightedFC
-#' @param BPPARAM
 #'
 #' @return
-#'
-#' @examples
 .ssPertScore <- function(BminsI, weightedFC){
    sapply(names(BminsI), function(x){
 
@@ -75,6 +69,7 @@ perturbationScore <- function(weightedFC, filePath){
                 x <- sum(PF - delE)
             })
         } else {
+        # if determinant of the pathway topology is not positive, the equation does not have a unique solution
             x <- NULL
         }
 
@@ -154,5 +149,12 @@ weightedAdjMatrix <- function(list, beta = NULL, filename){
 }
 
 
-
+retrieveTopology <- function(species, database){
+    pys <- pathways(species, database)
+    # always convert pathway nodes identifier to entrez ID
+    kegg <- convertIdentifiers(pys, "ENTREZID")
+    # prepare the topologies for SPIA algorithm
+    prepareSPIA(kegg, "keggEX")
+    load(here::here("keggEXSPIA.RData"))
+}
 
