@@ -23,7 +23,8 @@ Imports:
     purrr,
     BiocParallel,
     graphite,
-    Rcpp
+    Rcpp,
+    tibble
 LinkingTo: 
     RcppEigen,
     Rcpp

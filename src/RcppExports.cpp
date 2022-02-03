@@ -11,21 +11,21 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// ssPertScore
-List ssPertScore(List BminsI, NumericMatrix weightedFC);
-RcppExport SEXP _SSPT_ssPertScore(SEXP BminsISEXP, SEXP weightedFCSEXP) {
+// ssPertScore_RCPP
+List ssPertScore_RCPP(List BminsI, NumericMatrix weightedFC);
+RcppExport SEXP _SSPT_ssPertScore_RCPP(SEXP BminsISEXP, SEXP weightedFCSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type BminsI(BminsISEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type weightedFC(weightedFCSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssPertScore(BminsI, weightedFC));
+    rcpp_result_gen = Rcpp::wrap(ssPertScore_RCPP(BminsI, weightedFC));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SSPT_ssPertScore", (DL_FUNC) &_SSPT_ssPertScore, 2},
+    {"_SSPT_ssPertScore_RCPP", (DL_FUNC) &_SSPT_ssPertScore_RCPP, 2},
     {NULL, NULL, 0}
 };
 
