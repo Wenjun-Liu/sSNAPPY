@@ -61,18 +61,19 @@ weight_ssFC <- function(logCPM, metadata, factor, control){
 #' @keywords internal
 .compute_ssFC <- function(logCPM, metadata, factor, control){
 
+    logCPM <- as.matrix(logCPM)
+    metadata <- as.data.frame(metadata)
+
     # checks
     if (missing(factor)) stop("Factor defining matching samples must be provided")
     if (missing(control)) stop("Control treatment must be specified")
     if (!all(c("treatment", "sample", factor) %in% colnames(metadata))) stop("Sample metadata must include factor, treatment and sample")
-    if (!control %in% unique(metadata$treatment) | length(unique(metadata[,"treatment"])) <2) stop(
+    if (any(c(!control %in% unique(metadata$treatment), length(unique(metadata[,"treatment"])) <2))) stop(
         "Treatment needs at least 2 levels where one is the control specified")
     stopifnot(ncol(logCPM) == nrow(metadata))
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
-    logCPM <- as.matrix(logCPM)
-    metadata <- as.data.frame(metadata)
     pairs <- unique(metadata[,factor])
     sapply(pairs, function(x){
        contrSample <- dplyr::filter(metadata, treatment == control, !!sym(factor) == x)

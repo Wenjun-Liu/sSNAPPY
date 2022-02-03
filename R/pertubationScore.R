@@ -11,6 +11,7 @@
 #'
 #' @importFrom purrr set_names
 #' @importFrom plyr compact
+#' @importFrom dplyr bind_rows
 #'
 #' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
 #' Bioinformatics. 2009 Jan 1;25(1):75-82.
@@ -76,6 +77,7 @@ perturbationScore <- function(weightedFC, filePath){
     }, simplify = FALSE)
 }
 
+
 #' @title Create weighted adjacent matrix
 #'
 #' @description Convert pathway topology matrices to normalized weighted directed adjacency matrices describing the gene signaling network.
@@ -130,19 +132,17 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
         }
     }
 
-    .retrieveTopology(species, database, pathwayName)
-    # datpT <- path.info
-    # rm(path.info)
+    datpT <- .retrieveTopology(species, database, pathwayName)
 
-    BminsI <- sapply(names(path.info), function(x){
+    BminsI <- sapply(names(datpT), function(x){
         g2gInteraction <- sapply(rel, function(y){
-            path.info[[x]][[y]] * beta[y]
+            datpT[[x]][[y]] * beta[y]
 
         }, simplify = FALSE)
         g2gInteraction <-   Reduce('+', g2gInteraction)
 
         numDownstream <- sapply(rel, function(y){
-            path.info[[x]][[y]] * abs(sign(beta[y]))
+            datpT[[x]][[y]] * abs(sign(beta[y]))
         }, simplify = FALSE)
         numDownstream <- Reduce('+', numDownstream)
         numDownstream <- apply(numDownstream, 2, sum)
@@ -153,7 +153,7 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
 
     }, simplify = FALSE)
 
-    saveRDS(BminsI, outputDir)
+    saveRDS(BminsI, file = outputDir)
 
 
 }
@@ -165,9 +165,8 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
 #' @param database
 #' @param pathwayName
 #'
+#' @importFrom graphite pathways convertIdentifiers prepareSPIA
 #' @return
-#' @export
-#'
 #' @examples
 .retrieveTopology <- function(species, database, pathwayName = NULL){
     pys <- pathways(species, database)
@@ -181,8 +180,7 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
     # prepare the topologies for SPIA algorithm and store as a temporary file
     outputDir <- tempfile()
     prepareSPIA(pys, outputDir)
-    # read the RData into the env as "path.info"
-    load(paste(outputDir, "SPIA.RData", sep = ""))
-    get(ls()[ls() != paste(outputDir, "SPIA.RData", sep = "")])
+    # read the RData into the env
+    get(load(paste(outputDir, "SPIA.RData", sep = "")))
 }
 

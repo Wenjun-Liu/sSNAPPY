@@ -22,4 +22,8 @@ Imports:
     plyr,
     purrr,
     BiocParallel,
-    graphite
+    graphite,
+    Rcpp
+LinkingTo: 
+    RcppEigen,
+    Rcpp
