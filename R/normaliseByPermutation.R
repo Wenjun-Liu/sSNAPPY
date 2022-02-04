@@ -44,7 +44,7 @@ normaliseByPermutation <- function(logCPM, metadata, factor, control,
     # if gene-wise weights are not provided, estimate again
     if (is.null(weight))stop("Gene-wise weight must be provided. See details.")
 
-    permutedFC <- .generate_permutedFC(logCPM, metadata, factor, control, weight, NB)
+    permutedFC <- .generate_permutedFC(logCPM, metadata, factor, control, weight, NB, seed)
 
     # Remove pathways with 0 expressed genes in it
     kg2keep <- sapply(names(BminsI), function(x){
@@ -78,11 +78,12 @@ normaliseByPermutation <- function(logCPM, metadata, factor, control,
 #' @param factor
 #' @param control
 #' @param BPPARAM
+#' @param seed
 #'
 #' @return
 #'
 #' @examples
-.generate_permutedFC <- function(logCPM, metadata, factor, control, weight, NB){
+.generate_permutedFC <- function(logCPM, metadata, factor, control, weight, NB, seed){
 
     logCPM <- as.matrix(logCPM)
     rownames(logCPM) <- paste("ENTREZID:", rownames(logCPM), sep = "")

@@ -77,8 +77,6 @@ perturbationScore <- function(weightedFC, filePath){
     }, simplify = FALSE)
 }
 
-BminsI <- BminsI %>%
-    lapply(function(x){})
 
 #' @title Create weighted adjacent matrix
 #'

@@ -1,6 +1,5 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include <algorithm>
 
 using namespace Rcpp;
 
@@ -8,7 +7,7 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 
-List ssPertScore_RCPP(List BminsI, NumericMatrix weightedFC) {
+List ssPertScore_RCPP(const List& BminsI, const NumericMatrix& weightedFC) {
     // double thres = 1e-7;
     int n = BminsI.size();
     int s = weightedFC.ncol();
@@ -49,22 +48,3 @@ List ssPertScore_RCPP(List BminsI, NumericMatrix weightedFC) {
 
 
 
-// .ssPertScore <- function(BminsI, weightedFC){
-// sapply(names(BminsI), function(x){
-//
-//     if (abs(det(BminsI[[x]])) > 1e-7){
-//         sapply(colnames(weightedFC), function(y){
-//             delE  <- weightedFC[,y]
-//             delE  <- delE[rownames(BminsI[[x]])]
-// # If any of the pathway gene was not expressed, set the ssLogFC to 0
-//             delE  <- replace(delE, is.na(delE), 0)
-//             PF <- solve(BminsI[[x]], -delE)
-//             x <- sum(PF - delE)
-//         })
-//     } else {
-// # if determinant of the pathway topology is not positive, the equation does not have a unique solution
-//         x <- NULL
-//     }
-//
-// }, simplify = FALSE)
-// }

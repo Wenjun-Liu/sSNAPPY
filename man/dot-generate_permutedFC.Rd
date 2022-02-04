@@ -4,7 +4,7 @@
 \alias{.generate_permutedFC}
 \title{Title}
 \usage{
-.generate_permutedFC(logCPM, metadata, factor, control, weight, NB)
+.generate_permutedFC(logCPM, metadata, factor, control, weight, NB, seed)
 }
 \arguments{
 \item{BPPARAM}{}
