@@ -7,7 +7,7 @@
 .generate_permutedFC(logCPM, metadata, factor, control, weight, NB, seed)
 }
 \arguments{
-\item{BPPARAM}{}
+\item{seed}{}
 }
 \value{
 

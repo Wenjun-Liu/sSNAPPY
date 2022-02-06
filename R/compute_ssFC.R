@@ -70,7 +70,7 @@ weight_ssFC <- function(logCPM, metadata, factor, control){
     if (!all(c("treatment", "sample", factor) %in% colnames(metadata))) stop("Sample metadata must include factor, treatment and sample")
     if (any(c(!control %in% unique(metadata$treatment), length(unique(metadata[,"treatment"])) <2))) stop(
         "Treatment needs at least 2 levels where one is the control specified")
-    stopifnot(ncol(logCPM) == nrow(metadata))
+    if (ncol(logCPM) != nrow(metadata)) stop("Sample metadaata does not match with logCPM's dimension")
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 

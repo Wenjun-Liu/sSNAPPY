@@ -103,19 +103,17 @@ normaliseByPermutation <- function(logCPM, metadata, factor, control,
     NB <- min(factorial(nSample), NB)
     set.seed(seed)
     sapply(1:NB, function(x){
-
         # permute sample labels to get permuted logCPM
-          permutedCPM <- logCPM
-          colnames(permutedCPM) <- sample(colnames(permutedCPM), ncol(permutedCPM))
+        colnames(logCPM) <- sample(colnames(logCPM), ncol(logCPM))
 
         # Built permuted logFCs based on the permuted logCPM
-          permutedFC <- sapply(names(sampleInpairs), function(y){
-              permutedCPM[, sampleInpairs[[y]]$treatedSample] - permutedCPM[, sampleInpairs[[y]]$contrSample]
-          }, simplify = FALSE)  %>%
-              do.call(cbind,.)
+        permutedFC <- sapply(names(sampleInpairs), function(y){
+            logCPM[, sampleInpairs[[y]]$treatedSample] - logCPM[, sampleInpairs[[y]]$contrSample]
+        }, simplify = FALSE)  %>%
+            do.call(cbind,.)
 
-         # Multiply permuted FCs by gene-wise weights
-          permutedFC * weight
+        # Multiply permuted FCs by gene-wise weights
+        permutedFC * weight
 
     }, simplify = FALSE)
 

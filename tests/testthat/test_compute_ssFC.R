@@ -1,8 +1,6 @@
-# Stimulate logCPM matrix for 10 genes and 6 sample
+# Stimulate logCPM matrix for 5 genes and 6 sample
 # 6 samples are from 2 patients and 3 treatment levels: Control, Treat1, Treat2
 
-# y <- matrix(rnbinom(60,size=1,mu=10),10,6)
-# y <- cpm(y)
 y <- matrix(c(c(1:5, 2:6, 3:7), c(1:5, 2:6, 3:7)+ 0.2), 5, 6)
 rownames(y) <- paste("Gene",1:5)
 colnames(y) <- c("patient1_control", "patient1_treat1", "patient1_treat2", "patient2_control", "patient2_treat1", "patient2_treat2")
@@ -17,11 +15,21 @@ sample <- sample %>%
         patient = vapply(.$sample, function(x){
             stringr::str_split(x, "_")[[1]][1]
         }, character(1)))
+
+
 logFC <- matrix(rep(c(1, 2, 1,2), each = 5), 5, 4)
 rownames(logFC) <- paste("Gene",1:5)
 colnames(logFC) <- c("patient1_treat1", "patient1_treat2",  "patient2_treat1", "patient2_treat2")
+# varFC <- apply(logFC, 1, var)
+# meanCPM <- apply(y, 1, mean)
+# meanCPM <- meanCPM[match(names(meanCPM),names(varFC))]
+# l <- lowess(meanCPM, varFC)
+# f <- approxfun(l, rule = 2, ties = list("ordered", mean))
+# weight <- 1/f(meanCPM)
+# weight <- weight/sum(weight)
+weight <- rep(0.2, 5)
 weighted_FC <- matrix(rep(c(0.2, 0.4 ,0.2, 0.4), each = 5), 5, 4)
-rownames(weighted_FC) <- paste("Gene",1:5)
+rownames(weighted_FC) <- paste("ENTREZID:Gene",1:5)
 colnames(weighted_FC) <- c("patient1_treat1", "patient1_treat2",  "patient2_treat1", "patient2_treat2")
 
 # Generate sample metadata df that will produce error
@@ -56,12 +64,12 @@ test_that(".compute_ssFC produces expected output", {
 })
 
 test_that(".compute_ssFC returns erros when expected",{
-    expect_error(.compute_ssFC(y, sample_wrongDim, factor = "patient", control = "control"), )
-    expect_error(.compute_ssFC(y, sample_nofactor, factor = "patient", control = "control"))
-    expect_error(.compute_ssFC(y, sample_notreat, factor = "patient", control = "control"), "Sample metadata must contain a column named treatment")
-    expect_error(.compute_ssFC(y, sample_noCont, factor = "patient", control = "control"), "Control level not detected in sample metadata")
-    expect_error(.compute_ssFC(y, sample_onlyContr, factor = "patient", control = "control"), "At least 2 levels are required treatment")
-    expect_error(.compute_ssFC(y, sample[,c("patient", "treatment")], factor = "patient", control = "control"), "Sample name must be specific in a column named sample")
+    expect_error(.compute_ssFC(y, sample_wrongDim, factor = "patient", control = "control"), "Sample metadaata does not match with logCPM's dimension")
+    expect_error(.compute_ssFC(y, sample_nofactor, factor = "patient", control = "control"), "Sample metadata must include factor, treatment and sample")
+    expect_error(.compute_ssFC(y, sample_notreat, factor = "patient", control = "control"), "Sample metadata must include factor, treatment and sample")
+    expect_error(.compute_ssFC(y, sample_noCont, factor = "patient", control = "control"), "Treatment needs at least 2 levels where one is the control specified")
+    expect_error(.compute_ssFC(y, sample_onlyContr, factor = "patient", control = "control"), "Treatment needs at least 2 levels where one is the control specified")
+    expect_error(.compute_ssFC(y, sample[,c("patient", "treatment")], factor = "patient", control = "control"), "Sample metadata must include factor, treatment and sample")
     expect_error(.compute_ssFC(y, sample_onlyContr, control = "control"), "Factor defining matching samples must be provided")
     expect_error(.compute_ssFC(y, sample_onlyContr, factor = "patient"), "Control treatment must be specified")
     expect_error(.compute_ssFC(y_NA,sample, factor = "patient", control = "control"), "NA values not allowed")
@@ -69,5 +77,6 @@ test_that(".compute_ssFC returns erros when expected",{
 
 test_that("weight_ssFC produces expected output", {
     output <- weight_ssFC(y, sample, factor = "patient", control = "control")
-    expect_equal(output, weighted_FC)
+    expect_equal(output$logFC, weighted_FC)
+    expect_equal(output$weight, weight)
 })
