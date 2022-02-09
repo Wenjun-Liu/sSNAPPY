@@ -17,13 +17,29 @@ sample <- sample %>%
         }, character(1)))
 ssFC <- weight_ssFC(y, sample, "patient", "control")
 pathwayDir <- "data/BminsI.rds"
+BminsI <- readRDS(pathwayDir)
+# the number of pathways with at least one of those five genes in it
+interesectName <- names(BminsI[lapply(BminsI, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
 
-.ssPertScore( BminsI, ssFC$logFC)
 # create logCPM matrix with gene_id as rownames (instead of entrezID required)
 y_wrongIdentifier <- y
-rownames(y_wrongIdentifier) <- C("ENSG00000000003","ENSG00000000419","ENSG00000000457","ENSG00000000460","ENSG00000000938")
+rownames(y_wrongIdentifier) <- c("ENSG00000000003","ENSG00000000419","ENSG00000000457","ENSG00000000460","ENSG00000000938")
 ssFC_wrongIdentifier <- weight_ssFC(y_wrongIdentifier, sample, "patient", "control")
+
 test_that("perturbationScore returns error when expected", {
     expect_error(perturbationScore(ssFC$logFC, "data/random.rds"), "Pathway topology matrices not detected in the specified file path. Check the file path provided.")
-    expect_error(perturbationScore(ssFC$logFC_wrongIdentifier, pathwayDir), "Weighted ssFCs and pathwy topologies must use the same gene identifiers")
+    expect_error(perturbationScore(ssFC_wrongIdentifier$logFC, pathwayDir), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
+})
+
+test_that(".ssPertScore produces the expected outcome",{
+    expect_equal(length(.ssPertScore(BminsI, ssFC$logFC)), length(BminsI))
+    expect_true(is.vector(.ssPertScore(BminsI, ssFC$logFC)[[1]]))
+    expect_equal(names(.ssPertScore(BminsI, ssFC$logFC)[[1]]), str_subset(sample$sample, "control", negate = TRUE))
+})
+
+test_that("perturbationScore produces the expected outcome", {
+    expect_equal(colnames(perturbationScore(ssFC$logFC, pathwayDir)), c("sample", "tA", "gs_name"))
+    expect_false(anyNA(perturbationScore(ssFC$logFC, pathwayDir)$tA))
+    expect_equal(unique(perturbationScore(ssFC$logFC, pathwayDir)$sample), str_subset(sample$sample, "control", negate = TRUE))
+    expect_true(length(setdiff(perturbationScore(ssFC$logFC, pathwayDir)$gs_name, interesectName)) == 0)
 })

@@ -32,7 +32,6 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
         "Requested species or database currently not supported by `grahpite`. Run `pathwayDatabses`
         to get databases available."
     )
-    if(is.null(outputDir)) stop("Output directory must be specified")
 
     rel<-c("activation","compound","binding/association","expression","inhibition",
            "activation_phosphorylation","phosphorylation","inhibition_phosphorylation",
@@ -48,11 +47,16 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
         names(beta)<-rel
     }else{
         if(!all(names(beta) %in% rel) | length(names(beta))!=length(rel)){
-            stop(paste("beta must be a numeric vector of length",length(rel), "with the following names:", "\n", paste(rel,collapse=",")))
+            stop("Beta has wrong length or names. See details for requirements")
         }
     }
 
     datpT <- .retrieveTopology(species, database, pathwayName)
+
+    #sometimes SPIA add a list element called `<graphite_placeholder>`. Remove it if it exist
+    if("<graphite_placeholder>" %in% names(datpT)){
+        datpT <- datpT[names(datpT) != "<graphite_placeholder>" ]
+    }
 
     BminsI <- sapply(names(datpT), function(x){
         g2gInteraction <- sapply(rel, function(y){
@@ -92,7 +96,7 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
     pys <- pathways(species, database)
     if(!is.null(pathwayName)){
         if (any(pathwayName %in% names(pys))){
-            pys[names(pys) %in% pathwayName]
+            pys <- pys[names(pys) %in% pathwayName]
         } else stop("Pathway names provided not detected in retrieved database")
     }
     # always convert pathway nodes identifier to entrez ID
@@ -102,4 +106,6 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
     prepareSPIA(pys, outputDir)
     # read the RData into the env
     get(load(paste(outputDir, "SPIA.RData", sep = "")))
+
+
 }

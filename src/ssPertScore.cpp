@@ -8,41 +8,50 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 
 List ssPertScore_RCPP(const List& BminsI, const NumericMatrix& weightedFC) {
-    // double thres = 1e-7;
-    int n = BminsI.size();
+
+    // s number of samples
     int s = weightedFC.ncol();
-    CharacterVector genes = rownames(weightedFC);
-    std::sort(genes.begin(), genes.end());
-    List output(n);
-    for(int i=0; i<n; i++){
+
+    // number of pathways
+    int p = BminsI.length();
+
+    //create empty vector as output
+    List output(p);
+
+    List FC(s);
+
+    for (int j=0; j<s; j++){
+        // extract the ssFC of the given sample
+        NumericVector temp = weightedFC(_,j);
+        // set the names of the fc vector to be expressed genes
+        temp.names() = rownames(weightedFC);
+        FC[j] = temp;
+        }
+
+    for (int i=0; i<p; i++){
+
         Eigen::MatrixXd X(as<Eigen::MatrixXd>(BminsI[i]));
-        NumericVector PF(s);
+
+        // pathwayG is the genes contained in this given pathway
         CharacterVector pathwayG = rownames(BminsI[i]);
-        int g = pathwayG.length();
+
+        NumericVector tA(s);
+
+        // loop through each sample
         for (int j=0; j<s; j++){
-            NumericVector temp = weightedFC(_,j);
-            temp.names() = genes;
-            NumericVector v(g);
-            for (int m=0; m<g; m++){
-                if(std::binary_search(genes.begin(), genes.end(), pathwayG[m])){
-                    String index = pathwayG[m];
-                    v[m] = temp[index];
-                } else {
-                    v[m] = 0.0;
-                }
-            }
-            Eigen::VectorXd v1(as<Eigen::VectorXd>(v));
-            Eigen::VectorXd pf =X.colPivHouseholderQr().solve(-v1);
-            Eigen::VectorXd diff = pf - v1;
-            PF[j] = diff.sum();
-            PF.names() = colnames(weightedFC);
+            NumericVector ssFC = FC[j];
+            Eigen::VectorXd subset(as<Eigen::VectorXd>(ssFC[pathwayG]));
+
+            Eigen::VectorXd pf = X.colPivHouseholderQr().solve(-subset);
+            Eigen::VectorXd diff = pf - subset;
+            tA[j] = diff.sum();
 
         }
-        output(i) = PF;
-        output.names() = BminsI.names();
-
+        tA.names() = colnames(weightedFC);
+        output[i] = tA;
     }
 
+    output.names() = BminsI.names();
     return(output);
 }
 

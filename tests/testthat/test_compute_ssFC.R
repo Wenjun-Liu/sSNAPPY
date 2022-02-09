@@ -20,13 +20,7 @@ sample <- sample %>%
 logFC <- matrix(rep(c(1, 2, 1,2), each = 5), 5, 4)
 rownames(logFC) <- paste("Gene",1:5)
 colnames(logFC) <- c("patient1_treat1", "patient1_treat2",  "patient2_treat1", "patient2_treat2")
-# varFC <- apply(logFC, 1, var)
-# meanCPM <- apply(y, 1, mean)
-# meanCPM <- meanCPM[match(names(meanCPM),names(varFC))]
-# l <- lowess(meanCPM, varFC)
-# f <- approxfun(l, rule = 2, ties = list("ordered", mean))
-# weight <- 1/f(meanCPM)
-# weight <- weight/sum(weight)
+
 weight <- rep(0.2, 5)
 weighted_FC <- matrix(rep(c(0.2, 0.4 ,0.2, 0.4), each = 5), 5, 4)
 rownames(weighted_FC) <- paste("ENTREZID:Gene",1:5)

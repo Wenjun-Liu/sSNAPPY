@@ -23,22 +23,21 @@ perturbationScore <- function(weightedFC, filePath){
 
     BminsI <- readRDS(filePath)
 
-    if (length(intersect(rownames(weightedFC), rownames(BminsI[[1]]))) == 0)
-        stop("Weighted ssFCs and pathwy topologies must use the same gene identifiers.")
+    if (length(intersect(rownames(weightedFC), unlist(unname(lapply(BminsI, rownames))))) == 0)
+        stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
 
-    #  remove pathway with 0 expressed gene in it
-    kg2keep <- sapply(names(BminsI), function(x){
-        length(intersect(rownames(weightedFC),
-                         rownames(BminsI[[x]]))) > 0
-    })
-    BminsI <- BminsI[kg2keep]
-    if(length(BminsI) == 0) stop("None of the expressed gene was matched to pathways")
+    # extract all unique pathway genes and find ones that are not expressed
+    notExpressed <- setdiff(unique(unlist(unname(lapply(BminsI, rownames)))), rownames(weightedFC))
+    if (length(notExpressed) != 0){
+        temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(weightedFC))
+        rownames(temp) <- notExpressed
+        colnames(temp) <- colnames(weightedFC)
+        weightedFC <- rbind(weightedFC, temp)}
 
-    PF <- .ssPertScore(BminsI, weightedFC)
+    PF <-  ssPertScore_RCPP(BminsI, weightedFC)
 
     # Remove list elements that are null or all zeros
-    PF <- PF[!sapply(PF, is.null)]
-    PF <- PF[sapply(PF, any)]
+    suppressWarnings(PF <- PF[sapply(PF, any)])
 
     PF <- sapply(names(PF), function(x){
         temp <- as.data.frame(PF[[x]])
@@ -48,34 +47,25 @@ perturbationScore <- function(weightedFC, filePath){
     }, simplify = FALSE)
     bind_rows(PF)
 
-}
+    }
 
 
 #' Title
 #'
-#' @param BminsI
+#' @param adjMatrix
 #' @param weightedFC
 #'
 #' @return
-.ssPertScore <- function(BminsI, weightedFC){
-   sapply(names(BminsI), function(x){
-
-        if (abs(det(BminsI[[x]])) > 1e-7){
-             sapply(colnames(weightedFC), function(y){
-                delE  <- weightedFC[,y]
-                delE  <- delE[rownames(BminsI[[x]])]
-                # If any of the pathway gene was not expressed, set the ssLogFC to 0
-                delE  <- replace(delE, is.na(delE), 0)
-                PF <- solve(BminsI[[x]], -delE)
-                x <- sum(PF - delE)
-            })
-        } else {
-        # if determinant of the pathway topology is not positive, the equation does not have a unique solution
-            x <- NULL
-        }
-
-    }, simplify = FALSE)
-}
-
-
+# .ssPertScore <- function(adjMatrix, weightedFC, tol = 1e-7){
+#
+#     # if pathway adjacency matrix is not invertible, output NULL
+#     d <- abs(det(adjMatrix))
+#     if (d < tol) return(NULL)
+#
+#     # subset pathway genes' expression
+#     x <- weightedFC[rownames(adjMatrix), ]
+#
+#     apply(x, 2, function(y)sum(.Internal(La_solve(adjMatrix, -y, tol)) - y))
+#
+# }
 
