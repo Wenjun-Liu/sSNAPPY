@@ -56,16 +56,16 @@ perturbationScore <- function(weightedFC, filePath){
 #' @param weightedFC
 #'
 #' @return
-# .ssPertScore <- function(adjMatrix, weightedFC, tol = 1e-7){
-#
-#     # if pathway adjacency matrix is not invertible, output NULL
-#     d <- abs(det(adjMatrix))
-#     if (d < tol) return(NULL)
-#
-#     # subset pathway genes' expression
-#     x <- weightedFC[rownames(adjMatrix), ]
-#
-#     apply(x, 2, function(y)sum(.Internal(La_solve(adjMatrix, -y, tol)) - y))
-#
-# }
+.ssPertScore <- function(adjMatrix, weightedFC, tol = 1e-7){
+
+    # if pathway adjacency matrix is not invertible, output NULL
+    d <- abs(det(adjMatrix))
+    if (d < tol) return(NULL)
+
+    # subset pathway genes' expression
+    x <- weightedFC[rownames(adjMatrix), ]
+
+    apply(x, 2, function(y)sum(.Internal(La_solve(adjMatrix, -y, tol)) - y))
+
+}
 

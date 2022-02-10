@@ -11,6 +11,17 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// permutedFC_RCPP
+int permutedFC_RCPP(const NumericMatrix& logCPM);
+RcppExport SEXP _SSPT_permutedFC_RCPP(SEXP logCPMSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type logCPM(logCPMSEXP);
+    rcpp_result_gen = Rcpp::wrap(permutedFC_RCPP(logCPM));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ssPertScore_RCPP
 List ssPertScore_RCPP(const List& BminsI, const NumericMatrix& weightedFC);
 RcppExport SEXP _SSPT_ssPertScore_RCPP(SEXP BminsISEXP, SEXP weightedFCSEXP) {
@@ -25,6 +36,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_SSPT_permutedFC_RCPP", (DL_FUNC) &_SSPT_permutedFC_RCPP, 1},
     {"_SSPT_ssPertScore_RCPP", (DL_FUNC) &_SSPT_ssPertScore_RCPP, 2},
     {NULL, NULL, 0}
 };
