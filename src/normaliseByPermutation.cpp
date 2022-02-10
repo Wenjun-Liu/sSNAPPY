@@ -1,25 +1,37 @@
-#include <Rcpp.h>
-#include <RcppEigen.h>
+#include <RcppArmadillo.h>
 using namespace Rcpp;
+using namespace arma;
 
-// [[Rcpp::depends(RcppEigen)]]
+//[[Rcpp::plugins("cpp11")]]
+// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 
-List permutedFC_RCPP(const NumericMatrix& logCPM, int NB){
+List permutedFC_RCPP(arma::mat logCPM, int NB, int sEachp){
 
     List output(NB);
-    int s = logCPM.cols();
-    IntegerVector index = seq(1, s);
-    IntegerVector randomI = sample(index, s);
-    Eigen::MatrixXd X(as<Eigen::MatrixXd>(logCPM));
+    int s = logCPM.n_cols;
+    int p = s/sEachp;
+    arma::uvec indices = arma::regspace<arma::uvec>(0, sEachp, s-1);
 
-    // NumericMatrix randomM = logCPM(_,randomI);
-    Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic> perm(s);
-    perm.setIdentity();
-    std::random_shuffle(perm.indices().data(), perm.indices().data()+perm.indices().size());
-    Eigen::MatrixXd test = X * perm;
-    return(test);
+    for (int i=0; i<NB; i++){
+        arma::uvec permutationI = randperm(s);
+        arma::mat permutedCPM = logCPM.cols(permutationI);
+        // arma::mat permutedFC = permutedCPM;
+        arma::mat permutedFC(logCPM.n_rows, s-p);
+        for (int j=0; j< p; j++){
+            int temp = indices[j];
+            arma::uvec x1 = arma::linspace<arma::uvec>(j*(sEachp-1),j*(sEachp-1)+sEachp-2, sEachp-1);
+            arma::uvec x2 = arma::linspace<arma::uvec>(temp+1, temp+sEachp-1, sEachp-1);
+            arma::uvec x3 =  arma::linspace<arma::uvec>(temp, temp, sEachp-1);
+            permutedFC.cols(x1) = permutedCPM.cols(x2) - permutedCPM.cols(x3);
+            }
+         output[i] = permutedFC;
+
+
     }
+
+    return(output);
+}
 
 // .generate_permutedFC_alt <- function(logCPM, metadata, factor, control, weight, NB, seed){
 //

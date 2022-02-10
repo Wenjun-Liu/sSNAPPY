@@ -28,4 +28,5 @@ Imports:
     tibble
 LinkingTo: 
     RcppEigen,
-    Rcpp
+    Rcpp,
+    RcppArmadillo

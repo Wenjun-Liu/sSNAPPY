@@ -2,6 +2,7 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <RcppEigen.h>
+#include <RcppArmadillo.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
@@ -12,13 +13,15 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // permutedFC_RCPP
-int permutedFC_RCPP(const NumericMatrix& logCPM);
-RcppExport SEXP _SSPT_permutedFC_RCPP(SEXP logCPMSEXP) {
+List permutedFC_RCPP(arma::mat logCPM, int NB, int sEachp);
+RcppExport SEXP _SSPT_permutedFC_RCPP(SEXP logCPMSEXP, SEXP NBSEXP, SEXP sEachpSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const NumericMatrix& >::type logCPM(logCPMSEXP);
-    rcpp_result_gen = Rcpp::wrap(permutedFC_RCPP(logCPM));
+    Rcpp::traits::input_parameter< arma::mat >::type logCPM(logCPMSEXP);
+    Rcpp::traits::input_parameter< int >::type NB(NBSEXP);
+    Rcpp::traits::input_parameter< int >::type sEachp(sEachpSEXP);
+    rcpp_result_gen = Rcpp::wrap(permutedFC_RCPP(logCPM, NB, sEachp));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -36,7 +39,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SSPT_permutedFC_RCPP", (DL_FUNC) &_SSPT_permutedFC_RCPP, 1},
+    {"_SSPT_permutedFC_RCPP", (DL_FUNC) &_SSPT_permutedFC_RCPP, 3},
     {"_SSPT_ssPertScore_RCPP", (DL_FUNC) &_SSPT_ssPertScore_RCPP, 2},
     {NULL, NULL, 0}
 };

@@ -126,29 +126,6 @@ normaliseByPermutation <- function(logCPM, metadata, factor, control,
 
 }
 
-.generate_permutedFC_alt <- function(logCPM, metadata, factor, control, weight, NB, seed){
-
-    metadata <- as.data.frame(metadata)
-    sEachp <- length(levels(as.factor(metadata$treatment)))
-
-    nSample <- nrow(metadata)
-    NB <- min(factorial(nSample), NB)
-    set.seed(seed)
-
-    sapply(1:NB, function(x){
-        colIndex <- sample(seq_len(ncol(logCPM)), ncol(logCPM))
-        logCPM <- logCPM[,colIndex]
-        permutedFC <- lapply(seq(1, ncol(logCPM), by = sEachp), function(x){
-            logCPM[,c((x+1):(x+(sEachp-1)))] -logCPM[,x]
-
-        })
-        permutedFC <- do.call(cbind,permutedFC)
-
-        # Multiply permuted FCs by gene-wise weights
-        permutedFC * weight
-  }, simplify = FALSE)
-
-}
 
 #' @return
 .permutedFC_parallel <- function(logCPM, metadata, factor, control, weight, NB, seed){
