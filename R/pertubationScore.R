@@ -34,7 +34,7 @@ perturbationScore <- function(weightedFC, filePath){
         colnames(temp) <- colnames(weightedFC)
         weightedFC <- rbind(weightedFC, temp)}
 
-    PF <-  ssPertScore_RCPP(BminsI, weightedFC)
+    PF <-  suppressWarnings(ssPertScore_RCPP(BminsI, weightedFC))
 
     # Remove list elements that are null or all zeros
     suppressWarnings(PF <- PF[sapply(PF, any)])

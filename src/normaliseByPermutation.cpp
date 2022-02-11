@@ -44,12 +44,14 @@ List permutedFC_RCPP(arma::mat logCPM, int NB, int sEachp){
     return(output);
 }
 
-List permutedPertScore_RCPP(const List& BminsI, arma::mat logCPM, int NB, int sEachp) {
+
+// [[Rcpp::export]]
+List permutedPertScore_RCPP(const List& BminsI, const NumericMatrix& LogCPM, int NB, int sEachp) {
 
     // number of pathways
     int pathway = BminsI.length();
     // number of samples
-    int s = logCPM.n_cols;
+    int s = LogCPM.cols();
     // number of matching pairs
     int p = s/sEachp;
 
@@ -58,8 +60,11 @@ List permutedPertScore_RCPP(const List& BminsI, arma::mat logCPM, int NB, int sE
 
     // indices for sslogFC computation. seq(0, number of sample -1, by = samples each patient)
     arma::uvec indices = arma::regspace<arma::uvec>(0, sEachp, s-1);
+    CharacterVector expressedG = rownames(LogCPM);
+    arma::mat logCPM = as<arma::mat>(LogCPM);
 
-    List permutedFC(NB);
+
+    List allPermutedFC(NB);
 
     for (int i=0; i<NB; i++){
         // for each permutation, randomly permutate column numbers
@@ -84,44 +89,42 @@ List permutedPertScore_RCPP(const List& BminsI, arma::mat logCPM, int NB, int sE
             permutedFC.cols(x1) = permutedCPM.cols(x2) - permutedCPM.cols(x3);
         }
 
-        permutedFC[i] = permutedFC;
+        allPermutedFC[i] = permutedFC;
 
         }
+
 
     for (int i=0; i<pathway; i++){
 
-        }
-    List FC(s);
-
-    for (int j=0; j<s; j++){
-        // extract the ssFC of the given sample
-        NumericVector temp = weightedFC(_,j);
-        // set the names of the fc vector to be expressed genes
-        temp.names() = rownames(weightedFC);
-        FC[j] = temp;
-    }
-
-    for (int i=0; i<p; i++){
-
-        Eigen::MatrixXd X(as<Eigen::MatrixXd>(BminsI[i]));
-
-        // pathwayG is the genes contained in this given pathway
         CharacterVector pathwayG = rownames(BminsI[i]);
+        IntegerVector offset( pathwayG.length(),1);
+        IntegerVector index = match(pathwayG, expressedG) - offset;
+        arma::uvec indexA = as<arma::uvec>(index);
+        arma::mat X(as<arma::mat>(BminsI[i]));
 
-        NumericVector tA(s);
+        arma::vec allPerResult(NB*s);
 
-        // loop through each sample
-        for (int j=0; j<s; j++){
-            NumericVector ssFC = FC[j];
-            Eigen::VectorXd subset(as<Eigen::VectorXd>(ssFC[pathwayG]));
+        for (int m=0; m<NB; m++){
 
-            Eigen::VectorXd pf = X.colPivHouseholderQr().solve(-subset);
-            Eigen::VectorXd diff = pf - subset;
-            tA[j] = diff.sum();
+            arma::mat thisPermu = allPermutedFC[m];
+            arma::mat subsetFC = thisPermu.rows(indexA);
+            arma::vec tA(s);
 
-        }
-        tA.names() = colnames(weightedFC);
-        output[i] = tA;
+            // loop through each sample
+            for (int j=0; j<s; j++){
+                arma::vec subset = subsetFC.col(j);
+
+                arma::vec pf = solve(X,-subset);
+                arma::vec diff = pf - subset;
+                tA(j) = sum(diff);
+
+            }
+
+            allPerResult = join_cols(allPerResult, tA);
+
+            }
+
+       output[i] = allPerResult;
     }
 
     output.names() = BminsI.names();

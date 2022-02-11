@@ -66,7 +66,7 @@ normaliseByPermutation <- function(logCPM, metadata, factor, control,
 
     # compute permuted perturbation scores and remove pathways returned to be NULL
 
-    permutedScore <- lapply(permutedFC, .ssPertScore, BminsI = BminsI)
+    permutedScore <- lapply(permutedFC, ssPertScore_RCPP, BminsI = BminsI)
     permutedScore <- do.call(mapply, c(FUN=c, lapply(permutedScore, `[`, names(BminsI))))
     permutedScore <- permutedScore[!sapply(permutedScore, is.null)]
 
