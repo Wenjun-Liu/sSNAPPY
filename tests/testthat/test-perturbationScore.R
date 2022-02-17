@@ -16,7 +16,7 @@ sample <- sample %>%
             stringr::str_split(x, "_")[[1]][1]
         }, character(1)))
 ssFC <- weight_ssFC(y, sample, "patient", "control")
-pathwayDir <- "data/BminsI.rds"
+pathwayDir <- "tests/testthat/test_BminsI.rds"
 BminsI <- readRDS(pathwayDir)
 # the number of pathways with at least one of those five genes in it
 interesectName <- names(BminsI[lapply(BminsI, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
@@ -31,15 +31,17 @@ test_that("perturbationScore returns error when expected", {
     expect_error(perturbationScore(ssFC_wrongIdentifier$logFC, pathwayDir), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
 })
 
-test_that(".ssPertScore produces the expected outcome",{
-    expect_equal(length(.ssPertScore(BminsI, ssFC$logFC)), length(BminsI))
-    expect_true(is.vector(.ssPertScore(BminsI, ssFC$logFC)[[1]]))
-    expect_equal(names(.ssPertScore(BminsI, ssFC$logFC)[[1]]), str_subset(sample$sample, "control", negate = TRUE))
+test_that("ssPertScore_RCPP produces the expected outcome",{
+    ls <- ssPertScore_RCPP(BminsI, ssFC$logFC, rownames(ssFC$logFC), colnames(ssFC$logFC))
+    expect_equal(names(ls), names(BminsI))
+    expect_true(is.vector(ls[[1]]))
+    expect_equal(names(ls[[1]]), stringr::str_subset(sample$sample, "control", negate = TRUE))
 })
 
 test_that("perturbationScore produces the expected outcome", {
-    expect_equal(colnames(perturbationScore(ssFC$logFC, pathwayDir)), c("sample", "tA", "gs_name"))
-    expect_false(anyNA(perturbationScore(ssFC$logFC, pathwayDir)$tA))
-    expect_equal(unique(perturbationScore(ssFC$logFC, pathwayDir)$sample), str_subset(sample$sample, "control", negate = TRUE))
-    expect_true(length(setdiff(perturbationScore(ssFC$logFC, pathwayDir)$gs_name, interesectName)) == 0)
+    output <- perturbationScore(ssFC$logFC, pathwayDir)
+    expect_equal(colnames(output), c("sample", "tA", "gs_name"))
+    expect_false(anyNA(output$tA))
+    expect_equal(unique(output$sample), stringr::str_subset(sample$sample, "control", negate = TRUE))
+    expect_true(length(setdiff(output$gs_name, interesectName)) == 0)
 })

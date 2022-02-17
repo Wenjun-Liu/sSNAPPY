@@ -9,9 +9,6 @@
 \arguments{
 \item{pathwayName}{}
 }
-\value{
-
-}
 \description{
 Title
 }

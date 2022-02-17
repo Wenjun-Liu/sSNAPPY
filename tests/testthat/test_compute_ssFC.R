@@ -58,14 +58,12 @@ test_that(".compute_ssFC produces expected output", {
 })
 
 test_that(".compute_ssFC returns erros when expected",{
-    expect_error(.compute_ssFC(y, sample_wrongDim, factor = "patient", control = "control"), "Sample metadaata does not match with logCPM's dimension")
+    expect_error(.compute_ssFC(y, sample_wrongDim, factor = "patient", control = "control"), "Sample metadaata does not match with logCPM's column names")
     expect_error(.compute_ssFC(y, sample_nofactor, factor = "patient", control = "control"), "Sample metadata must include factor, treatment and sample")
     expect_error(.compute_ssFC(y, sample_notreat, factor = "patient", control = "control"), "Sample metadata must include factor, treatment and sample")
     expect_error(.compute_ssFC(y, sample_noCont, factor = "patient", control = "control"), "Treatment needs at least 2 levels where one is the control specified")
     expect_error(.compute_ssFC(y, sample_onlyContr, factor = "patient", control = "control"), "Treatment needs at least 2 levels where one is the control specified")
     expect_error(.compute_ssFC(y, sample[,c("patient", "treatment")], factor = "patient", control = "control"), "Sample metadata must include factor, treatment and sample")
-    expect_error(.compute_ssFC(y, sample_onlyContr, control = "control"), "Factor defining matching samples must be provided")
-    expect_error(.compute_ssFC(y, sample_onlyContr, factor = "patient"), "Control treatment must be specified")
     expect_error(.compute_ssFC(y_NA,sample, factor = "patient", control = "control"), "NA values not allowed")
 })
 

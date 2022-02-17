@@ -16,7 +16,7 @@ test_that("weightedAdjMatrix writes file to designated file path", {
     expect_true(file.exists(outputDir))
     test <- readRDS(outputDir)
     expect_identical(names(test), c("Glycolysis / Gluconeogenesis","Citrate cycle (TCA cycle)","Pentose phosphate pathway"))
-    expect_true(str_detect(rownames(test[[1]])[1], "ENTREZID:"))
+    expect_true(stringr::str_detect(rownames(test[[1]])[1], "ENTREZID:"))
     unlink(outputDir)
 
 })

@@ -7,36 +7,55 @@
 weight_ssFC(logCPM, metadata, factor, control)
 }
 \arguments{
-\item{logCPM}{Matrix of normaslised logCPM where rows are genes and columns are samples. Rownames need to be gene entrez ID.}
+\item{logCPM}{Matrix of normaslised logCPM where rows are genes and columns are samples. Row names need to be gene entrez ID and
+column names need to be sample names}
 
 \item{metadata}{Sample metadata data frame as described in the details section.}
 
-\item{factor}{The factor defines how samples can be put into matching pairs.}
+\item{factor}{Factor defines how samples can be put into matching pairs (eg. patient).}
 
-\item{control}{The treatment level that is the control.}
+\item{control}{Treatment level that is the control.}
 }
 \value{
-A list with two elements: gene-wise weights and weighted single sample logFC matrix
+A list with two elements:
+$weight  gene-wise weights;
+$logFC weighted single sample logFC matrix
 }
 \description{
 Compute weighted single sample logFCs for each treated samples using normalised logCPM values. Fit a lowess
-curve on variance of single sample logFCs ~ mean of logCPM, and use this to predict a gene-wise weight. The weighted
+curve on variance of single sample logFCs ~ mean of logCPM, and use it to predict a gene-wise weight. The weighted
 single sample logFCs are ready for computing perturbation scores.
 }
 \details{
 This function computes weighted single sample logFCs from normalised logCPM values, used for computing single sample perturbation scores.
 Since genes with smaller logCPM turn to have a larger variance among single sample logFCs. A lowess curve is fitted to estimate the
-relationship between variance of single sample logFCs and mean of logCPM, and use this relationship to estimate the variance of each
-mean logCPM value. Weights, which are inverse variance, are then multiplied to single sample logFCs to downweight genes with low counts.
+relationship between variance of single sample logFCs and mean of logCPM, and the relationship is used to estimate the variance of each
+mean logCPM value. Gene-wise weights, which are inverse of variances, are then multiplied to single sample logFCs to downweight genes with low counts.
 
 It is assumed that the genes with extremely low counts have been removed and the count matrix has been normalised prior to logCPM
-matrix was derived. Rownames of the matrix must be genes' entrez ID. To convert ensemble ID to entrz ID, see example.
+matrix was derived. Rownames of the matrix must be genes' entrez ID. To convert other gene identifiers to entrz ID, see example.
 
-The number of rows in the sample metadata must equal to the number of columns in the logCPM matrix.
-Metadata also must have a column called "sample" storing sample names, and a column called "treatment" storing
+Sample metadata should have the same number of rows as the number of columns in the logCPM matrix.
+Metadata also must have a column called "sample" storing sample names (column names of logCPM matrix), and a column called "treatment" storing
 treatment of each sample.The control treatment level specified by \code{control} parameter must exist in the treatment column.
 
-This analysis was designed for experimental designs that include matched pairs of samples, such as when the tissues collected from the
-same patient were treated with different treatments. Parameter \code{factor} tells the function how samples can be put into pairs. It must also
-be a column of the metadata.
+This analysis was designed for experimental designs that include matched pairs of samples, such as when tissues collected from the
+same patient were treated with different treatments to study different treatment effects. Parameter \code{factor} tells the function how
+samples can be put into matching pairs. It must also be included as a column in the metadata.
+}
+\examples{
+require(AnnotationHub)
+# convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
+ah <- AnnotationHub()
+ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
+ensDb <- ah[[1]]
+rownames(logCPM_example) <- AnnotationHub::mapIds(ensDb, rownames(logCPM_example), "ENTREZID", keytype = "GENEID")
+
+# Remove genes that couldn't be matched to entrez IDs
+logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
+
+# Inspect metadata data frame to make sure it has treatment, sample and patient columns
+head(metadata_example)
+length(setdiff(colnames(logCPM_example), metadata_example$sample)) == 0
+ls <- weight_ssFC(logCPM_example, metadata = metadata_example, factor = "patient", control = "Vehicle")
 }

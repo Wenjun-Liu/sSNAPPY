@@ -14,6 +14,7 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 SystemRequirements: C++11
+LazyData: true
 Imports: 
     dplyr,
     stringr,
@@ -30,3 +31,5 @@ LinkingTo:
     RcppEigen,
     Rcpp,
     RcppArmadillo
+Depends: 
+    R (>= 2.10)

@@ -5,10 +5,10 @@ using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 
-List ssPertScore_RCPP(const List& BminsI, const NumericMatrix& weightedFC) {
+List ssPertScore_RCPP(const List& BminsI, arma::mat weightedFC, const CharacterVector& expressedG, const CharacterVector& sample) {
 
     // s number of samples
-    int s = weightedFC.cols();
+    int s = weightedFC.n_cols;
 
     // number of pathways
     int p = BminsI.length();
@@ -16,16 +16,16 @@ List ssPertScore_RCPP(const List& BminsI, const NumericMatrix& weightedFC) {
     //create empty vector as output
     List output(p);
 
-    CharacterVector expressedG = rownames(weightedFC);
-    arma::mat fullFC = as<arma::mat>(weightedFC);
-
     for (int i=0; i<p; i++){
+
+        if (i % 100 == 0)
+            Rcpp::checkUserInterrupt();
 
         CharacterVector pathwayG = rownames(BminsI[i]);
         IntegerVector offset( pathwayG.length(),1);
         IntegerVector index = match(pathwayG, expressedG) - offset;
         arma::uvec indexA = as<arma::uvec>(index);
-        arma::mat subsetFC = fullFC.rows(indexA);
+        arma::mat subsetFC = weightedFC.rows(indexA);
         arma::mat X(as<arma::mat>(BminsI[i]));
 
         NumericVector tA(s);
@@ -39,13 +39,43 @@ List ssPertScore_RCPP(const List& BminsI, const NumericMatrix& weightedFC) {
             tA[j] = sum(diff);
 
         }
-        tA.names() = colnames(weightedFC);
+        tA.names() = sample;
         output[i] = tA;
     }
 
     output.names() = BminsI.names();
     return(output);
 }
+
+// [[Rcpp::export]]
+
+NumericVector ssPertScore_RCPP_oneP(arma::mat adjMatrix, const CharacterVector& pathwayG,
+                           arma::mat weightedFC, const CharacterVector& expressedG, const CharacterVector& sample) {
+
+    // s number of samples
+    int s = weightedFC.n_cols;
+
+    Rcpp::checkUserInterrupt();
+
+        IntegerVector offset( pathwayG.length(),1);
+        IntegerVector index = match(pathwayG, expressedG) - offset;
+        arma::uvec indexA = as<arma::uvec>(index);
+        arma::mat subsetFC = weightedFC.rows(indexA);
+
+        NumericVector tA(s);
+
+        // loop through each sample
+        for (int j=0; j<s; j++){
+            arma::vec subset = subsetFC.col(j);
+
+            arma::vec pf = solve(adjMatrix,-subset,arma::solve_opts::no_approx + arma::solve_opts::allow_ugly);
+            arma::vec diff = pf - subset;
+            tA[j] = sum(diff);
+
+        }
+        tA.names() = sample;
+        return(tA);
+    }
 
 
 // This can be also achieved through RcppEigen

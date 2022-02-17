@@ -1,31 +1,44 @@
-#' @title Create weighted adjacent matrix
+#' @title Create pathway topology weighted adjacent matrix
 #'
 #' @description Convert pathway topology matrices to normalized weighted directed adjacency matrices describing the gene signaling network.
 #'
-#' @param species
-#' @param database
-#' @param pathwayName Optional.
-#' @param beta Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type. See details for more information.
-#' @param outputDir A file directory specifying where the output should be stored.
+#' @param species See example for supported species.
+#' @param database See example for supported databases.
+#' @param pathwayName Optional. Subset of pathway names as a vector.
+#' @param beta Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type.
+#' See details for more information.
+#' @param outputDir A file directory specifying where the weighted adjacent matrix should be stored.
 #'
 #' @details
-#'
 #' This function takes the pathway topology information retrieved using `graphite` and convert them to normalized weighted directed adjacency
-#' matrices describing the gene signaling network. See cited document for more details.
+#' matrices describing the gene signaling network, which can be directed used to compute pathway perturbation score through *SPIA* algorithm.
+#' See cited document for more details.
 #'
-#' The beta parameter speicifies weights to be assigned to each type of gene-gene interaction. It should be a named numeric vector of length 23,
+#' The beta parameter specifies weights to be assigned to each type of gene-gene interaction. It should be a named numeric vector of length 23,
 #' whose names must be: c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation",
 #' "indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation",
 #' "state","activation_indirect","inhibition_ubiquination","ubiquination","expression_indirect","indirect_inhibition",
 #' "repression","binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation"). If unspecified, beta will be by default
 #' chosen as: c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0).
 #'
+#' The converted weighted adjacent matrices will be stored in list and write into the file directory specified through the `outputDir` parameter.
+#'
 #' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
 #' Bioinformatics. 2009 Jan 1;25(1):75-82.
+#' Sales, G., Calura, E., Cavalieri, D. et al. graphite - a Bioconductor package to convert pathway topology to gene network.
+#' BMC Bioinformatics 13, 20 (2012).
 #' @export
 #'
 #' @examples
-weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL, outputDir){
+#' # explore all species and databases supported by graphite
+#' graphite::pathwayDatabases()
+#' weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "BminsI.rds")
+#'
+#' # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
+#' weightedAdjMatrix(species = "hsapiens", database = "kegg",
+#' pathwayName = c("Glycolysis / Gluconeogenesis","Citrate cycle (TCA cycle)","Pentose phosphate pathway"),
+#' outputDir = "BminsI.rds")
+weightedAdjMatrix <-  function(species, database, pathwayName = NULL, beta = NULL, outputDir){
 
     supportedDatabase <- graphite::pathwayDatabases()
     if(any(c(!species %in% supportedDatabase$species,!database %in% supportedDatabase$database)))stop(
@@ -52,26 +65,26 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
     }
 
     datpT <- .retrieveTopology(species, database, pathwayName)
+    int2keep <- names(beta[beta !=0])
+    datpT <- lapply(datpT, function(x) x[names(x) %in% int2keep] )
 
-    #sometimes SPIA add a list element called `<graphite_placeholder>`. Remove it if it exist
+    #sometimes SPIA add a list element called `<graphite_placeholder>`. Remove it if it exists
     if("<graphite_placeholder>" %in% names(datpT)){
         datpT <- datpT[names(datpT) != "<graphite_placeholder>" ]
     }
 
+
     BminsI <- sapply(names(datpT), function(x){
-        g2gInteraction <- sapply(rel, function(y){
+        g2gInteraction <- sapply(int2keep, function(y){
             datpT[[x]][[y]] * beta[y]
 
         }, simplify = FALSE)
         g2gInteraction <-   Reduce('+', g2gInteraction)
 
-        numDownstream <- sapply(rel, function(y){
-            datpT[[x]][[y]] * abs(sign(beta[y]))
-        }, simplify = FALSE)
-        numDownstream <- Reduce('+', numDownstream)
+        numDownstream <- Reduce('+', datpT[[x]])
         numDownstream <- apply(numDownstream, 2, sum)
         numDownstream[numDownstream==0]<-1
-        B <- t(t(g2gInteraction)/numDownstream)
+        B <- g2gInteraction/numDownstream
         diag(B) <- diag(B)-1
         B
 
@@ -81,8 +94,6 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
 
 
 }
-
-
 #' Title
 #'
 #' @param species
@@ -90,8 +101,6 @@ weightedAdjMatrix <- function(species, database, pathwayName = NULL, beta = NULL
 #' @param pathwayName
 #'
 #' @importFrom graphite pathways convertIdentifiers prepareSPIA
-#' @return
-#' @examples
 .retrieveTopology <- function(species, database, pathwayName = NULL){
     pys <- pathways(species, database)
     if(!is.null(pathwayName)){
