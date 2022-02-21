@@ -1,21 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://wenjun-liu.github.io/SSPT/404.html</loc>
   </url>
   <url>
-    <loc>/LICENSE-text.html</loc>
+    <loc>https://wenjun-liu.github.io/SSPT/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>/LICENSE.html</loc>
+    <loc>https://wenjun-liu.github.io/SSPT/LICENSE.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://wenjun-liu.github.io/SSPT/authors.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://wenjun-liu.github.io/SSPT/index.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/dot-compute_ssFC.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/dot-generate_permutedFC.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/dot-retrieveTopology.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/normaliseByPermutation.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/perturbationScore.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/weight_ssFC.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/weightedAdjMatrix.html</loc>
   </url>
 </urlset>

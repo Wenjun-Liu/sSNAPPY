@@ -2,5 +2,8 @@ pandoc: 2.11.4
 pkgdown: 2.0.2
 pkgdown_sha: ~
 articles: {}
-last_built: 2022-01-20T04:43Z
+last_built: 2022-02-18T00:33Z
+urls:
+  reference: https://wenjun-liu.github.io/SSPT/reference
+  article: https://wenjun-liu.github.io/SSPT/articles
 

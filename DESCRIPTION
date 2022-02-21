@@ -33,3 +33,4 @@ LinkingTo:
     RcppArmadillo
 Depends: 
     R (>= 2.10)
+URL: https://wenjun-liu.github.io/SSPT/

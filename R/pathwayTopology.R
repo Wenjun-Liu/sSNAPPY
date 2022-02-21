@@ -94,12 +94,7 @@ weightedAdjMatrix <-  function(species, database, pathwayName = NULL, beta = NUL
 
 
 }
-#' Title
-#'
-#' @param species
-#' @param database
-#' @param pathwayName
-#'
+
 #' @importFrom graphite pathways convertIdentifiers prepareSPIA
 .retrieveTopology <- function(species, database, pathwayName = NULL){
     pys <- pathways(species, database)
