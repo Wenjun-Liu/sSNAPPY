@@ -34,6 +34,7 @@ number of permutations possible instead.
 }
 \examples{
 require(AnnotationHub)
+require(“ensembldb”)
 # convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
 ah <- AnnotationHub()
 ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")

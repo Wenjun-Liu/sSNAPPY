@@ -16,8 +16,8 @@ sample <- sample %>%
             stringr::str_split(x, "_")[[1]][1]
         }, character(1)))
 ssFC <- weight_ssFC(y, sample, "patient", "control")
-pathwayDir <- "tests/testthat/test_BminsI.rds"
-BminsI <- readRDS(pathwayDir)
+pathwayDir <- "test_BminsI.rda"
+load(pathwayDir)
 # the number of pathways with at least one of those five genes in it
 interesectName <- names(BminsI[lapply(BminsI, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
 
@@ -27,7 +27,7 @@ rownames(y_wrongIdentifier) <- c("ENSG00000000003","ENSG00000000419","ENSG000000
 ssFC_wrongIdentifier <- weight_ssFC(y_wrongIdentifier, sample, "patient", "control")
 
 test_that("perturbationScore returns error when expected", {
-    expect_error(perturbationScore(ssFC$logFC, "data/random.rds"), "Pathway topology matrices not detected in the specified file path. Check the file path provided.")
+    expect_error(perturbationScore(ssFC$logFC, "data/random.rda"), "Pathway topology matrices not detected in the specified file path. Check the file path provided.")
     expect_error(perturbationScore(ssFC_wrongIdentifier$logFC, pathwayDir), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
 })
 

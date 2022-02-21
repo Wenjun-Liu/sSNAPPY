@@ -22,6 +22,7 @@
 #'
 #' @examples
 #' require(AnnotationHub)
+#' require(“ensembldb”)
 #' # convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
 #' ah <- AnnotationHub()
 #' ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
@@ -115,87 +116,87 @@ normaliseByPermutation <- function(permutedScore, testScore){
     summaryScore <- as.data.frame(t(sapply(permutedScore, summary_func)))
     summaryScore <- rownames_to_column(summaryScore,"gs_name")
     summaryScore <- filter(summaryScore, MAD != 0)
-    summaryScore <- left_join(summaryScore, scores, by = "gs_name")
+    summaryScore <- left_join(summaryScore, testScore, by = "gs_name")
     mutate(summaryScore, robustZ = (tA - MEDIAN)/MAD )
 }
 
 
 
-#' Title
+#' #' Title
+#' #'
+#' #' @param logCPM
+#' #' @param metadata
+#' #' @param factor
+#' #' @param control
+#' #' @param seed
+#' #' @param NB
+#' #' @param scores
+#' #' @param filPath
+#' #' @param weight
+#' #'
+#' #' @importFrom tibble rownames_to_column
+#' #' @importFrom dplyr left_join filter mutate select
+#' #' @return
+#' #' @export
+#' #'
+#' #' @examples
+#' normaliseByPermutation_R <- function(logCPM, metadata, factor, control,
+#'                                    seed = sample.int(1e+06, 1), NB = 1000,
+#'                                    scores, filePath, weight){
+#'     logCPM <- as.matrix(logCPM)
+#'     metadata <- as.data.frame(metadata)
 #'
-#' @param logCPM
-#' @param metadata
-#' @param factor
-#' @param control
-#' @param seed
-#' @param NB
-#' @param scores
-#' @param filPath
-#' @param weight
+#'     # checks
+#'     if (!all(c("treatment", "sample", factor) %in% colnames(metadata))) stop("Sample metadata must include factor, treatment and sample")
+#'     if (any(c(!control %in% unique(metadata$treatment), length(unique(metadata[,"treatment"])) <2))) stop(
+#'         "Treatment needs at least 2 levels where one is the control specified")
+#'     if (ncol(logCPM) != nrow(metadata)) stop("Sample metadaata does not match with logCPM's dimension")
+#'     m <- min(logCPM)
+#'     if (is.na(m)) stop("NA values not allowed")
 #'
-#' @importFrom tibble rownames_to_column
-#' @importFrom dplyr left_join filter mutate select
-#' @return
-#' @export
 #'
-#' @examples
-normaliseByPermutation_R <- function(logCPM, metadata, factor, control,
-                                   seed = sample.int(1e+06, 1), NB = 1000,
-                                   scores, filePath, weight){
-    logCPM <- as.matrix(logCPM)
-    metadata <- as.data.frame(metadata)
-
-    # checks
-    if (!all(c("treatment", "sample", factor) %in% colnames(metadata))) stop("Sample metadata must include factor, treatment and sample")
-    if (any(c(!control %in% unique(metadata$treatment), length(unique(metadata[,"treatment"])) <2))) stop(
-        "Treatment needs at least 2 levels where one is the control specified")
-    if (ncol(logCPM) != nrow(metadata)) stop("Sample metadaata does not match with logCPM's dimension")
-    m <- min(logCPM)
-    if (is.na(m)) stop("NA values not allowed")
-
-
-    # load pathway topologies
-    BminsI <- readRDS(filePath)
-    rownames(logCPM) <- paste("ENTREZID:", rownames(logCPM), sep = "")
-    if (length(intersect(rownames(logCPM), unlist(unname(lapply(BminsI, rownames))))) == 0)
-        stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
-
-    # if gene-wise weights are not provided, estimate again
-    if (is.null(weight)) stop("Gene-wise weight must be provided. See details.")
-
-    notExpressed <- setdiff(unique(unlist(unname(lapply(BminsI, rownames)))), rownames(logCPM))
-    if (length(notExpressed) != 0){
-        temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(logCPM))
-        rownames(temp) <- notExpressed
-        colnames(temp) <- colnames(logCPM)
-        logCPM <- rbind( logCPM, temp)
-        weight <- c(weight, rep(0, length(notExpressed)))
-    }
-
-    # this step will probably benefit from BiocParallel but my laptop freezes with 2 workers
-    permutedFC <- .generate_permutedFC(logCPM, metadata, factor, control, weight, NB, seed)
-
-    # Remove pathways with 0 expressed genes in it
-    # kg2keep <- sapply(names(BminsI), function(x){
-    #     length(intersect(rownames(permutedFC[[1]]),
-    #                      rownames(BminsI[[x]]))) > 0
-    # })
-    # BminsI <- BminsI[kg2keep]
-
-    # compute permuted perturbation scores and remove pathways returned to be NULL
-
-    permutedScore <- lapply(permutedFC, ssPertScore_RCPP, BminsI = BminsI)
-    permutedScore <- do.call(mapply, c(FUN=c, lapply(permutedScore, `[`, names(BminsI))))
-    permutedScore <- permutedScore[!sapply(permutedScore, is.null)]
-
-    summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
-    summaryScore <- as.data.frame(t(sapply(permutedScore, summary_func)))
-    summaryScore <- rownames_to_column(summaryScore,"gs_name")
-    summaryScore <- filter(summaryScore, MAD != 0)
-    summaryScore <- left_join(summaryScore, scores, by = "gs_name")
-    mutate(summaryScore, robustZ = (tA - MEDIAN)/MAD )
-
-}
+#'     # load pathway topologies
+#'     BminsI <- readRDS(filePath)
+#'     rownames(logCPM) <- paste("ENTREZID:", rownames(logCPM), sep = "")
+#'     if (length(intersect(rownames(logCPM), unlist(unname(lapply(BminsI, rownames))))) == 0)
+#'         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
+#'
+#'     # if gene-wise weights are not provided, estimate again
+#'     if (is.null(weight)) stop("Gene-wise weight must be provided. See details.")
+#'
+#'     notExpressed <- setdiff(unique(unlist(unname(lapply(BminsI, rownames)))), rownames(logCPM))
+#'     if (length(notExpressed) != 0){
+#'         temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(logCPM))
+#'         rownames(temp) <- notExpressed
+#'         colnames(temp) <- colnames(logCPM)
+#'         logCPM <- rbind( logCPM, temp)
+#'         weight <- c(weight, rep(0, length(notExpressed)))
+#'     }
+#'
+#'     # this step will probably benefit from BiocParallel but my laptop freezes with 2 workers
+#'     permutedFC <- .generate_permutedFC(logCPM, metadata, factor, control, weight, NB, seed)
+#'
+#'     # Remove pathways with 0 expressed genes in it
+#'     # kg2keep <- sapply(names(BminsI), function(x){
+#'     #     length(intersect(rownames(permutedFC[[1]]),
+#'     #                      rownames(BminsI[[x]]))) > 0
+#'     # })
+#'     # BminsI <- BminsI[kg2keep]
+#'
+#'     # compute permuted perturbation scores and remove pathways returned to be NULL
+#'
+#'     permutedScore <- lapply(permutedFC, ssPertScore_RCPP, BminsI = BminsI)
+#'     permutedScore <- do.call(mapply, c(FUN=c, lapply(permutedScore, `[`, names(BminsI))))
+#'     permutedScore <- permutedScore[!sapply(permutedScore, is.null)]
+#'
+#'     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
+#'     summaryScore <- as.data.frame(t(sapply(permutedScore, summary_func)))
+#'     summaryScore <- rownames_to_column(summaryScore,"gs_name")
+#'     summaryScore <- filter(summaryScore, MAD != 0)
+#'     summaryScore <- left_join(summaryScore, scores, by = "gs_name")
+#'     mutate(summaryScore, robustZ = (tA - MEDIAN)/MAD )
+#'
+#' }
 
 
 #' #' Title

@@ -37,9 +37,9 @@ ls <- weight_ssFC(logCPM_example, metadata = metadata_example, factor = "patient
 
 # explore all species and databases supported by graphite
 graphite::pathwayDatabases()
-weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "BminsI.rds")
+weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "data/BminsI.rda")
 
-ssPertScore <- perturbationScore(ls$logFC, filePath = "BminsI.rds")
+ssPertScore <- perturbationScore(ls$logFC, filePath = "data/BminsI.rda")
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.

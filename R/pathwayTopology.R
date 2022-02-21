@@ -7,7 +7,7 @@
 #' @param pathwayName Optional. Subset of pathway names as a vector.
 #' @param beta Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type.
 #' See details for more information.
-#' @param outputDir A file directory specifying where the weighted adjacent matrix should be stored.
+#' @param outputDir A file directory specifying where the weighted adjacent matrix should be stored as an RData object.
 #'
 #' @details
 #' This function takes the pathway topology information retrieved using `graphite` and convert them to normalized weighted directed adjacency
@@ -32,7 +32,7 @@
 #' @examples
 #' # explore all species and databases supported by graphite
 #' graphite::pathwayDatabases()
-#' weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "BminsI.rds")
+#' weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "data/BminsI.rda")
 #'
 #' # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
 #' weightedAdjMatrix(species = "hsapiens", database = "kegg",
@@ -90,7 +90,7 @@ weightedAdjMatrix <-  function(species, database, pathwayName = NULL, beta = NUL
 
     }, simplify = FALSE)
 
-    saveRDS(BminsI, file = outputDir)
+    save(BminsI, file = outputDir)
 
 
 }

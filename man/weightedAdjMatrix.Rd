@@ -22,7 +22,7 @@ weightedAdjMatrix(
 \item{beta}{Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type.
 See details for more information.}
 
-\item{outputDir}{A file directory specifying where the weighted adjacent matrix should be stored.}
+\item{outputDir}{A file directory specifying where the weighted adjacent matrix should be stored as an RData object.}
 }
 \description{
 Convert pathway topology matrices to normalized weighted directed adjacency matrices describing the gene signaling network.
@@ -44,7 +44,7 @@ The converted weighted adjacent matrices will be stored in list and write into t
 \examples{
 # explore all species and databases supported by graphite
 graphite::pathwayDatabases()
-weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "BminsI.rds")
+weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "data/BminsI.rda")
 
 # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
 weightedAdjMatrix(species = "hsapiens", database = "kegg",

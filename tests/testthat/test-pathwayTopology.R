@@ -7,16 +7,17 @@ test_that("weightedAdjMatrix returns erros when expected", {
     })
 
 test_that("weightedAdjMatrix writes file to designated file path", {
-    outputDir <- paste(tempdir(), "/test.rds", sep = "")
+    outputDir <- paste(tempdir(), "/test.rda", sep = "")
     expect_false(file.exists(outputDir))
     weightedAdjMatrix(species = "hsapiens",
                       database = "kegg",
                       outputDir = outputDir,
                       pathwayName = c("Glycolysis / Gluconeogenesis","Citrate cycle (TCA cycle)","Pentose phosphate pathway" ))
     expect_true(file.exists(outputDir))
-    test <- readRDS(outputDir)
-    expect_identical(names(test), c("Glycolysis / Gluconeogenesis","Citrate cycle (TCA cycle)","Pentose phosphate pathway"))
-    expect_true(stringr::str_detect(rownames(test[[1]])[1], "ENTREZID:"))
+    load(outputDir)
+    expect_true(exists("BminsI"))
+    expect_identical(names(BminsI), c("Glycolysis / Gluconeogenesis","Citrate cycle (TCA cycle)","Pentose phosphate pathway"))
+    expect_true(stringr::str_detect(rownames(BminsI[[1]])[1], "ENTREZID:"))
     unlink(outputDir)
 
 })

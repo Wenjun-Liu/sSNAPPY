@@ -12,6 +12,7 @@
 #' @importFrom purrr set_names
 #' @importFrom plyr compact
 #' @importFrom dplyr bind_rows
+#' @importFrom tibble rownames_to_column
 #' @importFrom magrittr set_colnames
 #'
 #' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
@@ -33,15 +34,15 @@
 #'
 #' # explore all species and databases supported by graphite
 #' graphite::pathwayDatabases()
-#' weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "BminsI.rds")
+#' weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "data/BminsI.rda")
 #'
-#' ssPertScore <- perturbationScore(ls$logFC, filePath = "BminsI.rds")
+#' ssPertScore <- perturbationScore(ls$logFC, filePath = "data/BminsI.rda")
 #' @export
 perturbationScore <- function(weightedFC, filePath){
 
     if ( !file.exists(filePath)) stop("Pathway topology matrices not detected in the specified file path. Check the file path provided.")
 
-    BminsI <- readRDS(filePath)
+    load(filePath)
 
     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(BminsI, rownames))))) == 0)
         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
