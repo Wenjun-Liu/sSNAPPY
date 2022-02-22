@@ -11,6 +11,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Suggests: 
     AnnotationHub,
+    ensembldb,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 SystemRequirements: C++11
@@ -28,7 +29,6 @@ Imports:
     Rcpp,
     tibble
 LinkingTo: 
-    RcppEigen,
     Rcpp,
     RcppArmadillo
 Depends: 

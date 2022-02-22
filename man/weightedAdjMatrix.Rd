@@ -44,12 +44,14 @@ The converted weighted adjacent matrices will be stored in list and write into t
 \examples{
 # explore all species and databases supported by graphite
 graphite::pathwayDatabases()
-weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "data/BminsI.rda")
+weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = paste0(tempdir(),"BminsI.rda"))
 
 # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
 weightedAdjMatrix(species = "hsapiens", database = "kegg",
-pathwayName = c("Glycolysis / Gluconeogenesis","Citrate cycle (TCA cycle)","Pentose phosphate pathway"),
-outputDir = "BminsI.rds")
+pathwayName = c("Glycolysis / Gluconeogenesis",
+"Citrate cycle (TCA cycle)","Pentose phosphate pathway"),
+outputDir = paste0(tempdir(),"BminsI.rda"))
+
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.

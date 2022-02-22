@@ -2,18 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 permutedFC_RCPP <- function(logCPM, NB, sEachp, weight) {
-    .Call('_SSPT_permutedFC_RCPP', PACKAGE = 'SSPT', logCPM, NB, sEachp, weight)
+    .Call(`_SSPT_permutedFC_RCPP`, logCPM, NB, sEachp, weight)
 }
 
 permutedPertScore_RCPP <- function(BminsI, expressedG, LogCPM, NB, sEachp, weight) {
-    .Call('_SSPT_permutedPertScore_RCPP', PACKAGE = 'SSPT', BminsI, expressedG, LogCPM, NB, sEachp, weight)
+    .Call(`_SSPT_permutedPertScore_RCPP`, BminsI, expressedG, LogCPM, NB, sEachp, weight)
 }
 
 ssPertScore_RCPP <- function(BminsI, weightedFC, expressedG, sample) {
-    .Call('_SSPT_ssPertScore_RCPP', PACKAGE = 'SSPT', BminsI, weightedFC, expressedG, sample)
+    .Call(`_SSPT_ssPertScore_RCPP`, BminsI, weightedFC, expressedG, sample)
 }
 
 ssPertScore_RCPP_oneP <- function(adjMatrix, pathwayG, weightedFC, expressedG, sample) {
-    .Call('_SSPT_ssPertScore_RCPP_oneP', PACKAGE = 'SSPT', adjMatrix, pathwayG, weightedFC, expressedG, sample)
+    .Call(`_SSPT_ssPertScore_RCPP_oneP`, adjMatrix, pathwayG, weightedFC, expressedG, sample)
 }
 

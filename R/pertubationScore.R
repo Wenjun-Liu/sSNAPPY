@@ -11,7 +11,7 @@
 #'
 #' @importFrom purrr set_names
 #' @importFrom plyr compact
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_rows mutate
 #' @importFrom tibble rownames_to_column
 #' @importFrom magrittr set_colnames
 #'
@@ -20,26 +20,30 @@
 #' @return A list where each element is a matrix corresponding to a pathway. Each column of an element corresponds to a sample.
 #' @examples
 #' require(AnnotationHub)
+#' require(ensembldb)
 #' # convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
 #' ah <- AnnotationHub()
 #' ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
 #' ensDb <- ah[[1]]
-#' rownames(logCPM_example) <- AnnotationHub::mapIds(ensDb, rownames(logCPM_example), "ENTREZID", keytype = "GENEID")
+#' rownames(logCPM_example) <- mapIds(ensDb, rownames(logCPM_example), "ENTREZID", keytype = "GENEID")
 #'
 #' # Remove genes that couldn't be matched to entrez IDs
 #' logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
 #'
 #' #compute weighted single sample logFCs
-#' ls <- weight_ssFC(logCPM_example, metadata = metadata_example, factor = "patient", control = "Vehicle")
+#' ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
+#' factor = "patient", control = "Vehicle")
 #'
 #' # explore all species and databases supported by graphite
 #' graphite::pathwayDatabases()
-#' weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "data/BminsI.rda")
+#' weightedAdjMatrix(species = "hsapiens", database = "kegg",
+#' outputDir = paste0(tempdir(),"BminsI.rda"))
 #'
-#' ssPertScore <- perturbationScore(ls$logFC, filePath = "data/BminsI.rda")
+#' ssPertScore <- perturbationScore(ls$logFC, filePath = paste0(tempdir(),"BminsI.rda"))
 #' @export
 perturbationScore <- function(weightedFC, filePath){
 
+    BminsI <- NULL
     if ( !file.exists(filePath)) stop("Pathway topology matrices not detected in the specified file path. Check the file path provided.")
 
     load(filePath)

@@ -22,7 +22,7 @@
 #'
 #' @examples
 #' require(AnnotationHub)
-#' require(“ensembldb”)
+#' require(ensembldb)
 #' # convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
 #' ah <- AnnotationHub()
 #' ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
@@ -33,23 +33,28 @@
 #' logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
 #'
 #' #compute weighted single sample logFCs
-#' ls <- weight_ssFC(logCPM_example, metadata = metadata_example, factor = "patient", control = "Vehicle")
+#' ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
+#'  factor = "patient", control = "Vehicle")
 #'
 #' # explore all species and databases supported by graphite
 #' graphite::pathwayDatabases()
-#' weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "BminsI.rds")
+#' weightedAdjMatrix(species = "hsapiens", database = "kegg",
+#' outputDir = paste0(tempdir(),"BminsI.rda"))
 #'
-#' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2, NB = 100, filePath = "BminsI.rds", weight = ls$weight)
+#' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
+#'  NB = 100, filePath = paste0(tempdir(),"BminsI.rda"), weight = ls$weight)
 generate_PermutedScore <- function(logCPM, numOfTreat,
                                         NB = 1000,
                                         filePath, weight){
+    BminsI <- NULL
+
     # checks
     if (!file.exists(filePath)) stop("Pathway topology matrices not detected")
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
     # load pathway topologies
-    BminsI <- readRDS(filePath)
+    load(filePath)
     logCPM <- as.matrix(logCPM)
     rownames(logCPM) <- paste("ENTREZID:", rownames(logCPM), sep = "")
     if (length(intersect(rownames(logCPM), unlist(unname(lapply(BminsI, rownames))))) == 0)
@@ -85,11 +90,14 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' @param permutedScore A list. Output of `generate_PermutedScore`
 #' @param testScore A matrix. Output of `weight_ssFC`
 #'
+#' @importFrom stats mad median
+#' @importFrom dplyr left_join
 #' @return A dataframe.
 #' @export
 #'
 #' @examples
 #' require(AnnotationHub)
+#' require(ensembldb)
 #' # convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
 #' ah <- AnnotationHub()
 #' ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
@@ -100,7 +108,8 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
 #'
 #' #compute weighted single sample logFCs
-#' ls <- weight_ssFC(logCPM_example, metadata = metadata_example, factor = "patient", control = "Vehicle")
+#' ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
+#'  factor = "patient", control = "Vehicle")
 #'
 #' # explore all species and databases supported by graphite
 #' graphite::pathwayDatabases()
@@ -109,15 +118,18 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' # compute test perturbation scores
 #' ssPertScore <- perturbationScore(ls$logFC, filePath = "BminsI.rds")
 #' # generate permuted perturbation scores
-#' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2, NB = 100, filePath = "BminsI.rds", weight = ls$weight)
+#' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
+#'  NB = 100, filePath = "BminsI.rds", weight = ls$weight)
 #' normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
 normaliseByPermutation <- function(permutedScore, testScore){
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
     summaryScore <- as.data.frame(t(sapply(permutedScore, summary_func)))
     summaryScore <- rownames_to_column(summaryScore,"gs_name")
-    summaryScore <- filter(summaryScore, MAD != 0)
+    summaryScore <- filter(summaryScore, summaryScore$MAD != 0)
     summaryScore <- left_join(summaryScore, testScore, by = "gs_name")
-    mutate(summaryScore, robustZ = (tA - MEDIAN)/MAD )
+    mutate(summaryScore,
+           robustZ = (summaryScore$tA - summaryScore$MEDIAN)/summaryScore$MAD,
+           pvalue = )
 }
 
 

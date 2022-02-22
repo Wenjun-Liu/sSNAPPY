@@ -45,11 +45,12 @@ samples can be put into matching pairs. It must also be included as a column in 
 }
 \examples{
 require(AnnotationHub)
+require(ensembldb)
 # convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
 ah <- AnnotationHub()
 ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
 ensDb <- ah[[1]]
-rownames(logCPM_example) <- AnnotationHub::mapIds(ensDb, rownames(logCPM_example), "ENTREZID", keytype = "GENEID")
+rownames(logCPM_example) <- mapIds(ensDb, rownames(logCPM_example), "ENTREZID", keytype = "GENEID")
 
 # Remove genes that couldn't be matched to entrez IDs
 logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
@@ -57,5 +58,6 @@ logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
 # Inspect metadata data frame to make sure it has treatment, sample and patient columns
 head(metadata_example)
 length(setdiff(colnames(logCPM_example), metadata_example$sample)) == 0
-ls <- weight_ssFC(logCPM_example, metadata = metadata_example, factor = "patient", control = "Vehicle")
+ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
+ factor = "patient", control = "Vehicle")
 }

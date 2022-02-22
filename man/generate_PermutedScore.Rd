@@ -34,7 +34,7 @@ number of permutations possible instead.
 }
 \examples{
 require(AnnotationHub)
-require(“ensembldb”)
+require(ensembldb)
 # convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
 ah <- AnnotationHub()
 ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
@@ -45,11 +45,13 @@ rownames(logCPM_example) <- mapIds(ensDb, rownames(logCPM_example), "ENTREZID", 
 logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
 
 #compute weighted single sample logFCs
-ls <- weight_ssFC(logCPM_example, metadata = metadata_example, factor = "patient", control = "Vehicle")
+ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
+ factor = "patient", control = "Vehicle")
 
 # explore all species and databases supported by graphite
 graphite::pathwayDatabases()
-weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "BminsI.rds")
+weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = paste0(tempdir(),"BminsI.rda"))
 
-permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2, NB = 100, filePath = "BminsI.rds", weight = ls$weight)
+permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
+ NB = 100, filePath = paste0(tempdir(),"BminsI.rda"), weight = ls$weight)
 }

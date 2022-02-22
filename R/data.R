@@ -7,7 +7,7 @@
 #'
 #' @format A matrix with 18481 rows and 16 columns
 #' @source \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE80098}
-
+"logCPM_example"
 
 
 #' metadata_example: Sample metadata for malignant breast cancer tumors PDE from 8 ER+PR+ breast cancer patients (GSE80098)
@@ -20,3 +20,4 @@
 #'   \item{sample}{sample name, corresponding to column names of the logCPM matrix}
 #' }
 #' @source \url{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/}
+"metadata_example"
