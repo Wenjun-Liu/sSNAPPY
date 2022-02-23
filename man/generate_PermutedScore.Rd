@@ -2,7 +2,7 @@
 % Please edit documentation in R/normaliseByPermutation.R
 \name{generate_PermutedScore}
 \alias{generate_PermutedScore}
-\title{Title Simulate permuted perturbation scores}
+\title{Simulate permuted perturbation scores}
 \usage{
 generate_PermutedScore(logCPM, numOfTreat, NB = 1000, filePath, weight)
 }
@@ -50,7 +50,8 @@ ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
 
 # explore all species and databases supported by graphite
 graphite::pathwayDatabases()
-weightedAdjMatrix(species = "hsapiens", database = "kegg",
+weightedAdjMatrix(species = "hsapiens",
+database = "kegg",
 outputDir = paste0(tempdir(),"BminsI.rda"))
 
 permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
