@@ -130,9 +130,24 @@ number of permutations possible instead.</p>
 <span class="r-in"><span class="va">ensDb</span> <span class="op">&lt;-</span> <span class="va">ah</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> downloading 1 resources</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> retrieving 1 resource</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> loading from cache</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>download failed</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   web resource path: 'https://annotationhub.bioconductor.org/fetch/89962'</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   local file path: '/home/runner/.cache/R/AnnotationHub/2d0f424df4ac_89962'</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   reason: Internal Server Error (HTTP 500).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>bfcadd() failed; resource removed</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   rid: BFC3</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   fpath: 'https://annotationhub.bioconductor.org/fetch/89962'</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   reason: download failed</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>download failed</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   hub path: 'https://annotationhub.bioconductor.org/fetch/89962'</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   cache resource: 'AH83216 : 89962'</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   reason: bfcadd() failed; see warnings()</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> failed to load resource</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   name: AH83216</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   title: Ensembl 101 EnsDb for Homo sapiens</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   reason: 1 resources failed to download</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu">mapIds</span><span class="op">(</span><span class="va">ensDb</span>, <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span>, <span class="st">"ENTREZID"</span>, keytype <span class="op">=</span> <span class="st">"GENEID"</span><span class="op">)</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unable to map 3137 of 18481 requested IDs.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'mapIds': object 'ensDb' not found</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># Remove genes that couldn't be matched to entrez IDs</span></span>
 <span class="r-in"><span class="va">logCPM_example</span> <span class="op">&lt;-</span> <span class="va">logCPM_example</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span><span class="op">)</span>,<span class="op">]</span></span>
@@ -194,13 +209,12 @@ number of permutations possible instead.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 48       sscrofa     reactome</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 49       sscrofa wikipathways</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 50       xlaevis         kegg</span>
-<span class="r-in"><span class="fu"><a href="weightedAdjMatrix.html">weightedAdjMatrix</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"hsapiens"</span>, database <span class="op">=</span> <span class="st">"kegg"</span>, outputDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"BminsI.rda"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>there is no package called 'org.Hs.eg.db'</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> package "org.Hs.eg.db" is missing</span>
+<span class="r-in"><span class="fu"><a href="weightedAdjMatrix.html">weightedAdjMatrix</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"hsapiens"</span>, database <span class="op">=</span> <span class="st">"kegg"</span>,</span>
+<span class="r-in">outputDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"BminsI.rda"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">permutedScore</span> <span class="op">&lt;-</span> <span class="fu">generate_PermutedScore</span><span class="op">(</span><span class="va">logCPM_example</span>, numOfTreat <span class="op">=</span> <span class="fl">2</span>,</span>
 <span class="r-in"> NB <span class="op">=</span> <span class="fl">100</span>, filePath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"BminsI.rda"</span><span class="op">)</span>, weight <span class="op">=</span> <span class="va">ls</span><span class="op">$</span><span class="va">weight</span><span class="op">)</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in generate_PermutedScore(logCPM_example, numOfTreat = 2, NB = 100,     filePath = paste0(tempdir(), "BminsI.rda"), weight = ls$weight):</span> Pathway topology matrices not detected</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in generate_PermutedScore(logCPM_example, numOfTreat = 2, NB = 100,     filePath = paste0(tempdir(), "BminsI.rda"), weight = ls$weight):</span> None of the expressed gene was matched to pathways. Check if gene identifiers match</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
