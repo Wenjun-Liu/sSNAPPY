@@ -38,7 +38,8 @@
 #'
 #' # explore all species and databases supported by graphite
 #' graphite::pathwayDatabases()
-#' weightedAdjMatrix(species = "hsapiens", database = "kegg",
+#' weightedAdjMatrix(species = "hsapiens",
+#' database = "kegg",
 #' outputDir = paste0(tempdir(),"BminsI.rda"))
 #'
 #' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
@@ -113,10 +114,12 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #'
 #' # explore all species and databases supported by graphite
 #' graphite::pathwayDatabases()
-#' weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "BminsI.rds")
+#' weightedAdjMatrix(species = "hsapiens",
+#' database = "kegg",
+#' outputDir = paste0(tempdir(),"BminsI.rda"))
 #'
 #' # compute test perturbation scores
-#' ssPertScore <- perturbationScore(ls$logFC, filePath = "BminsI.rds")
+#' ssPertScore <- perturbationScore(ls$logFC, paste0(tempdir(),"BminsI.rda"))
 #' # generate permuted perturbation scores
 #' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
 #'  NB = 100, filePath = "BminsI.rds", weight = ls$weight)

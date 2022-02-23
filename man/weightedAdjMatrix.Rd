@@ -44,7 +44,8 @@ The converted weighted adjacent matrices will be stored in list and write into t
 \examples{
 # explore all species and databases supported by graphite
 graphite::pathwayDatabases()
-weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = paste0(tempdir(),"BminsI.rda"))
+weightedAdjMatrix(species = "hsapiens", database = "kegg",
+outputDir = paste0(tempdir(),"BminsI.rda"))
 
 # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
 weightedAdjMatrix(species = "hsapiens", database = "kegg",

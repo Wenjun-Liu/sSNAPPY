@@ -39,7 +39,8 @@ factor = "patient", control = "Vehicle")
 
 # explore all species and databases supported by graphite
 graphite::pathwayDatabases()
-weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = paste0(tempdir(),"BminsI.rda"))
+weightedAdjMatrix(species = "hsapiens", database = "kegg",
+outputDir = paste0(tempdir(),"BminsI.rda"))
 
 ssPertScore <- perturbationScore(ls$logFC, filePath = paste0(tempdir(),"BminsI.rda"))
 }

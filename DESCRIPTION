@@ -27,7 +27,8 @@ Imports:
     BiocParallel,
     graphite,
     Rcpp,
-    tibble
+    tibble,
+    org.Hs.eg.db
 LinkingTo: 
     Rcpp,
     RcppArmadillo
