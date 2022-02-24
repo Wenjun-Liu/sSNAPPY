@@ -92,7 +92,7 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' @param testScore A matrix. Output of `weight_ssFC`
 #' @param pAdj_method Method for adjusting p-values for multiple comparisons. See `?p.adjust` for methods available. Default to FDR.
 #'
-#' @importFrom stats mad median p.adjust
+#' @importFrom stats mad median p.adjust pnorm
 #' @importFrom dplyr left_join
 #' @return A dataframe.
 #' @export
@@ -123,7 +123,7 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' ssPertScore <- perturbationScore(ls$logFC, paste0(tempdir(),"BminsI.rda"))
 #' # generate permuted perturbation scores
 #' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
-#'  NB = 100, filePath = "BminsI.rds", weight = ls$weight)
+#'  NB = 100, filePath = paste0(tempdir(),"BminsI.rda"), weight = ls$weight)
 #' normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
 normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"){
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
@@ -133,8 +133,8 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
     summaryScore <- left_join(summaryScore, testScore, by = "gs_name")
     mutate(summaryScore,
            robustZ = (summaryScore$tA - summaryScore$MEDIAN)/summaryScore$MAD,
-           pvalue = 2*pnorm(-abs(robustZ)),
-           adjPvalue = p.adjust(pvalue, method = pAdj_method))
+           pvalue = 2*pnorm(-abs(summaryScore$robustZ)),
+           adjPvalue = p.adjust(summaryScore$pvalue, method = pAdj_method))
 }
 
 

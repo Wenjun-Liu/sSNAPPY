@@ -51,6 +51,6 @@ outputDir = paste0(tempdir(),"BminsI.rda"))
 ssPertScore <- perturbationScore(ls$logFC, paste0(tempdir(),"BminsI.rda"))
 # generate permuted perturbation scores
 permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
- NB = 100, filePath = "BminsI.rds", weight = ls$weight)
+ NB = 100, filePath = paste0(tempdir(),"BminsI.rda"), weight = ls$weight)
 normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
 }
