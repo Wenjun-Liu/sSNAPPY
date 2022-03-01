@@ -126,7 +126,7 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #'  NB = 100, filePath = "BminsI.rda", weight = ls$weight)
 #' normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
 normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"){
-
+    pvalue <- NULL
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
     summaryScore <- as.data.frame(t(sapply(permutedScore, summary_func)))
     summaryScore <- rownames_to_column(summaryScore,"gs_name")
@@ -137,7 +137,7 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
     summaryScore <- mutate(summaryScore,
            pvalue = 2*pnorm(-abs(summaryScore$robustZ)))
     summaryScore <- split(summaryScore, f = summaryScore$sample)
-    summaryScore <-lapply(summaryScore, mutate, adjPvalue = p.adjust(summaryScore$pvalue, "fdr"))
+    summaryScore <-lapply(summaryScore, mutate, adjPvalue = p.adjust(pvalue, "fdr"))
     bind_rows(summaryScore)
 
 }
