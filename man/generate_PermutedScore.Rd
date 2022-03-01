@@ -52,8 +52,8 @@ ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
 graphite::pathwayDatabases()
 weightedAdjMatrix(species = "hsapiens",
 database = "kegg",
-outputDir = paste0(tempdir(),"BminsI.rda"))
+outputDir = "BminsI.rda")
 
 permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
- NB = 100, filePath = paste0(tempdir(),"BminsI.rda"), weight = ls$weight)
+ NB = 100, filePath = "BminsI.rda", weight = ls$weight)
 }

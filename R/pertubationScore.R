@@ -37,9 +37,9 @@
 #' # explore all species and databases supported by graphite
 #' graphite::pathwayDatabases()
 #' weightedAdjMatrix(species = "hsapiens", database = "kegg",
-#' outputDir = paste0(tempdir(),"BminsI.rda"))
+#' outputDir = "BminsI.rda")
 #'
-#' ssPertScore <- perturbationScore(ls$logFC, filePath = paste0(tempdir(),"BminsI.rda"))
+#' ssPertScore <- perturbationScore(ls$logFC, filePath = "BminsI.rda")
 #' @export
 perturbationScore <- function(weightedFC, filePath){
 

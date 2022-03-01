@@ -40,10 +40,10 @@
 #' graphite::pathwayDatabases()
 #' weightedAdjMatrix(species = "hsapiens",
 #' database = "kegg",
-#' outputDir = paste0(tempdir(),"BminsI.rda"))
+#' outputDir = "BminsI.rda")
 #'
 #' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
-#'  NB = 100, filePath = paste0(tempdir(),"BminsI.rda"), weight = ls$weight)
+#'  NB = 100, filePath = "BminsI.rda", weight = ls$weight)
 generate_PermutedScore <- function(logCPM, numOfTreat,
                                         NB = 1000,
                                         filePath, weight){
@@ -93,7 +93,7 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' @param pAdj_method Method for adjusting p-values for multiple comparisons. See `?p.adjust` for methods available. Default to FDR.
 #'
 #' @importFrom stats mad median p.adjust pnorm
-#' @importFrom dplyr left_join
+#' @importFrom dplyr left_join mutate
 #' @return A dataframe.
 #' @export
 #'
@@ -117,24 +117,29 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' graphite::pathwayDatabases()
 #' weightedAdjMatrix(species = "hsapiens",
 #' database = "kegg",
-#' outputDir = paste0(tempdir(),"BminsI.rda"))
+#' outputDir = "BminsI.rda")
 #'
 #' # compute test perturbation scores
-#' ssPertScore <- perturbationScore(ls$logFC, paste0(tempdir(),"BminsI.rda"))
+#' ssPertScore <- perturbationScore(ls$logFC, "BminsI.rda")
 #' # generate permuted perturbation scores
 #' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
-#'  NB = 100, filePath = paste0(tempdir(),"BminsI.rda"), weight = ls$weight)
+#'  NB = 100, filePath = "BminsI.rda", weight = ls$weight)
 #' normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
 normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"){
+
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
     summaryScore <- as.data.frame(t(sapply(permutedScore, summary_func)))
     summaryScore <- rownames_to_column(summaryScore,"gs_name")
     summaryScore <- filter(summaryScore, summaryScore$MAD != 0)
     summaryScore <- left_join(summaryScore, testScore, by = "gs_name")
-    mutate(summaryScore,
-           robustZ = (summaryScore$tA - summaryScore$MEDIAN)/summaryScore$MAD,
-           pvalue = 2*pnorm(-abs(summaryScore$robustZ)),
-           adjPvalue = p.adjust(summaryScore$pvalue, method = pAdj_method))
+    summaryScore <- mutate(summaryScore,
+           robustZ = (summaryScore$tA - summaryScore$MEDIAN)/summaryScore$MAD)
+    summaryScore <- mutate(summaryScore,
+           pvalue = 2*pnorm(-abs(summaryScore$robustZ)))
+    summaryScore <- split(summaryScore, f = summaryScore$sample)
+    summaryScore <-lapply(summaryScore, mutate, adjPvalue = p.adjust(summaryScore$pvalue, "fdr"))
+    bind_rows(summaryScore)
+
 }
 
 

@@ -40,9 +40,9 @@ factor = "patient", control = "Vehicle")
 # explore all species and databases supported by graphite
 graphite::pathwayDatabases()
 weightedAdjMatrix(species = "hsapiens", database = "kegg",
-outputDir = paste0(tempdir(),"BminsI.rda"))
+outputDir = "BminsI.rda")
 
-ssPertScore <- perturbationScore(ls$logFC, filePath = paste0(tempdir(),"BminsI.rda"))
+ssPertScore <- perturbationScore(ls$logFC, filePath = "BminsI.rda")
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.

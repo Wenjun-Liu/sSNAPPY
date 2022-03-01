@@ -34,13 +34,13 @@
 #' graphite::pathwayDatabases()
 #' weightedAdjMatrix(species = "hsapiens",
 #' database = "kegg",
-#' outputDir = paste0(tempdir(),"BminsI.rda"))
+#' outputDir = "BminsI.rda")
 #'
 #' # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
 #' weightedAdjMatrix(species = "hsapiens", database = "kegg",
 #' pathwayName = c("Glycolysis / Gluconeogenesis",
 #' "Citrate cycle (TCA cycle)","Pentose phosphate pathway"),
-#' outputDir = paste0(tempdir(),"BminsI.rda"))
+#' outputDir = "BminsI.rda")
 #'
 weightedAdjMatrix <-  function(species, database, pathwayName = NULL, beta = NULL, outputDir){
 

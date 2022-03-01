@@ -16,7 +16,7 @@ sample <- sample %>%
             stringr::str_split(x, "_")[[1]][1]
         }, character(1)))
 ssFC <- weight_ssFC(y, sample, "patient", "control")
-pathwayDir <- "test_BminsI.rda"
+pathwayDir <- system.file("testdata", "test_BminsI.rda", package = "SSPT")
 load(pathwayDir)
 # the number of pathways with at least one of those five genes in it
 interesectName <- names(BminsI[lapply(BminsI, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
