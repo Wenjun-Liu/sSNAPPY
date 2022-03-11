@@ -4,7 +4,7 @@
 \alias{generate_PermutedScore}
 \title{Simulate permuted perturbation scores}
 \usage{
-generate_PermutedScore(logCPM, numOfTreat, NB = 1000, filePath, weight)
+generate_PermutedScore(logCPM, numOfTreat, NB = 1000, gsTopology, weight)
 }
 \arguments{
 \item{logCPM}{Matrix of normaslised logCPM where rows are genes and columns are samples. Row names need to be gene entrez IDs.}
@@ -13,7 +13,7 @@ generate_PermutedScore(logCPM, numOfTreat, NB = 1000, filePath, weight)
 
 \item{NB}{Number of permutations}
 
-\item{filePath}{The file path to pathway topology matrices generated using function \code{weightedAdjMatrix}}
+\item{gsTopology}{List of pathway topology matrices generated using function \code{weightedAdjMatrix}}
 
 \item{weight}{A vector of gene-wise weights derived from function \code{weight_ssFC}}
 }
@@ -49,11 +49,9 @@ ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
  factor = "patient", control = "Vehicle")
 
 # explore all species and databases supported by graphite
-graphite::pathwayDatabases()
-weightedAdjMatrix(species = "hsapiens",
-database = "kegg",
-outputDir = "BminsI.rda")
-
-permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
- NB = 100, filePath = "BminsI.rda", weight = ls$weight)
+\dontrun{
+load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
+ permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
+ NB = 100, gsTopology = gsTopology, weight = ls$weight)
+ }
 }

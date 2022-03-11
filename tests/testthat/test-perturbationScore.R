@@ -27,8 +27,7 @@ rownames(y_wrongIdentifier) <- c("ENSG00000000003","ENSG00000000419","ENSG000000
 ssFC_wrongIdentifier <- weight_ssFC(y_wrongIdentifier, sample, "patient", "control")
 
 test_that("perturbationScore returns error when expected", {
-    expect_error(perturbationScore(ssFC$logFC, "data/random.rda"), "Pathway topology matrices not detected in the specified file path. Check the file path provided.")
-    expect_error(perturbationScore(ssFC_wrongIdentifier$logFC, pathwayDir), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
+    expect_error(perturbationScore(ssFC_wrongIdentifier$logFC, BminsI), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
 })
 
 test_that("ssPertScore_RCPP produces the expected outcome",{
@@ -39,7 +38,7 @@ test_that("ssPertScore_RCPP produces the expected outcome",{
 })
 
 test_that("perturbationScore produces the expected outcome", {
-    output <- perturbationScore(ssFC$logFC, pathwayDir)
+    output <- perturbationScore(ssFC$logFC, BminsI)
     expect_equal(colnames(output), c("sample", "tA", "gs_name"))
     expect_false(anyNA(output$tA))
     expect_equal(unique(output$sample), stringr::str_subset(sample$sample, "control", negate = TRUE))

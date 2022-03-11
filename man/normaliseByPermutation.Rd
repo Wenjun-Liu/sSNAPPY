@@ -26,31 +26,13 @@ derived from the permuted perturbation scores. The test perturbation scores are 
 calculated.
 }
 \examples{
-require(AnnotationHub)
-require(ensembldb)
-# convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
-ah <- AnnotationHub()
-ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
-ensDb <- ah[[1]]
-rownames(logCPM_example) <- mapIds(ensDb, rownames(logCPM_example), "ENTREZID", keytype = "GENEID")
-
-# Remove genes that couldn't be matched to entrez IDs
-logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
-
-#compute weighted single sample logFCs
-ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
- factor = "patient", control = "Vehicle")
-
-# explore all species and databases supported by graphite
-graphite::pathwayDatabases()
-weightedAdjMatrix(species = "hsapiens",
-database = "kegg",
-outputDir = "BminsI.rda")
-
-# compute test perturbation scores
-ssPertScore <- perturbationScore(ls$logFC, "BminsI.rda")
-# generate permuted perturbation scores
+\dontrun{
+load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
+ssPertScore <- perturbationScore(ls$logFC, gsTopology)
 permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
- NB = 100, filePath = "BminsI.rda", weight = ls$weight)
+ NB = 100, gsTopology = gsTopology, weight = ls$weight)
 normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
+ }
+load(system.file("extdata", "normalisedScores.rda", package = "SSPT"))
+head(normalisedScores)
 }

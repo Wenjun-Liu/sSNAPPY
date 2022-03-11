@@ -43,16 +43,19 @@ The converted weighted adjacent matrices will be stored in list and write into t
 }
 \examples{
 # explore all species and databases supported by graphite
+\dontrun{
 graphite::pathwayDatabases()
 weightedAdjMatrix(species = "hsapiens",
 database = "kegg",
-outputDir = "BminsI.rda")
-
+outputDir = "gsTopology.rda")
+}
 # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
+\dontrun{
 weightedAdjMatrix(species = "hsapiens", database = "kegg",
 pathwayName = c("Glycolysis / Gluconeogenesis",
 "Citrate cycle (TCA cycle)","Pentose phosphate pathway"),
-outputDir = "BminsI.rda")
+outputDir = "gsTopology.rda")
+}
 
 }
 \references{

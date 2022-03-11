@@ -7,7 +7,7 @@
 #' pathway. The rownames of the weighted single sample logFC matrix and the pathway toplogy matrices must use the same type of gene identifier (ie. entrez ID).
 #'
 #' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ssFC`
-#' @param filePath The file path to pathway topology matrices generated using function `weightedAdjMatrix`
+#' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix`
 #'
 #' @importFrom purrr set_names
 #' @importFrom plyr compact
@@ -35,24 +35,22 @@
 #' factor = "patient", control = "Vehicle")
 #'
 #' # explore all species and databases supported by graphite
+#' \dontrun{
 #' graphite::pathwayDatabases()
 #' weightedAdjMatrix(species = "hsapiens", database = "kegg",
-#' outputDir = "BminsI.rda")
-#'
-#' ssPertScore <- perturbationScore(ls$logFC, filePath = "BminsI.rda")
+#' outputDir = "gsTopology.rda")
+#' }
+#' load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
+#' ssPertScore <- perturbationScore(ls$logFC, gsTopology)
 #' @export
-perturbationScore <- function(weightedFC, filePath){
+perturbationScore <- function(weightedFC, gsTopology){
 
-    BminsI <- NULL
-    if ( !file.exists(filePath)) stop("Pathway topology matrices not detected in the specified file path. Check the file path provided.")
 
-    load(filePath)
-
-    if (length(intersect(rownames(weightedFC), unlist(unname(lapply(BminsI, rownames))))) == 0)
+    if (length(intersect(rownames(weightedFC), unlist(unname(lapply(gsTopology, rownames))))) == 0)
         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
 
     # extract all unique pathway genes and find ones that are not expressed
-    notExpressed <- setdiff(unique(unlist(unname(lapply(BminsI, rownames)))), rownames(weightedFC))
+    notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(weightedFC))
     if (length(notExpressed) != 0){
         # set the FCs of unexpressed pathway genes to 0
         temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(weightedFC))
@@ -61,7 +59,7 @@ perturbationScore <- function(weightedFC, filePath){
         # set the weights of unexpressed pathway genes to 0
         weightedFC <- rbind(weightedFC, temp)}
 
-    PF <-  ssPertScore_RCPP(BminsI, weightedFC, rownames(weightedFC), colnames(weightedFC))
+    PF <-  ssPertScore_RCPP(gsTopology, weightedFC, rownames(weightedFC), colnames(weightedFC))
 
     # Remove list elements that are null or all zeros
     suppressWarnings(PF <- PF[sapply(PF, any)])
@@ -83,13 +81,13 @@ perturbationScore <- function(weightedFC, filePath){
 #'
 #'     if ( !file.exists(filePath)) stop("Pathway topology matrices not detected in the specified file path. Check the file path provided.")
 #'
-#'     BminsI <- readRDS(filePath)
+#'     gsTopology <- readRDS(filePath)
 #'
-#'     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(BminsI, rownames))))) == 0)
+#'     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(gsTopology, rownames))))) == 0)
 #'         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
 #'
 #'     # extract all unique pathway genes and find ones that are not expressed
-#'     notExpressed <- setdiff(unique(unlist(unname(lapply(BminsI, rownames)))), rownames(weightedFC))
+#'     notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(weightedFC))
 #'     if (length(notExpressed) != 0){
 #'         # set the FCs of unexpressed pathway genes to 0
 #'         temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(weightedFC))
@@ -98,7 +96,7 @@ perturbationScore <- function(weightedFC, filePath){
 #'         # set the weights of unexpressed pathway genes to 0
 #'         weightedFC <- rbind(weightedFC, temp)}
 #'
-#'     PF <-  sapply(BminsI, function(x){ssPertScore_RCPP_oneP(adjMatrix = x,
+#'     PF <-  sapply(gsTopology, function(x){ssPertScore_RCPP_oneP(adjMatrix = x,
 #'                                                             pathwayG = rownames(x),
 #'                                                             weightedFC,
 #'                                                             rownames(weightedFC),
@@ -140,20 +138,20 @@ perturbationScore <- function(weightedFC, filePath){
 #'
 #'     if ( !file.exists(filePath)) stop("Pathway topology matrices not detected in the specified file path. Check the file path provided.")
 #'
-#'     BminsI <- readRDS(filePath)
+#'     gsTopology <- readRDS(filePath)
 #'
-#'     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(BminsI, rownames))))) == 0)
+#'     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(gsTopology, rownames))))) == 0)
 #'         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
 #'
 #'     # extract all unique pathway genes and find ones that are not expressed
-#'     notExpressed <- setdiff(unique(unlist(unname(lapply(BminsI, rownames)))), rownames(weightedFC))
+#'     notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(weightedFC))
 #'     if (length(notExpressed) != 0){
 #'         temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(weightedFC))
 #'         rownames(temp) <- notExpressed
 #'         colnames(temp) <- colnames(weightedFC)
 #'         weightedFC <- rbind(weightedFC, temp)}
 #'
-#'     PF <-  lapply(BminsI, .ssPertScore, weightedFC = weightedFC)
+#'     PF <-  lapply(gsTopology, .ssPertScore, weightedFC = weightedFC)
 #'
 #'     # Remove list elements that are null or all zeros
 #'     suppressWarnings(PF <- PF[sapply(PF, any)])

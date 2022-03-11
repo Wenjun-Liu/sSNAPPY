@@ -4,12 +4,12 @@
 \alias{perturbationScore}
 \title{Single Sample Perturbation Score}
 \usage{
-perturbationScore(weightedFC, filePath)
+perturbationScore(weightedFC, gsTopology)
 }
 \arguments{
 \item{weightedFC}{A matrix of weighted single sample logFCs derived from function \code{weight_ssFC}}
 
-\item{filePath}{The file path to pathway topology matrices generated using function \code{weightedAdjMatrix}}
+\item{gsTopology}{List of pathway topology matrices generated using function \code{weightedAdjMatrix}}
 }
 \value{
 A list where each element is a matrix corresponding to a pathway. Each column of an element corresponds to a sample.
@@ -38,11 +38,13 @@ ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
 factor = "patient", control = "Vehicle")
 
 # explore all species and databases supported by graphite
+\dontrun{
 graphite::pathwayDatabases()
 weightedAdjMatrix(species = "hsapiens", database = "kegg",
-outputDir = "BminsI.rda")
-
-ssPertScore <- perturbationScore(ls$logFC, filePath = "BminsI.rda")
+outputDir = "gsTopology.rda")
+}
+load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
+ssPertScore <- perturbationScore(ls$logFC, gsTopology)
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.

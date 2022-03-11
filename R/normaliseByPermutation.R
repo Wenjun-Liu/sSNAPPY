@@ -14,9 +14,10 @@
 #' @param logCPM Matrix of normaslised logCPM where rows are genes and columns are samples. Row names need to be gene entrez IDs.
 #' @param numOfTreat Number of treatments (including control)
 #' @param NB Number of permutations
-#' @param filePath The file path to pathway topology matrices generated using function `weightedAdjMatrix`
+#' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix`
 #' @param weight A vector of gene-wise weights derived from function `weight_ssFC`
 #'
+#' @import Rcpp
 #' @return A list where each element is a vector of perturbation scores for a pathway.
 #' @export
 #'
@@ -37,35 +38,34 @@
 #'  factor = "patient", control = "Vehicle")
 #'
 #' # explore all species and databases supported by graphite
-#' graphite::pathwayDatabases()
-#' weightedAdjMatrix(species = "hsapiens",
-#' database = "kegg",
-#' outputDir = "BminsI.rda")
-#'
-#' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
-#'  NB = 100, filePath = "BminsI.rda", weight = ls$weight)
+#' \dontrun{
+#' load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
+#'  permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
+#'  NB = 100, gsTopology = gsTopology, weight = ls$weight)
+#'  }
+
 generate_PermutedScore <- function(logCPM, numOfTreat,
                                         NB = 1000,
-                                        filePath, weight){
-    BminsI <- NULL
+                                        gsTopology, weight){
 
     # checks
-    if (!file.exists(filePath)) stop("Pathway topology matrices not detected")
+
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
-    # load pathway topologies
-    load(filePath)
+    if ( ncol(logCPM) %% numOfTreat != 0 ) stop ("Number of samples must be divisible by the number of treatments")
+    if (nrow(logCPM) != length(weight)) stop("Gene-wise weights do not match with the dimension of logCPM")
     logCPM <- as.matrix(logCPM)
+
     rownames(logCPM) <- paste("ENTREZID:", rownames(logCPM), sep = "")
-    if (length(intersect(rownames(logCPM), unlist(unname(lapply(BminsI, rownames))))) == 0)
+    if (length(intersect(rownames(logCPM), unlist(unname(lapply(gsTopology, rownames))))) == 0)
         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
 
     # test if the required number of permutations is bigger than the maximum number of permutations possible
     NB <- min(NB, factorial(ncol(logCPM)))
 
     # set expression values and weights of unexpressed pathway genes to 0
-    notExpressed <- setdiff(unique(unlist(unname(lapply(BminsI, rownames)))), rownames(logCPM))
+    notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(logCPM))
     if (length(notExpressed) != 0){
         temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(logCPM))
         rownames(temp) <- notExpressed
@@ -75,7 +75,7 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 
     }
 
-    permutedPertScore_RCPP(BminsI = BminsI, expressedG = rownames(logCPM), LogCPM = logCPM,
+    permutedPertScore_RCPP(gsTopology, expressedG = rownames(logCPM), LogCPM = logCPM,
                            NB = NB, sEachp = numOfTreat, weight = weight)
     # permutedScore <- permutedScore[!sapply(permutedScore, is.null)]
 
@@ -98,33 +98,15 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' @export
 #'
 #' @examples
-#' require(AnnotationHub)
-#' require(ensembldb)
-#' # convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
-#' ah <- AnnotationHub()
-#' ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
-#' ensDb <- ah[[1]]
-#' rownames(logCPM_example) <- mapIds(ensDb, rownames(logCPM_example), "ENTREZID", keytype = "GENEID")
-#'
-#' # Remove genes that couldn't be matched to entrez IDs
-#' logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
-#'
-#' #compute weighted single sample logFCs
-#' ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
-#'  factor = "patient", control = "Vehicle")
-#'
-#' # explore all species and databases supported by graphite
-#' graphite::pathwayDatabases()
-#' weightedAdjMatrix(species = "hsapiens",
-#' database = "kegg",
-#' outputDir = "BminsI.rda")
-#'
-#' # compute test perturbation scores
-#' ssPertScore <- perturbationScore(ls$logFC, "BminsI.rda")
-#' # generate permuted perturbation scores
+#' \dontrun{
+#' load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
+#' ssPertScore <- perturbationScore(ls$logFC, gsTopology)
 #' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
-#'  NB = 100, filePath = "BminsI.rda", weight = ls$weight)
+#'  NB = 100, gsTopology = gsTopology, weight = ls$weight)
 #' normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
+#'  }
+#' load(system.file("extdata", "normalisedScores.rda", package = "SSPT"))
+#' head(normalisedScores)
 normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"){
     pvalue <- NULL
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
@@ -137,7 +119,7 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
     summaryScore <- mutate(summaryScore,
            pvalue = 2*pnorm(-abs(summaryScore$robustZ)))
     summaryScore <- split(summaryScore, f = summaryScore$sample)
-    summaryScore <-lapply(summaryScore, mutate, adjPvalue = p.adjust(pvalue, "fdr"))
+    summaryScore <-lapply(summaryScore, mutate, adjPvalue = p.adjust(pvalue, pAdj_method))
     bind_rows(summaryScore)
 
 }
@@ -178,15 +160,15 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
 #'
 #'
 #'     # load pathway topologies
-#'     BminsI <- readRDS(filePath)
+#'     gsTopology <- readRDS(filePath)
 #'     rownames(logCPM) <- paste("ENTREZID:", rownames(logCPM), sep = "")
-#'     if (length(intersect(rownames(logCPM), unlist(unname(lapply(BminsI, rownames))))) == 0)
+#'     if (length(intersect(rownames(logCPM), unlist(unname(lapply(gsTopology, rownames))))) == 0)
 #'         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
 #'
 #'     # if gene-wise weights are not provided, estimate again
 #'     if (is.null(weight)) stop("Gene-wise weight must be provided. See details.")
 #'
-#'     notExpressed <- setdiff(unique(unlist(unname(lapply(BminsI, rownames)))), rownames(logCPM))
+#'     notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(logCPM))
 #'     if (length(notExpressed) != 0){
 #'         temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(logCPM))
 #'         rownames(temp) <- notExpressed
@@ -199,16 +181,16 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
 #'     permutedFC <- .generate_permutedFC(logCPM, metadata, factor, control, weight, NB, seed)
 #'
 #'     # Remove pathways with 0 expressed genes in it
-#'     # kg2keep <- sapply(names(BminsI), function(x){
+#'     # kg2keep <- sapply(names(gsTopology), function(x){
 #'     #     length(intersect(rownames(permutedFC[[1]]),
-#'     #                      rownames(BminsI[[x]]))) > 0
+#'     #                      rownames(gsTopology[[x]]))) > 0
 #'     # })
-#'     # BminsI <- BminsI[kg2keep]
+#'     # gsTopology <- gsTopology[kg2keep]
 #'
 #'     # compute permuted perturbation scores and remove pathways returned to be NULL
 #'
-#'     permutedScore <- lapply(permutedFC, ssPertScore_RCPP, BminsI = BminsI)
-#'     permutedScore <- do.call(mapply, c(FUN=c, lapply(permutedScore, `[`, names(BminsI))))
+#'     permutedScore <- lapply(permutedFC, ssPertScore_RCPP, gsTopology = gsTopology)
+#'     permutedScore <- do.call(mapply, c(FUN=c, lapply(permutedScore, `[`, names(gsTopology))))
 #'     permutedScore <- permutedScore[!sapply(permutedScore, is.null)]
 #'
 #'     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}

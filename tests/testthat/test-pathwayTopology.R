@@ -15,9 +15,9 @@ test_that("weightedAdjMatrix writes file to designated file path", {
                       pathwayName = c("Glycolysis / Gluconeogenesis","Citrate cycle (TCA cycle)","Pentose phosphate pathway" ))
     expect_true(file.exists(outputDir))
     load(outputDir)
-    expect_true(exists("BminsI"))
-    expect_identical(names(BminsI), c("Glycolysis / Gluconeogenesis","Citrate cycle (TCA cycle)","Pentose phosphate pathway"))
-    expect_true(stringr::str_detect(rownames(BminsI[[1]])[1], "ENTREZID:"))
+    expect_true(exists("gsTopology"))
+    expect_identical(names(gsTopology), c("Glycolysis / Gluconeogenesis","Citrate cycle (TCA cycle)","Pentose phosphate pathway"))
+    expect_true(stringr::str_detect(rownames(gsTopology[[1]])[1], "ENTREZID:"))
     unlink(outputDir)
 
 })

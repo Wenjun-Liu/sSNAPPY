@@ -31,16 +31,19 @@
 #'
 #' @examples
 #' # explore all species and databases supported by graphite
+#' \dontrun{
 #' graphite::pathwayDatabases()
 #' weightedAdjMatrix(species = "hsapiens",
 #' database = "kegg",
-#' outputDir = "BminsI.rda")
-#'
+#' outputDir = "gsTopology.rda")
+#' }
 #' # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
+#' \dontrun{
 #' weightedAdjMatrix(species = "hsapiens", database = "kegg",
 #' pathwayName = c("Glycolysis / Gluconeogenesis",
 #' "Citrate cycle (TCA cycle)","Pentose phosphate pathway"),
-#' outputDir = "BminsI.rda")
+#' outputDir = "gsTopology.rda")
+#' }
 #'
 weightedAdjMatrix <-  function(species, database, pathwayName = NULL, beta = NULL, outputDir){
 
@@ -78,7 +81,7 @@ weightedAdjMatrix <-  function(species, database, pathwayName = NULL, beta = NUL
     }
 
 
-    BminsI <- sapply(names(datpT), function(x){
+    gsTopology <- sapply(names(datpT), function(x){
         g2gInteraction <- sapply(int2keep, function(y){
             datpT[[x]][[y]] * beta[y]
 
@@ -94,7 +97,7 @@ weightedAdjMatrix <-  function(species, database, pathwayName = NULL, beta = NUL
 
     }, simplify = FALSE)
 
-    save(BminsI, file = outputDir)
+    save(gsTopology, file = outputDir)
 
 
 }

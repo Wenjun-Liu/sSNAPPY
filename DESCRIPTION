@@ -1,24 +1,23 @@
 Package: SSPT
 Title: Single Sample Pathway Perturbation Testing for RNA-seq 
-Version: 0.0.0.9000
+Version: 0.99.0
 Authors@R: 
     person("Wenjun", "Liu", , "wenjun.liu@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-3069"))
-Description: What the package does (one paragraph).
+Description: A single sample pathway pertrubation testing methods that compute pathway perturbation scores with directionality. The final output can be used to test the significances of pathway pertubation at individual-sample level or the collective treatment effects.  
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Suggests: 
     AnnotationHub,
+    cowplot,
     ensembldb,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 SystemRequirements: C++11
-LazyData: true
 Imports: 
     dplyr,
-    stringr,
     magrittr,
     rlang,
     stats,
@@ -28,10 +27,15 @@ Imports:
     graphite,
     Rcpp,
     tibble,
-    org.Hs.eg.db
+    ggplot2,
+    ggraph,
+    igraph,
+    reshape2
 LinkingTo: 
     Rcpp,
     RcppArmadillo
 Depends: 
     R (>= 2.10)
+biocViews:
+    Software
 URL: https://wenjun-liu.github.io/SSPT/
