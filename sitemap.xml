@@ -25,10 +25,19 @@
     <loc>https://wenjun-liu.github.io/SSPT/reference/generate_PermutedScore.html</loc>
   </url>
   <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/get_GSgenelist.html</loc>
+  </url>
+  <url>
     <loc>https://wenjun-liu.github.io/SSPT/reference/index.html</loc>
   </url>
   <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/jacIdex_func.html</loc>
+  </url>
+  <url>
     <loc>https://wenjun-liu.github.io/SSPT/reference/logCPM_example.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/make_gsNetwork.html</loc>
   </url>
   <url>
     <loc>https://wenjun-liu.github.io/SSPT/reference/metadata_example.html</loc>
@@ -38,6 +47,12 @@
   </url>
   <url>
     <loc>https://wenjun-liu.github.io/SSPT/reference/perturbationScore.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/plot_gsNetwork.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/SSPT/reference/str_replace_nth.html</loc>
   </url>
   <url>
     <loc>https://wenjun-liu.github.io/SSPT/reference/weight_ssFC.html</loc>
