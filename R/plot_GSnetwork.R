@@ -22,6 +22,7 @@
 #' @export
 #'
 #' @examples
+#' load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
 #' load(system.file("extdata", "normalisedScores.rda", package = "SSPT"))
 #' # Extract results for P1 samples, and randomly take 10 gene-sets as an example
 #' normScores_P1 <- dplyr::filter(normalisedScores, sample == "P1")[50:60,]
