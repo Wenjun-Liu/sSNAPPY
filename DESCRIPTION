@@ -14,7 +14,9 @@ Suggests:
     AnnotationHub,
     cowplot,
     ensembldb,
+    knitr,
     org.Hs.eg.db,
+    rmarkdown,
     stringr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
@@ -42,3 +44,4 @@ Depends:
 biocViews:
     Software
 URL: https://wenjun-liu.github.io/SSPT/
+VignetteBuilder: knitr

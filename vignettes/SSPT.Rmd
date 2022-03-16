@@ -1,0 +1,163 @@
+---
+title: "SSPT"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Single Sample Pathway Perturbation}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Introduction
+
+This vignette demonstrates how to use the package `SSPT` to compute single sample pathway perturbation scores while corporating pathway topologies, utilize sample permtuation the test the significance of individual scores or compare scores on treatment level. 
+
+The pacakge also provides a function to visualise the results through gene-set networks. 
+
+Details of the methods can be found in. 
+
+# Install `SPPT` package fron `Bioconductor`
+
+```{r setup}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("SSPT")
+```
+
+```{r otherPackages}
+library(tidyverse)
+library(ggplot2)
+library(cowplot)
+```
+
+# load data
+
+The example dataset used for this tutorial has been built into the `SSPT` package. It's a subset of data retrieved from [Singhal H et al. 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/), where ER-positive primary breast cancer tumor tissues collected from 12 patients were split into fragments of equal sizes for different treatments. For the purpose of this tutorial, we only took the RNA-seq data from samples treated with vehicle or E2 (estrogen) from each patient. More detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
+
+
+```{r data}
+head(logCPM_example)
+head(metadata_example)
+# check if samples included in the logCPM matrix and metadata dataframe are identical
+setequal(colnames(logCPM_example), metadata_example$sample)
+```
+
+# Compute weighted single-sample logFCs (ssLogFCs)
+
+It is expected that the logCPM matrix will be filtered to remove undetectable genes and normalised to correct for library sizes or other systematic artefacts, such as gene length or GC contents prior to applying this method. Filtration and normalisation has been performed on the example dataset. 
+
+Before ssLogFCs can be computed, rownames of the logCPM matrix need to be converted to `entrez ID`. This can be achieved through bioconductor package `AnnotationHub` and `ensembldb` as shown below. 
+
+```{r convertRownames}
+if (!requireNamespace("AnnotationHub", quietly=TRUE))
+    install.packages("AnnotationHub")
+if (!requireNamespace("ensembldb", quietly=TRUE))
+    install.packages("ensembldb")
+ah <- AnnotationHub::AnnotationHub()
+ah <- AnnotationHub::subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
+ensDb <- ah[[1]]
+rownames(logCPM_example) <- ensembldb::mapIds(ensDb, rownames(logCPM_example), "ENTREZID", keytype = "GENEID")
+# Remove genes that couldn't be matched to entrez IDs
+logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
+```
+
+To compute the ssLogFCs, samples must be in matching pairs and the factor defining how samples were matched needs to be specified in the `weight_ssFC` function. In the case of the example data, the matching samples were from the same patient. The control treatment level also need to be specified in the function, which was "Vehicle" in this case. 
+
+
+```{r ssFC}
+#compute weighted single sample logFCs
+weightedFC <- weight_ssFC(logCPM_example, metadata = metadata_example,
+factor = "patient", control = "Vehicle")
+```
+
+The `weight_ssFC` function firstly computes ssLogFCs for each gene by subtracting logCPM values of control sample from the logCPM values of treated samples for each patient. 
+
+It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have larger variance, which is also demostrated by the plots below. To reduce the impact of this artefact, `weight_ssFC` also weight each ssLogFCs by estimating the relationship between the variance in ssLogFCs and mean logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
+
+The ouput of this function is a list, where one element is the weighted ssLogFCs and the other one is the gene-wise weights.
+```{r fig.width=10,fig.height=5}
+perSample_FC <- sapply(unique(metadata_example$patient), function(x){
+   temp <- logCPM_example[1:1000,str_detect(colnames(logCPM_example), x)] 
+   ratio <- temp[, str_detect(colnames(temp), "E2")] - temp[, str_detect(colnames(temp), "Vehicle")] 
+   ratio %>%
+     enframe(name = "gene_id", 
+             value = x)
+}, simplify = FALSE) %>%
+    Reduce(left_join,.)
+aveCPM <- logCPM_example[1:1000,] %>%
+  rowMeans() %>%
+  enframe(name = "gene_id", 
+          value = "aveCPM")
+p1 <- perSample_FC %>%
+  pivot_longer(cols = -gene_id,
+               names_to = "name",
+               values_to = "logFC") %>%
+  left_join(aveCPM) %>%
+  ggplot(aes(aveCPM, logFC)) +
+  geom_point() +
+  labs(y = "sslogFC", 
+       x = "Average logCPM")
+p2 <- data.frame(
+  gene_id = perSample_FC$gene_id,
+  variance = perSample_FC[,-1] %>%
+    apply(1,var)) %>%
+  left_join(aveCPM) %>%
+  ggplot(aes(aveCPM, variance)) +
+  geom_point() +
+  geom_smooth(method = "loess") +
+  labs(y = "Variance in ssLogFCs", 
+       x = "Average logCPM")
+plot_grid(p1, 
+          p2)
+
+```
+
+# Retrieve pathway topologies in required format
+
+`SSPT` adopted the pathway perturbation scoring algorithm proposed in [`SPIA`](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732297/), which makes use of gene-set topologise and gene-gene interaction to propagate pathway genes' logFCs down the topologies to compute pathway perturbation scores, where signs of scores reflect the potential directions of changes. 
+
+Hence pathway topology information need to be firstly retrieved from the chosen database and converted to the weight adjacency matrices, the format required to apply the scoring algorithm. This step is achieved through a chain of functions from the [`graphite` package]() and has been nested into one function in `SSPT`. The  databases currently supported are:
+
+```{r pathwayDatabases}
+if (!requireNamespace("graphite", quietly=TRUE))
+    install.packages("graphite")
+graphite::pathwayDatabases() %>%
+  dplyr::filter(species ==  "hsapiens") %>%
+  pander::pander()
+```
+
+The retrieved topologies information will be saved as an Rdata file in a specified directory so this step only needs to be performed once for each database. When loaded into the environment, the topologies will be saved in a list called `gsTopology` by default. 
+
+This vignette chose *KEGG* pathways as an example. 
+
+```{r}
+weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "gsTopology.rda")
+load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
+head(gsTopology$`Glycolysis / Gluconeogenesis`)
+```
+
+If only selected pathways are of interest, it's possible to only retrieve the topologeis of those pathways by specifying the pathway names. 
+
+```{r}
+# weightedAdjMatrix(species = "hsapiens", database = "kegg", pathwayName = c("Glycolysis / Gluconeogenesis", "Citrate cycle (TCA cycle)","Pentose phosphate pathway"), outputDir = "gsTopology.rda")
+```
+
+# Score single sample pathway perturbation
+
+Once the expression matrix, sample metadata and pathway topologeis are all ready, single sample pathway perturbation scores (PS) can be computed using one simple function `perturbationScore()`, which returns a data.frame containing the raw perturbation scores for each sample each pathway. 
+
+```{r ssPertScore}
+ssPertScore <- perturbationScore(weightedFC$logFC, gsTopology)
+ssPertScore
+```
+
+## Correlations? 
+
+# Generate null distributions of perturbation scores
+
+To derive the empirical p-values for each single sample PS or normalize the scores, null distributions of scores for each pathway is generated through a sample-label permutation apprach. 
+```{r}
+
+```
+
