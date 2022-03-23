@@ -2,7 +2,10 @@
 
 export(generate_PermutedScore)
 export(normaliseByPermutation)
+export(permutedScore_PARALLEL)
+export(permutedScore_Rcpp_para)
 export(perturbationScore)
+export(perturbationScore_R)
 export(plot_gsNetwork)
 export(weight_ssFC)
 export(weightedAdjMatrix)

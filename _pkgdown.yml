@@ -22,3 +22,11 @@ reference:
   contents:
   - logCPM_example
   - metadata_example
+
+navbar:
+  type: default
+  left:
+  - text: Reference
+    href: reference/index.html
+  - text: Vignettes
+    href:

@@ -41,6 +41,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// permutedPertScore_RCPP_indiPathway
+List permutedPertScore_RCPP_indiPathway(arma::mat X, const CharacterVector& pathwayG, const CharacterVector& expressedG, const List& permutedFC, int newS);
+RcppExport SEXP _SSPT_permutedPertScore_RCPP_indiPathway(SEXP XSEXP, SEXP pathwayGSEXP, SEXP expressedGSEXP, SEXP permutedFCSEXP, SEXP newSSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const CharacterVector& >::type pathwayG(pathwayGSEXP);
+    Rcpp::traits::input_parameter< const CharacterVector& >::type expressedG(expressedGSEXP);
+    Rcpp::traits::input_parameter< const List& >::type permutedFC(permutedFCSEXP);
+    Rcpp::traits::input_parameter< int >::type newS(newSSEXP);
+    rcpp_result_gen = Rcpp::wrap(permutedPertScore_RCPP_indiPathway(X, pathwayG, expressedG, permutedFC, newS));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ssPertScore_RCPP
 List ssPertScore_RCPP(const List& BminsI, arma::mat weightedFC, const CharacterVector& expressedG, const CharacterVector& sample);
 RcppExport SEXP _SSPT_ssPertScore_RCPP(SEXP BminsISEXP, SEXP weightedFCSEXP, SEXP expressedGSEXP, SEXP sampleSEXP) {
@@ -74,6 +89,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_SSPT_permutedFC_RCPP", (DL_FUNC) &_SSPT_permutedFC_RCPP, 4},
     {"_SSPT_permutedPertScore_RCPP", (DL_FUNC) &_SSPT_permutedPertScore_RCPP, 6},
+    {"_SSPT_permutedPertScore_RCPP_indiPathway", (DL_FUNC) &_SSPT_permutedPertScore_RCPP_indiPathway, 5},
     {"_SSPT_ssPertScore_RCPP", (DL_FUNC) &_SSPT_ssPertScore_RCPP, 4},
     {"_SSPT_ssPertScore_RCPP_oneP", (DL_FUNC) &_SSPT_ssPertScore_RCPP_oneP, 5},
     {NULL, NULL, 0}

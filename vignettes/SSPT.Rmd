@@ -1,6 +1,11 @@
 ---
-title: "SSPT"
-output: rmarkdown::html_vignette
+title: "SSPT: Singel Sample Pathway Perturbation Testing"
+author:
+- name: Wenjun Nora Liu
+  affliation: Dame Roma Mitchell Cancer Research Laboratories, Adelaide Medical School, University of Adelaide
+  email: wenjun.liu@adelaide.edu.au
+pacakge: SSPT
+output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Single Sample Pathway Perturbation}
   %\VignetteEncoding{UTF-8}
@@ -9,13 +14,16 @@ editor_options:
   chunk_output_type: inline
 ---
 
+```{r, echo=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
 # Introduction
 
-This vignette demonstrates how to use the package `SSPT` to compute single sample pathway perturbation scores while corporating pathway topologies, utilize sample permtuation the test the significance of individual scores or compare scores on treatment level. 
+This vignette demonstrates how to use the package `SSPT` to compute single sample pathway perturbation scores by incorporating pathway topologies, utilize sample permutation to test the significance of individual scores or compare average pathway activities across treatment. 
 
-The pacakge also provides a function to visualise the results through gene-set networks. 
+The package also provides a function to visualize overlap between pathway genes contained in perturbed biological pathways through gene-set networks. 
 
-Details of the methods can be found in. 
 
 # Install `SPPT` package fron `Bioconductor`
 
@@ -25,29 +33,33 @@ BiocManager::install("SSPT")
 ```
 
 ```{r otherPackages}
+library(SSPT)
 library(tidyverse)
 library(magrittr)
 library(ggplot2)
 library(cowplot)
+library(DT)
 ```
 
 # load data
 
-The example dataset used for this tutorial has been built into the `SSPT` package. It's a subset of data retrieved from [Singhal H et al. 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/), where ER-positive primary breast cancer tumor tissues collected from 12 patients were split into fragments of equal sizes for different treatments. For the purpose of this tutorial, we only took the RNA-seq data from samples treated with vehicle or E2 (estrogen) from each patient. More detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
+The example dataset used for this tutorial has been built into the `SSPT` package. It's a subset of data retrieved from [Singhal H et al. 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/), where ER-positive primary breast cancer tumor tissues collected from 12 patients were split into fragments of equal sizes for different treatments. For the purpose of this tutorial, we only took the RNA-seq data from samples treated with vehicle, E2 OR E2 + R5020 from each patient. More detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
 
 
 ```{r data}
-head(logCPM_example)
-head(metadata_example)
 # check if samples included in the logCPM matrix and metadata dataframe are identical
 setequal(colnames(logCPM_example), metadata_example$sample)
+# View sample metadata
+metadata_example %>%
+    datatable()
+
 ```
 
 # Compute weighted single-sample logFCs (ssLogFCs)
 
 It is expected that the logCPM matrix will be filtered to remove undetectable genes and normalised to correct for library sizes or other systematic artefacts, such as gene length or GC contents prior to applying this method. Filtration and normalisation has been performed on the example dataset. 
 
-Before ssLogFCs can be computed, rownames of the logCPM matrix need to be converted to `entrez ID`. This can be achieved through bioconductor package `AnnotationHub` and `ensembldb` as shown below. 
+Before single-sample logFCs ssLogFCs can be computed, rownames of the logCPM matrix need to be converted to `entrez ID`. This is because all the pathway topology information retrieved will be in  `entrez ID`. The conversion can be achieved through bioconductor package `AnnotationHub` and `ensembldb` as shown below. 
 
 ```{r convertRownames}
 if (!requireNamespace("AnnotationHub", quietly=TRUE))BiocManager::install("AnnotationHub")
@@ -60,9 +72,9 @@ rownames(logCPM_example) <- ensembldb::mapIds(ensDb, rownames(logCPM_example), "
 logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
 head(logCPM_example)
 ```
+To compute the ssLogFCs, samples must be in matching pairs. In the example, treated samples are matched to the corresponding control sample that were derived from the same patients. So the `factor` parameter of the `weight_ssFC()` functions set to be "patient". The function also requires the control treatment level to be specified, which was "Vehicle" in this case. 
 
-To compute the ssLogFCs, samples must be in matching pairs and the factor defining how samples were matched needs to be specified in the `weight_ssFC` function. In the case of the example data, the matching samples were from the same patient. The control treatment level also need to be specified in the function, which was "Vehicle" in this case. 
-
+`weight_ssFC()` requires both the logCPM matrix and sample metadata as input. The column names of the logCPM matrix should be sample name, matching to a column called `sample` in the metadata. The metadata must also contain a treatment column, and a column corresponding to the `factor` parameter (ie. patient in this case).
 
 ```{r ssFC}
 #compute weighted single sample logFCs
@@ -70,13 +82,13 @@ weightedFC <- weight_ssFC(logCPM_example, metadata = metadata_example,
 factor = "patient", control = "Vehicle")
 ```
 
-The `weight_ssFC()` function firstly computes ssLogFCs for each gene by subtracting logCPM values of control sample from the logCPM values of treated samples for each patient. 
+The `weight_ssFC()` function firstly computes raw ssLogFCs for each gene by subtracting logCPM values of control sample from the logCPM values of treated samples for each patient. 
 
 It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have larger variance, which is also demonstrated by the plots below. To reduce the impact of this artefact, `weight_ssFC` also weight each ssLogFCs by estimating the relationship between the variance in ssLogFCs and mean logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
 
-The ouput of teh `weight_ssFC()` function is a list, where one element is the weighted ssLogFCs and the other is the gene-wise weights.
+The ouput of the `weight_ssFC()` function is a list with two element, where one is the weighted ssLogFCs matrix and the other is a vector of gene-wise weights.
 
-```{r fig.width=10,fig.height=4}
+```{r lowess, fig.width=10,fig.height=4}
 perSample_FC <- sapply(unique(metadata_example$patient), function(x){
    temp <- logCPM_example[1:1000,str_detect(colnames(logCPM_example), x)] 
    ratio <- temp[, str_detect(colnames(temp), "E2")] - temp[, str_detect(colnames(temp), "Vehicle")] 
@@ -97,7 +109,10 @@ p1 <- perSample_FC %>%
   ggplot(aes(aveCPM, logFC)) +
   geom_point() +
   labs(y = "sslogFC", 
-       x = "Average logCPM")
+       x = "Average logCPM") +
+  theme(
+      panel.background = element_blank()
+  )
 p2 <- data.frame(
   gene_id = perSample_FC$gene_id,
   variance = perSample_FC[,-1] %>%
@@ -107,7 +122,10 @@ p2 <- data.frame(
   geom_point() +
   geom_smooth(method = "loess") +
   labs(y = "Variance in ssLogFCs", 
-       x = "Average logCPM")
+       x = "Average logCPM") +
+  theme(
+      panel.background = element_blank()
+  )
 plot_grid(p1, 
           p2)
 
@@ -115,9 +133,9 @@ plot_grid(p1,
 
 # Retrieve pathway topologies in required format
 
-`SSPT` adopted the pathway perturbation scoring algorithm proposed in [`SPIA`](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732297/), which makes use of gene-set topologise and gene-gene interaction to propagate pathway genes' logFCs down the topologies to compute pathway perturbation scores, where signs of scores reflect the potential directions of changes. 
+`SSPT` adopts the pathway perturbation scoring algorithm proposed in [`SPIA`](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732297/), which makes use of gene-set topologise and gene-gene interaction to propagate pathway genes' logFCs down the topologies to compute pathway perturbation scores, where signs of scores reflect the potential directions of changes. 
 
-Therefore, pathway topology information need to be firstly retrieved from your chosen database and converted to the weight adjacency matrices, the format required to apply the scoring algorithm. This step is achieved through a chain of functions available in the [`graphite` package]() and has been nested into one simple function in `SSPT`. Databases that are currently supported are:
+Therefore, pathway topology information need to be firstly retrieved from your chosen database and converted to weight adjacency matrices, the format required to apply the scoring algorithm. This step is achieved through a chain of functions that are part of the [`graphite` package]() and has been nested into one simple function in this package: `r weightedAdjMatrix()`. Databases that are currently supported are:
 
 ```{r pathwayDatabases}
 if (!requireNamespace("graphite", quietly=TRUE))
@@ -127,25 +145,27 @@ graphite::pathwayDatabases() %>%
   pander::pander()
 ```
 
-The retrieved topology information will be saved as an Rdata file in the specified directory so this step only needs to be performed once for each database. When loaded into the environment, the toppologies will be saved in a `list` called `gsTopology` by default. 
+The retrieved topology information will be saved as an Rdata file in the specified directory so this step only needs to be performed once for each database. When loaded into the environment, the topologies will be saved in a `list` called `gsTopology` by default. 
 
 This vignette chose *KEGG* pathways as an example. 
 
-```{r}
-# weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "gsTopology.rda")
-load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
-head(gsTopology$`Glycolysis / Gluconeogenesis`)
+```{r weightedAdjMatrix}
+weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "gsTopology.rda")
+load("gsTopology.rda")
+names(gsTopology)
 ```
 
 If only selected pathways are of interest, it's possible to only retrieve the topologeis of those pathways by specifying the pathway names. 
 
 ```{r}
 # weightedAdjMatrix(species = "hsapiens", database = "kegg", pathwayName = c("Glycolysis / Gluconeogenesis", "Citrate cycle (TCA cycle)","Pentose phosphate pathway"), outputDir = "gsTopology.rda")
+# load("gsTopology.rda")
+# names(gsTopology)
 ```
 
 # Score single sample pathway perturbation
 
-Once the expression matrix, sample metadata and pathway topologeis are all ready, single sample pathway perturbation scores (PS) can be computed using function `perturbationScore()`, which returns a data.frame containing the raw perturbation scores for each sample each pathway. 
+Once the expression matrix, sample metadata and pathway topologeis are all ready, single sample pathway perturbation scores (PS) can be computed using function `perturbationScore()`, which returns a data.frame containing the test perturbation scores for each sample each pathway. 
 
 ```{r ssPertScore}
 ssPertScore <- perturbationScore(weightedFC$logFC, gsTopology)
@@ -159,21 +179,24 @@ ssPertScore
 
 To derive the empirical p-values for each single sample PS or normalize the raw scores for comparing overall treatment effects, null distributions of scores for each pathway is generated through a sample-label permutation approach. 
 
-For each round of permutation, sample labels are randomly shuffled to derive the permuted ssLogFCs, which are then used to score pathway perturbation. We recommend to perform a minimum of 1000 rounds of permutation, which means at least 8 samples are required. The `generate_PermutedScore()` function does not require sample metadata but the number of treatments in the study design, including the control treatment, need to be specified. 
+For each round of permutation, sample labels are randomly shuffled to derive the permuted ssLogFCs, which are then used to score pathway perturbation. We recommend to perform a minimum of 1000 rounds of permutation, which means at least 8 samples are required. The `generate_PermutedScore()` function does not require sample metadata but the number of treatments in the study design, including the control treatment, need to be specified. In this example data, the number of treatment was 3.  
 
-Output of the function is a list where each element is a vector of permuted perturation scores for a pathway. 
+Output of the `r generate_PermutedScore()` function is a list where each element is a vector of permuted perturbation scores for a pathway. 
 
 ```{r permutedScore}
 permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 3, NB = 1000, gsTopology = gsTopology, weight = weightedFC$weight)
 ```
 
-```{r}
+Let's randomly choose six pathways and examine the permutation-derived emipirical distribution of their perturbation scores. They should all be approximately normaly distributed. 
+
+```{r NullDistribution, fig.width=14}
 pl <- permutedScore %>%
     keep(~all(.!=0)) %>%
     .[sample(seq_along(.), 6)] %>%
     lapply(function(x){
         ggplot(mapping = aes(x)) + 
-            geom_histogram()
+            geom_histogram() +
+            xlab("Perturbation Score")
     }) 
 suppressMessages(plot_grid(plotlist = pl, 
                            nrow = 2))
@@ -181,24 +204,61 @@ suppressMessages(plot_grid(plotlist = pl,
 
 ## Significance of individal score
 
+After the empirical null distributions are generated, the median and mad will be calculated for each pathway to convert the test single-sample perturbation scores derived from the `perturbationScore()` to robust z-scores: $$ (Score - Median)/MAD$$. Two-sided p-values associated with each robust z-scores are also computed and will be corrected for multiple-testing using a user-define approach. The default is `fdr`.
 
-```{r}
+```{r normalisedScores}
 normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
 normalisedScores %>%
-    dplyr::filter(adjPvalue < 0.05)
+    dplyr::filter(adjPvalue < 0.05) %>%
+    left_join
+    mutate_at(vars(c("sample", "gs_name")), as.factor) %>%
+    mutate_if(is.numeric, sprintf, fmt = '%#.4f') %>%
+    mutate(Direction = ifelse(Estimate < 0, "Inhibited", "Activation")) %>%
+    dplyr::select(
+        Comparison, `Perturbation Score` = Estimate, Direction,
+        `Gene-set name` = gs_name, 
+        `P-value` = pvalue, 
+        FDR
+    ) %>%
+    datatable(
+        filter = "top", 
+        options = list(
+            columnDefs = list(list(targets = "Direction", visible = FALSE))
+        )) %>% 
+    formatStyle(
+        'Perturbation Score', 'Direction',
+        backgroundColor = styleEqual(c("Inhibited", "Activation"), c('lightblue', 'indianred'))
+    )
+
+    
+```
+
+```{r sigGS_nt, fig.width=12, fig.height=4}
+pl <- normalisedScores %>%
+    dplyr::filter(adjPvalue < 0.05) %>%
+    split(f = .$sample) %>%
+    lapply(
+        plot_gsNetwork, 
+        gsTopology = gsTopology, 
+        colorBy = "robustZ"
+    )
+plot_grid(
+    plotlist = pl, 
+    nrow = 1
+)
 ```
 
 ## Significance of overall treatment effect
 
-```{r}
+```{r fit}
 fit <- normalisedScores %>%
     left_join(metadata_example) %>%
-    mutate(time = as.factor(time)) %>%
+    mutate_at(vars(c("time", "PR")), as.factor) %>%
     split(f = .$gs_name) %>%
     #.["Estrogen signaling pathway"] %>%
-    lapply(function(x)lm(robustZ ~ 0 + treatment + time:treatment, data = x)) %>%
+    lapply(function(x)lm(robustZ ~ 0 + treatment + treatment:PR, data = x)) %>%
     lapply(summary)
-sapply(names(fit), function(x){
+treat_sig <- sapply(names(fit), function(x){
     fit[[x]]$coefficients %>%
         as.data.frame() %>%
         dplyr::select(Estimate, 
@@ -206,9 +266,48 @@ sapply(names(fit), function(x){
         rownames_to_column("Comparison") %>%
         mutate(gs_name = x, 
                FDR = p.adjust(pvalue, "fdr"), 
-               Comparison = str_remove(Comparison, "treatment")) 
+               Comparison = str_remove_all(Comparison, "treatment|PR")) 
 }, simplify = FALSE) %>%
-    bind_rows() %>%
-    dplyr::filter(FDR < 0.05)
+    bind_rows() 
+```
+
+
+```{r}
+treat_sig %>% 
+    dplyr::filter(FDR < 0.05) %>%
+    mutate_at(vars(c("Comparison", "gs_name")), as.factor) %>%
+    mutate_if(is.numeric, sprintf, fmt = '%#.4f') %>%
+    mutate(Direction = ifelse(Estimate < 0, "Inhibited", "Activation")) %>%
+    dplyr::select(
+        Comparison, `Perturbation Score` = Estimate, Direction,
+        `Gene-set name` = gs_name, 
+        `P-value` = pvalue, 
+        FDR
+    ) %>%
+    datatable(
+        filter = "top", 
+        options = list(
+            columnDefs = list(list(targets = "Direction", visible = FALSE))
+        )) %>% 
+    formatStyle(
+        'Perturbation Score', 'Direction',
+        backgroundColor = styleEqual(c("Inhibited", "Activation"), c('lightblue', 'indianred'))
+    )
+```
+
+```{r}
+treat_sig %>% 
+    dplyr::filter(FDR < 0.05) %>%
+    dplyr::rename(robustZ = Estimate) %>%
+    split(f = .$Comparison) %>%
+    lapply(
+        plot_gsNetwork, 
+        gsTopology = gsTopology, 
+        colorBy = "robustZ"
+    )
+plot_grid(
+    plotlist = pl, 
+    nrow = 1
+)
 ```
 

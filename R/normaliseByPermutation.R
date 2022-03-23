@@ -93,11 +93,12 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' @export
 #'
 #' @examples
-permutedScore_PARALLEL <- function(permutedFC, gsTopology, ncores = 6){
+permutedScore_PARALLEL <- function(permutedFC, gsTopology, ncores, tol = 1e-7){
+
     BPPARAM <- BiocParallel::registered()[[1]]
     BPPARAM$workers <- ncores
-    BiocParallel::bplapply(permutedFC, function(x){
-      lapply(gsTopology, function(y){.ssPertScore(y, x)})
+    BiocParallel::bplapply(gsTopology, function(x){
+      as.vector(sapply(permutedFC, function(y){.ssPertScore(x, y)}))
     }, BPPARAM = BPPARAM)
 }
 
@@ -144,74 +145,6 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
 }
 
 
-
-#' #' Title
-#' #'
-#' #' @param logCPM
-#' #' @param metadata
-#' #' @param factor
-#' #' @param control
-#' #' @param seed
-#' #' @param NB
-#' #' @param scores
-#' #' @param filPath
-#' #' @param weight
-#' #'
-#' #' @importFrom tibble rownames_to_column
-#' #' @importFrom dplyr left_join filter mutate select
-#' #' @return
-#' #' @export
-#' #'
-#' #' @examples
-normaliseByPermutation_R <- function(logCPM, metadata, factor, control,
-                                   seed = sample.int(1e+06, 1), NB = 1000,
-                                   scores, gsTopology, weight){
-    # checks
-
-    m <- min(logCPM)
-    if (is.na(m)) stop("NA values not allowed")
-
-
-    if (nrow(logCPM) != length(weight)) stop("Gene-wise weights do not match with the dimension of logCPM")
-    logCPM <- as.matrix(logCPM)
-
-    rownames(logCPM) <- paste("ENTREZID:", rownames(logCPM), sep = "")
-    if (length(intersect(rownames(logCPM), unlist(unname(lapply(gsTopology, rownames))))) == 0)
-        stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
-
-    # test if the required number of permutations is bigger than the maximum number of permutations possible
-    NB <- min(NB, factorial(ncol(logCPM)))
-
-    # set expression values and weights of unexpressed pathway genes to 0
-    notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(logCPM))
-    if (length(notExpressed) != 0){
-        temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(logCPM))
-        rownames(temp) <- notExpressed
-        colnames(temp) <- colnames(logCPM)
-        logCPM <- rbind(logCPM, temp)
-        weight <- c(weight, rep(0, length(notExpressed)))
-
-    }
-
-    # this step will probably benefit from BiocParallel but my laptop freezes with 2 workers
-   .generate_permutedFC(logCPM, metadata, factor, control, weight, NB, seed)
-
-    # compute permuted perturbation scores and remove pathways returned to be NULL
-#
-#     permutedScore <- lapply(permutedFC, ssPertScore_RCPP, gsTopology = gsTopology)
-#     permutedScore <- do.call(mapply, c(FUN=c, lapply(permutedScore, `[`, names(gsTopology))))
-#     permutedScore <- permutedScore[!sapply(permutedScore, is.null)]
-#
-#     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
-#     summaryScore <- as.data.frame(t(sapply(permutedScore, summary_func)))
-#     summaryScore <- rownames_to_column(summaryScore,"gs_name")
-#     summaryScore <- filter(summaryScore, MAD != 0)
-#     summaryScore <- left_join(summaryScore, scores, by = "gs_name")
-#     mutate(summaryScore, robustZ = (tA - MEDIAN)/MAD )
-
-}
-
-
 #' #' Title
 #' #'
 #' #' @param logCPM
@@ -237,7 +170,27 @@ normaliseByPermutation_R <- function(logCPM, metadata, factor, control,
     }, simplify = FALSE)
 
     nSample <- nrow(metadata)
-    NB <- min(factorial(nSample), NB)
+
+    logCPM <- as.matrix(logCPM)
+
+    rownames(logCPM) <- paste("ENTREZID:", rownames(logCPM), sep = "")
+    if (length(intersect(rownames(logCPM), unlist(unname(lapply(gsTopology, rownames))))) == 0)
+        stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
+
+    # test if the required number of permutations is bigger than the maximum number of permutations possible
+    NB <- min(NB, factorial(ncol(logCPM)))
+
+    # set expression values and weights of unexpressed pathway genes to 0
+    notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(logCPM))
+    if (length(notExpressed) != 0){
+        temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(logCPM))
+        rownames(temp) <- notExpressed
+        colnames(temp) <- colnames(logCPM)
+        logCPM <- rbind(logCPM, temp)
+        weight <- c(weight, rep(0, length(notExpressed)))
+
+    }
+
     set.seed(seed)
 
     BPPARAM <- BiocParallel::registered()[[1]]
@@ -260,16 +213,42 @@ normaliseByPermutation_R <- function(logCPM, metadata, factor, control,
 
 }
 
-# # BiocParappel takes 19 seconds to generate 1000 permuted FCs for each gene while Rcpp only takes on average 4 second.
-# microbenchmark::microbenchmark(
-#    "BiocParallel" = {test1 <- normaliseByPermutation_R(logCPM_example, metadata_example, factor = "patient", control = "Vehicle", NB = 1000, gsTopology = gsTopology, weight = weightedFC$weight)},
-#     "Rcpp" = {test2 <- generate_PermutedScore(logCPM_example, numOfTreat = 3, NB = 1000, gsTopology = gsTopology, weight = weightedFC$weight)},
-#     times = 10
-# )
+#' Title
+#'
+#' @param permutedFC
+#' @param gsTopology
+#' @param ncores
+#'
+#' @return
+#' @export
+#'
+#' @examples
+permutedScore_Rcpp_para <- function(permutedFC, gsTopology, ncores, tol = 1e-7){
 
+    expressedG <- rownames(permutedFC[[1]])
+    newS <-  ncol(permutedFC[[1]])
+    BPPARAM <- BiocParallel::registered()[[1]]
+    BPPARAM$workers <- ncores
+
+    BiocParallel::bplapply(gsTopology, function(x){
+        permutedPertScore_RCPP_indiPathway(X = x, pathwayG = rownames(x), expressedG,
+                                           permutedFC = permutedFC, newS)
+    }, BPPARAM = BPPARAM)
+}
+
+permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
+                                   ncores = 4, seed = 123)
+permutedScore <- permutedScore_Rcpp_para(permutedFC, gsTopology, ncores = 4)
 microbenchmark(
-    "BiocParallel" = {test1 <- normaliseByPermutation_R(logCPM_example[1:10, ], metadata_example, factor = "patient", control = "Vehicle", NB = 100, gsTopology = gsTopology, weight = weightedFC$weight[1:10])
-        test3 <- permutedScore_PARALLEL(test1, gsTopology)},
-    "Rcpp" = {test4 <- generate_PermutedScore(logCPM_example[1:10, ], numOfTreat = 3, NB = 100, gsTopology = gsTopology, weight = weightedFC$weight[1:10])},
-    times = 1
+    # "Parallel_4core" = {
+    #     permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
+    #                                       ncores = 4, seed = 123)
+    #     test1 <- permutedScore_PARALLEL(permutedFC, gsTopology, ncores = 4)},
+    "Rcpp" = {
+        permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 100,
+                                          ncores = 4, seed = 123)
+        test2 <- permutedScore_Rcpp_para(permutedFC, gsTopology, ncores = 4)},
+    "Rcpp_allin1"  = {test3 <- generate_PermutedScore(logCPM_example, numOfTreat = 3, NB = 100, gsTopology = gsTopology, weight = weightedFC$weight)},
+    times = 3
 )
+
