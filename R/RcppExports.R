@@ -9,6 +9,10 @@ permutedPertScore_RCPP <- function(BminsI, expressedG, LogCPM, NB, sEachp, weigh
     .Call(`_SSPT_permutedPertScore_RCPP`, BminsI, expressedG, LogCPM, NB, sEachp, weight)
 }
 
+permutedPertScore_RCPP_indiPathway_Alt <- function(X, pathwayG, expressedG, permutedFC, newS) {
+    .Call(`_SSPT_permutedPertScore_RCPP_indiPathway_Alt`, X, pathwayG, expressedG, permutedFC, newS)
+}
+
 permutedPertScore_RCPP_indiPathway <- function(X, pathwayG, expressedG, permutedFC, newS) {
     .Call(`_SSPT_permutedPertScore_RCPP_indiPathway`, X, pathwayG, expressedG, permutedFC, newS)
 }

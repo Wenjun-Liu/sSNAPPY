@@ -236,19 +236,54 @@ permutedScore_Rcpp_para <- function(permutedFC, gsTopology, ncores, tol = 1e-7){
     }, BPPARAM = BPPARAM)
 }
 
-permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
-                                   ncores = 4, seed = 123)
-permutedScore <- permutedScore_Rcpp_para(permutedFC, gsTopology, ncores = 4)
+
+#' Title
+#'
+#' @param permutedFC
+#' @param gsTopology
+#' @param ncores
+#'
+#' @return
+#' @export
+#'
+#' @examples
+permutedScore_Rcpp <- function(permutedFC, gsTopology, tol = 1e-7){
+
+    expressedG <- rownames(permutedFC[[1]])
+    newS <-  ncol(permutedFC[[1]])
+
+    lapply(gsTopology, function(x){
+        permutedPertScore_RCPP_indiPathway(X = x, pathwayG = rownames(x), expressedG,
+                                           permutedFC = permutedFC, newS)
+    })
+}
+
+# permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
+#                                    ncores = 4, seed = 123)
+# permutedScore <- permutedScore_Rcpp_para(permutedFC, gsTopology, ncores = 4)
+
+
+# microbenchmark(
+#     # "Parallel_4core" = {
+#     #     permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
+#     #                                       ncores = 4, seed = 123)
+#     #     test1 <- permutedScore_PARALLEL(permutedFC, gsTopology, ncores = 4)},
+#     "Rcpp_para" = {
+#         permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
+#                                           ncores = 8, seed = 123)
+#         test1 <- permutedScore_Rcpp_para(permutedFC, gsTopology, ncores = 8)},
+#     "Rcpp_Nopara" = {
+#         permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
+#                                            ncores = 8, seed = 123)
+#         test2 <- permutedScore_Rcpp(permutedFC, gsTopology)},
+#     "Rcpp_allin1"  = {test3 <- generate_PermutedScore(logCPM_example, numOfTreat = 3, NB = 10, gsTopology = gsTopology, weight = weightedFC$weight)},
+#     times = 2
+# )
+#
 microbenchmark(
-    # "Parallel_4core" = {
-    #     permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
-    #                                       ncores = 4, seed = 123)
-    #     test1 <- permutedScore_PARALLEL(permutedFC, gsTopology, ncores = 4)},
-    "Rcpp" = {
-        permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 100,
-                                          ncores = 4, seed = 123)
-        test2 <- permutedScore_Rcpp_para(permutedFC, gsTopology, ncores = 4)},
-    "Rcpp_allin1"  = {test3 <- generate_PermutedScore(logCPM_example, numOfTreat = 3, NB = 100, gsTopology = gsTopology, weight = weightedFC$weight)},
+    "passByValue" = {test1 <- permutedScore_Rcpp_para(permutedFC, gsTopology, ncores = 8)},
+
+    "passByRef" = {test2 <- permutedScore_Rcpp_para_alt(permutedFC, gsTopology, ncores = 8)},
     times = 3
 )
 
