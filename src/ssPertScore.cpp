@@ -1,3 +1,4 @@
+#define ARMA_DONT_PRINT_ERRORS
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 
@@ -46,37 +47,6 @@ List ssPertScore_RCPP(const List& BminsI, arma::mat weightedFC, const CharacterV
     output.names() = BminsI.names();
     return(output);
 }
-
-// [[Rcpp::export]]
-
-NumericVector ssPertScore_RCPP_oneP(arma::mat adjMatrix, const CharacterVector& pathwayG,
-                           arma::mat weightedFC, const CharacterVector& expressedG, const CharacterVector& sample) {
-
-    // s number of samples
-    int s = weightedFC.n_cols;
-
-    Rcpp::checkUserInterrupt();
-
-        IntegerVector offset( pathwayG.length(),1);
-        IntegerVector index = match(pathwayG, expressedG) - offset;
-        arma::uvec indexA = as<arma::uvec>(index);
-        arma::mat subsetFC = weightedFC.rows(indexA);
-
-        NumericVector tA(s);
-
-        // loop through each sample
-        for (int j=0; j<s; j++){
-            arma::vec subset = subsetFC.col(j);
-
-            arma::vec pf = solve(adjMatrix,-subset,arma::solve_opts::no_approx + arma::solve_opts::allow_ugly);
-            arma::vec diff = pf - subset;
-            tA[j] = sum(diff);
-
-        }
-        tA.names() = sample;
-        return(tA);
-    }
-
 
 // This can be also achieved through RcppEigen
 //

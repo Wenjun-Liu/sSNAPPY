@@ -29,35 +29,37 @@ rownames(y_wrongIdentifier) <- c("ENSG00000000003","ENSG00000000419","ENSG000000
 ssFC_wrongIdentifier <- weight_ssFC(y_wrongIdentifier, sample, "patient", "control")
 
 test_that("generate_PermutedScore returns error when expected", {
-    expect_error(generate_PermutedScore(y_wrongIdentifier, 3,
+    expect_error(generate_PermutedScore(y_wrongIdentifier, numOfTreat =  3,
                                         NB = 1000,
-                                        BminsI, ssFC_wrongIdentifier$weight), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
-    expect_error(generate_PermutedScore(y, 3,
+                                        gsTopology = BminsI, weight = ssFC_wrongIdentifier$weight), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
+    expect_error(generate_PermutedScore(y, numOfTreat = 3,
                                         NB = 1000,
-                                        BminsI, ssFC$weight[1:10]), "Gene-wise weights do not match with the dimension of logCPM")
-    expect_error(generate_PermutedScore(y, 4,
+                                        gsTopology = BminsI, weight =ssFC$weight[1:10]), "Gene-wise weights do not match with the dimension of logCPM")
+    expect_error(generate_PermutedScore(y, numOfTreat = 4,
                                         NB = 1000,
-                                        BminsI, ssFC$weight), "Number of samples must be divisible by the number of treatments")
-    expect_error(generate_PermutedScore(y_withNA, 3,
+                                        gsTopology = BminsI, weight =ssFC$weight), "Number of samples must be divisible by the number of treatments")
+    expect_error(generate_PermutedScore(y_withNA, numOfTreat = 3,
                                         NB = 1000,
-                                        BminsI, ssFC$weight), "NA values not allowed")
+                                        gsTopology = BminsI, weight = ssFC$weight), "NA values not allowed")
 })
 
 test_that("generate_PermutedScore produces the expected outcome", {
-    results_sub <- generate_PermutedScore(y[, 1:4], 2, NB = 100, BminsI, ssFC$weight)
+    results_sub <- generate_PermutedScore(y[, 1:4], numOfTreat =2, NB = 100, gsTopology = BminsI, weight = ssFC$weight)
     expect_equal(length(results_sub), length(BminsI))
     expect_equal(length(results_sub[[1]]), factorial(4)*2)
 })
 
 test_that("generate_PermutedScore produces the expected outcome", {
-    results <- generate_PermutedScore(y, 3, NB = 10, BminsI, ssFC$weight)
+    results <- generate_PermutedScore(y, numOfTreat = 3, NB = 10, gsTopology = BminsI, weight = ssFC$weight)
     expect_equal(length(results[[1]]), 10*(6-3+1))
 })
 
 test_that("normaliseByPermutation produces the expected outcome",{
-    results <- generate_PermutedScore(y, 3, NB = 10, BminsI, ssFC$weight)
+    perS <- list(
+        "Chemokine signaling pathway"= rnorm(40, mean = 1, sd = 0.3)
+    )
     ssPertScore <- perturbationScore(ssFC$logFC, BminsI)
-    output <- normaliseByPermutation(results, ssPertScore)
+    output <- normaliseByPermutation(perS, ssPertScore)
     expect_equal(unique(output$sample), c("patient1_treat1", "patient1_treat2", "patient2_treat1", "patient2_treat2"))
     expect_false(anyNA(output$robustZ))
     expect_true(length(intersect(output$MAD, 0)) == 0)

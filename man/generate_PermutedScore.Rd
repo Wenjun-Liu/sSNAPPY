@@ -4,7 +4,15 @@
 \alias{generate_PermutedScore}
 \title{Simulate permuted perturbation scores}
 \usage{
-generate_PermutedScore(logCPM, numOfTreat, NB = 1000, gsTopology, weight)
+generate_PermutedScore(
+  logCPM,
+  numOfTreat,
+  NB = 1000,
+  seed = 123,
+  gsTopology,
+  weight,
+  BPPARAM = BiocParallel::bpparam()
+)
 }
 \arguments{
 \item{logCPM}{Matrix of normaslised logCPM where rows are genes and columns are samples. Row names need to be gene entrez IDs.}
@@ -13,9 +21,13 @@ generate_PermutedScore(logCPM, numOfTreat, NB = 1000, gsTopology, weight)
 
 \item{NB}{Number of permutations}
 
+\item{seed}{seed for sample label shuffling}
+
 \item{gsTopology}{List of pathway topology matrices generated using function \code{weightedAdjMatrix}}
 
 \item{weight}{A vector of gene-wise weights derived from function \code{weight_ssFC}}
+
+\item{BPPARAM}{The parallel back-end to uses, if not specified, it is defaulted to the one returned by \code{BiocParallel::bpparam()}.}
 }
 \value{
 A list where each element is a vector of perturbation scores for a pathway.
@@ -51,7 +63,10 @@ ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
 # explore all species and databases supported by graphite
 \dontrun{
 load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
- permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
+permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
  NB = 100, gsTopology = gsTopology, weight = ls$weight)
+
+# To see what other parallel back-end can be used:
+ BiocParallel::registered()
  }
 }

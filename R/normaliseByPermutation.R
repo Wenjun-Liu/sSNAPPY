@@ -16,8 +16,10 @@
 #' @param NB Number of permutations
 #' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix`
 #' @param weight A vector of gene-wise weights derived from function `weight_ssFC`
-#'
+#' @param seed seed for sample label shuffling
+#' @param BPPARAM The parallel back-end to uses, if not specified, it is defaulted to the one returned by \code{BiocParallel::bpparam()}.
 #' @import Rcpp
+#' @importFrom BiocParallel bpparam bplapply
 #' @return A list where each element is a vector of perturbation scores for a pathway.
 #' @export
 #'
@@ -40,16 +42,18 @@
 #' # explore all species and databases supported by graphite
 #' \dontrun{
 #' load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
-#'  permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
+#' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
 #'  NB = 100, gsTopology = gsTopology, weight = ls$weight)
+#'
+#' # To see what other parallel back-end can be used:
+#'  BiocParallel::registered()
 #'  }
 
 generate_PermutedScore <- function(logCPM, numOfTreat,
-                                        NB = 1000,
-                                        gsTopology, weight){
+                                        NB = 1000, seed = 123,
+                                        gsTopology, weight, BPPARAM = BiocParallel:: bpparam()){
 
     # checks
-
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
@@ -75,31 +79,18 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 
     }
 
-    permutedPertScore_RCPP(gsTopology, expressedG = rownames(logCPM), LogCPM = logCPM,
-                           NB = NB, sEachp = numOfTreat, weight = weight)
-    # permutedScore <- permutedScore[!sapply(permutedScore, is.null)]
+    permutedFC <- .generate_permutedFC(logCPM, numOfTreat, NB, weight, seed)
 
+    allG <- rownames(logCPM)
+    newS <-  ncol(permutedFC[[1]])
 
-}
-
-
-#' Title
-#'
-#' @param permutedFC
-#' @param gsTopology
-#' @param ncores
-#'
-#' @return
-#' @export
-#'
-#' @examples
-permutedScore_PARALLEL <- function(permutedFC, gsTopology, ncores, tol = 1e-7){
-
-    BPPARAM <- BiocParallel::registered()[[1]]
-    BPPARAM$workers <- ncores
     BiocParallel::bplapply(gsTopology, function(x){
-      as.vector(sapply(permutedFC, function(y){.ssPertScore(x, y)}))
+        temp <- permutedPertScore_RCPP(X = x, pathwayG = rownames(x), allG,
+                                           permutedFC = permutedFC, newS)
+        unlist(temp)
     }, BPPARAM = BPPARAM)
+
+
 }
 
 #' @title Normalise test perturbation scores by permutation
@@ -145,145 +136,30 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
 }
 
 
-#' #' Title
-#' #'
-#' #' @param logCPM
-#' #' @param metadata
-#' #' @param factor
-#' #' @param control
-#' #' @param BPPARAM
-#' #' @param seed
-#' #'
-#' #' @return
-#' #'
-#' #' @examples
-.generate_permutedFC <- function(logCPM, metadata, factor, control, weight, NB, seed, ncores = 6){
-    metadata <- as.data.frame(metadata)
-    pairs <- unique(metadata[,factor])
-    sampleInpairs <- sapply(pairs, function(x){
-        contrSample <- dplyr::filter(metadata, treatment == control, !!sym(factor) == x)
-        contrSample <- pull(contrSample, sample)
+#' Permute sample labels to generate permuted logFCs
+.generate_permutedFC <- function(logCPM, numOfTreat,
+                                 NB = 1000, weight, seed){
 
-        treatedSample <- dplyr::filter(metadata, treatment != control, !!sym(factor) == x)
-        treatedSample <- pull(treatedSample, sample)
-        list(contrSample = contrSample, treatedSample = treatedSample)
-    }, simplify = FALSE)
-
-    nSample <- nrow(metadata)
-
-    logCPM <- as.matrix(logCPM)
-
-    rownames(logCPM) <- paste("ENTREZID:", rownames(logCPM), sep = "")
-    if (length(intersect(rownames(logCPM), unlist(unname(lapply(gsTopology, rownames))))) == 0)
-        stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
-
-    # test if the required number of permutations is bigger than the maximum number of permutations possible
-    NB <- min(NB, factorial(ncol(logCPM)))
-
-    # set expression values and weights of unexpressed pathway genes to 0
-    notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(logCPM))
-    if (length(notExpressed) != 0){
-        temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(logCPM))
-        rownames(temp) <- notExpressed
-        colnames(temp) <- colnames(logCPM)
-        logCPM <- rbind(logCPM, temp)
-        weight <- c(weight, rep(0, length(notExpressed)))
-
-    }
-
+    nSample <- ncol(logCPM)
+    index <- seq(1, nSample, by = numOfTreat)
     set.seed(seed)
 
-    BPPARAM <- BiocParallel::registered()[[1]]
-    BPPARAM$workers <- ncores
+    # BPPARAM <- BiocParallel::registered()[[1]]
+    # BPPARAM$workers <- ncores
 
-    BiocParallel::bplapply(1:NB, function(x){
+    sapply(1:NB, function(x){
         # permute sample labels to get permuted logCPM
-        colnames(logCPM) <- sample(colnames(logCPM), ncol(logCPM))
+        colnames(logCPM) <- sample(colnames(logCPM), nSample)
 
-        # Built permuted logFCs based on the permuted logCPM
-        permutedFC <- sapply(names(sampleInpairs), function(y){
-            logCPM[, sampleInpairs[[y]]$treatedSample] - logCPM[, sampleInpairs[[y]]$contrSample]
-        }, simplify = FALSE)
-        permutedFC <- do.call(cbind,permutedFC)
+        temp <- sapply(seq_along(index), function(y){
+           (logCPM[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)] - logCPM[,index[[y]]]) * weight
+        } , simplify = FALSE)
+        do.call(cbind, temp)
+    }, simplify = FALSE)
 
-        # Multiply permuted FCs by gene-wise weights
-        permutedFC * weight
 
-    }, BPPARAM = BPPARAM)
 
 }
 
-#' Title
-#'
-#' @param permutedFC
-#' @param gsTopology
-#' @param ncores
-#'
-#' @return
-#' @export
-#'
-#' @examples
-permutedScore_Rcpp_para <- function(permutedFC, gsTopology, ncores, tol = 1e-7){
 
-    expressedG <- rownames(permutedFC[[1]])
-    newS <-  ncol(permutedFC[[1]])
-    BPPARAM <- BiocParallel::registered()[[1]]
-    BPPARAM$workers <- ncores
-
-    BiocParallel::bplapply(gsTopology, function(x){
-        permutedPertScore_RCPP_indiPathway(X = x, pathwayG = rownames(x), expressedG,
-                                           permutedFC = permutedFC, newS)
-    }, BPPARAM = BPPARAM)
-}
-
-
-#' Title
-#'
-#' @param permutedFC
-#' @param gsTopology
-#' @param ncores
-#'
-#' @return
-#' @export
-#'
-#' @examples
-permutedScore_Rcpp <- function(permutedFC, gsTopology, tol = 1e-7){
-
-    expressedG <- rownames(permutedFC[[1]])
-    newS <-  ncol(permutedFC[[1]])
-
-    lapply(gsTopology, function(x){
-        permutedPertScore_RCPP_indiPathway(X = x, pathwayG = rownames(x), expressedG,
-                                           permutedFC = permutedFC, newS)
-    })
-}
-
-# permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
-#                                    ncores = 4, seed = 123)
-# permutedScore <- permutedScore_Rcpp_para(permutedFC, gsTopology, ncores = 4)
-
-
-# microbenchmark(
-#     # "Parallel_4core" = {
-#     #     permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
-#     #                                       ncores = 4, seed = 123)
-#     #     test1 <- permutedScore_PARALLEL(permutedFC, gsTopology, ncores = 4)},
-#     "Rcpp_para" = {
-#         permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
-#                                           ncores = 8, seed = 123)
-#         test1 <- permutedScore_Rcpp_para(permutedFC, gsTopology, ncores = 8)},
-#     "Rcpp_Nopara" = {
-#         permutedFC <- .generate_permutedFC(logCPM_example,metadata_example, "patient", "Vehicle", weightedFC$weight, NB = 10,
-#                                            ncores = 8, seed = 123)
-#         test2 <- permutedScore_Rcpp(permutedFC, gsTopology)},
-#     "Rcpp_allin1"  = {test3 <- generate_PermutedScore(logCPM_example, numOfTreat = 3, NB = 10, gsTopology = gsTopology, weight = weightedFC$weight)},
-#     times = 2
-# )
-#
-microbenchmark(
-    "passByValue" = {test1 <- permutedScore_Rcpp_para(permutedFC, gsTopology, ncores = 8)},
-
-    "passByRef" = {test2 <- permutedScore_Rcpp_para_alt(permutedFC, gsTopology, ncores = 8)},
-    times = 3
-)
 

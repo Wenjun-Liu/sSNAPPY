@@ -15,7 +15,7 @@ editor_options:
 ---
 
 ```{r, echo=FALSE}
-knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, crop = NULL)
 ```
 
 # Introduction
@@ -135,7 +135,7 @@ plot_grid(p1,
 
 `SSPT` adopts the pathway perturbation scoring algorithm proposed in [`SPIA`](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732297/), which makes use of gene-set topologise and gene-gene interaction to propagate pathway genes' logFCs down the topologies to compute pathway perturbation scores, where signs of scores reflect the potential directions of changes. 
 
-Therefore, pathway topology information need to be firstly retrieved from your chosen database and converted to weight adjacency matrices, the format required to apply the scoring algorithm. This step is achieved through a chain of functions that are part of the [`graphite` package]() and has been nested into one simple function in this package: `r weightedAdjMatrix()`. Databases that are currently supported are:
+Therefore, pathway topology information need to be firstly retrieved from your chosen database and converted to weight adjacency matrices, the format required to apply the scoring algorithm. This step is achieved through a chain of functions that are part of the [`graphite` package]() and has been nested into one simple function in this package: `weightedAdjMatrix()`. Databases that are currently supported are:
 
 ```{r pathwayDatabases}
 if (!requireNamespace("graphite", quietly=TRUE))
@@ -152,7 +152,7 @@ This vignette chose *KEGG* pathways as an example.
 ```{r weightedAdjMatrix}
 weightedAdjMatrix(species = "hsapiens", database = "kegg", outputDir = "gsTopology.rda")
 load("gsTopology.rda")
-names(gsTopology)
+head(names(gsTopology))
 ```
 
 If only selected pathways are of interest, it's possible to only retrieve the topologeis of those pathways by specifying the pathway names. 
@@ -181,7 +181,7 @@ To derive the empirical p-values for each single sample PS or normalize the raw 
 
 For each round of permutation, sample labels are randomly shuffled to derive the permuted ssLogFCs, which are then used to score pathway perturbation. We recommend to perform a minimum of 1000 rounds of permutation, which means at least 8 samples are required. The `generate_PermutedScore()` function does not require sample metadata but the number of treatments in the study design, including the control treatment, need to be specified. In this example data, the number of treatment was 3.  
 
-Output of the `r generate_PermutedScore()` function is a list where each element is a vector of permuted perturbation scores for a pathway. 
+Output of the `generate_PermutedScore()` function is a list where each element is a vector of permuted perturbation scores for a pathway. 
 
 ```{r permutedScore}
 permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 3, NB = 1000, gsTopology = gsTopology, weight = weightedFC$weight)
@@ -210,10 +210,9 @@ After the empirical null distributions are generated, the median and mad will be
 normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
 normalisedScores %>%
     dplyr::filter(adjPvalue < 0.05) %>%
-    left_join
     mutate_at(vars(c("sample", "gs_name")), as.factor) %>%
     mutate_if(is.numeric, sprintf, fmt = '%#.4f') %>%
-    mutate(Direction = ifelse(Estimate < 0, "Inhibited", "Activation")) %>%
+    mutate(Direction = ifelse(robustZ < 0, "Inhibited", "Activation")) %>%
     dplyr::select(
         Comparison, `Perturbation Score` = Estimate, Direction,
         `Gene-set name` = gs_name, 

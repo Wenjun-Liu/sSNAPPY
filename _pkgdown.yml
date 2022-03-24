@@ -28,5 +28,5 @@ navbar:
   left:
   - text: Reference
     href: reference/index.html
-  - text: Vignettes
-    href:
+  - text: Get Started
+    href: articles/SSPT.html

@@ -75,65 +75,56 @@ perturbationScore <- function(weightedFC, gsTopology){
 }
 
 
-.ssPertScore <- function(adjMatrix, weightedFC, tol = 1e-7){
-
-    # if pathway adjacency matrix is not invertible, output NULL
-    d <- abs(det(adjMatrix))
-    if (d < tol) return(NULL)
-
-    # subset pathway genes' expression
-    x <- weightedFC[rownames(adjMatrix), ]
-
-    apply(x, 2, function(y)sum(.Internal(La_solve(adjMatrix, -y, tol)) - y))
-
-}
-
-
-
-#' Title
+#' .ssPertScore <- function(adjMatrix, weightedFC, tol = 1e-7){
 #'
-#' @param weightedFC
-#' @param filePath
+#'     # if pathway adjacency matrix is not invertible, output NULL
+#'     d <- abs(det(adjMatrix))
+#'     if (d < tol) return(NULL)
 #'
-#' @return
-#' @export
+#'     # subset pathway genes' expression
+#'     x <- weightedFC[rownames(adjMatrix), ]
 #'
-#' @examples
-perturbationScore_R <- function(weightedFC, gsTopology){
-
-
-    if (length(intersect(rownames(weightedFC), unlist(unname(lapply(gsTopology, rownames))))) == 0)
-        stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
-
-    # extract all unique pathway genes and find ones that are not expressed
-    notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(weightedFC))
-    if (length(notExpressed) != 0){
-        temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(weightedFC))
-        rownames(temp) <- notExpressed
-        colnames(temp) <- colnames(weightedFC)
-        weightedFC <- rbind(weightedFC, temp)}
-
-    PF <-  lapply(gsTopology, .ssPertScore, weightedFC = weightedFC)
-
-    # Remove list elements that are null or all zeros
-    suppressWarnings(PF <- PF[sapply(PF, any)])
-
-    PF <- sapply(names(PF), function(x){
-        temp <- as.data.frame(PF[[x]])
-        temp <- set_colnames(temp, "tA")
-        temp <- rownames_to_column(temp,"sample")
-        temp <- mutate(temp, gs_name = x)
-    }, simplify = FALSE)
-    bind_rows(PF)
-
-}
-
-
-
-# # Rcpp functions takes on average 5 secs, R takes 11 while the BiocParallel one takes 9
-# microbenchmark::microbenchmark(
-#     Rcpp = perturbationScore(weightedFC$logFC, gsTopology),
-#     R = perturbationScore_R(weightedFC$logFC, gsTopology),
-#     BiocParallel = perturbationScore_Rparallel(weightedFC$logFC, gsTopology),
-#     times = 5
-# )
+#'     apply(x, 2, function(y)sum(.Internal(La_solve(adjMatrix, -y, tol)) - y))
+#'
+#' }
+#'
+#'
+#'
+#' #' Title
+#' #'
+#' #' @param weightedFC
+#' #' @param filePath
+#' #'
+#' #' @return
+#' #' @export
+#' #'
+#' #' @examples
+#' perturbationScore_R <- function(weightedFC, gsTopology){
+#'
+#'
+#'     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(gsTopology, rownames))))) == 0)
+#'         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
+#'
+#'     # extract all unique pathway genes and find ones that are not expressed
+#'     notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(weightedFC))
+#'     if (length(notExpressed) != 0){
+#'         temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(weightedFC))
+#'         rownames(temp) <- notExpressed
+#'         colnames(temp) <- colnames(weightedFC)
+#'         weightedFC <- rbind(weightedFC, temp)}
+#'
+#'     PF <-  lapply(gsTopology, .ssPertScore, weightedFC = weightedFC)
+#'
+#'     # Remove list elements that are null or all zeros
+#'     suppressWarnings(PF <- PF[sapply(PF, any)])
+#'
+#'     PF <- sapply(names(PF), function(x){
+#'         temp <- as.data.frame(PF[[x]])
+#'         temp <- set_colnames(temp, "tA")
+#'         temp <- rownames_to_column(temp,"sample")
+#'         temp <- mutate(temp, gs_name = x)
+#'     }, simplify = FALSE)
+#'     bind_rows(PF)
+#'
+#' }
+#'

@@ -12,6 +12,7 @@ RoxygenNote: 7.1.2
 LazyData: TRUE
 Suggests: 
     AnnotationHub,
+    BiocStyle,
     cowplot,
     ensembldb,
     knitr,

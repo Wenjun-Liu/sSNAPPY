@@ -2,41 +2,10 @@
 % Please edit documentation in R/normaliseByPermutation.R
 \name{.generate_permutedFC}
 \alias{.generate_permutedFC}
-\title{#' Title
-#'
-#' @param logCPM
-#' @param metadata
-#' @param factor
-#' @param control
-#' @param BPPARAM
-#' @param seed
-#'
-#' @return
-#'
-#' @examples}
+\title{Permute sample labels to generate permuted logFCs}
 \usage{
-.generate_permutedFC(
-  logCPM,
-  metadata,
-  factor,
-  control,
-  weight,
-  NB,
-  seed,
-  ncores = 6
-)
+.generate_permutedFC(logCPM, numOfTreat, NB = 1000, weight, seed)
 }
 \description{
-#' Title
-#'
-#' @param logCPM
-#' @param metadata
-#' @param factor
-#' @param control
-#' @param BPPARAM
-#' @param seed
-#'
-#' @return
-#'
-#' @examples
+Permute sample labels to generate permuted logFCs
 }
