@@ -41,7 +41,7 @@
 #'
 #' # explore all species and databases supported by graphite
 #' \dontrun{
-#' load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
+#' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 #' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
 #'  NB = 100, gsTopology = gsTopology, weight = ls$weight)
 #'
@@ -110,13 +110,13 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #'
 #' @examples
 #' \dontrun{
-#' load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
+#' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 #' ssPertScore <- perturbationScore(ls$logFC, gsTopology)
 #' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
 #'  NB = 100, gsTopology = gsTopology, weight = ls$weight)
 #' normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
 #'  }
-#' load(system.file("extdata", "normalisedScores.rda", package = "SSPT"))
+#' load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
 #' head(normalisedScores)
 normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"){
     pvalue <- NULL
@@ -138,7 +138,7 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
 
 #' Permute sample labels to generate permuted logFCs
 .generate_permutedFC <- function(logCPM, numOfTreat,
-                                 NB = 1000, weight, seed){
+                                 NB, weight, seed){
 
     nSample <- ncol(logCPM)
     index <- seq(1, nSample, by = numOfTreat)

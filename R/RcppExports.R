@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 permutedPertScore_RCPP <- function(X, pathwayG, expressedG, permutedFC, newS) {
-    .Call(`_SSPT_permutedPertScore_RCPP`, X, pathwayG, expressedG, permutedFC, newS)
+    .Call(`_sSNAPPY_permutedPertScore_RCPP`, X, pathwayG, expressedG, permutedFC, newS)
 }
 
 ssPertScore_RCPP <- function(BminsI, weightedFC, expressedG, sample) {
-    .Call(`_SSPT_ssPertScore_RCPP`, BminsI, weightedFC, expressedG, sample)
+    .Call(`_sSNAPPY_ssPertScore_RCPP`, BminsI, weightedFC, expressedG, sample)
 }
 

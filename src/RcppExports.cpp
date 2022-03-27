@@ -13,7 +13,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // permutedPertScore_RCPP
 List permutedPertScore_RCPP(const arma::mat& X, const CharacterVector& pathwayG, const CharacterVector& expressedG, const List& permutedFC, int newS);
-RcppExport SEXP _SSPT_permutedPertScore_RCPP(SEXP XSEXP, SEXP pathwayGSEXP, SEXP expressedGSEXP, SEXP permutedFCSEXP, SEXP newSSEXP) {
+RcppExport SEXP _sSNAPPY_permutedPertScore_RCPP(SEXP XSEXP, SEXP pathwayGSEXP, SEXP expressedGSEXP, SEXP permutedFCSEXP, SEXP newSSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -28,7 +28,7 @@ END_RCPP
 }
 // ssPertScore_RCPP
 List ssPertScore_RCPP(const List& BminsI, arma::mat weightedFC, const CharacterVector& expressedG, const CharacterVector& sample);
-RcppExport SEXP _SSPT_ssPertScore_RCPP(SEXP BminsISEXP, SEXP weightedFCSEXP, SEXP expressedGSEXP, SEXP sampleSEXP) {
+RcppExport SEXP _sSNAPPY_ssPertScore_RCPP(SEXP BminsISEXP, SEXP weightedFCSEXP, SEXP expressedGSEXP, SEXP sampleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -42,12 +42,12 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SSPT_permutedPertScore_RCPP", (DL_FUNC) &_SSPT_permutedPertScore_RCPP, 5},
-    {"_SSPT_ssPertScore_RCPP", (DL_FUNC) &_SSPT_ssPertScore_RCPP, 4},
+    {"_sSNAPPY_permutedPertScore_RCPP", (DL_FUNC) &_sSNAPPY_permutedPertScore_RCPP, 5},
+    {"_sSNAPPY_ssPertScore_RCPP", (DL_FUNC) &_sSNAPPY_ssPertScore_RCPP, 4},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_SSPT(DllInfo *dll) {
+RcppExport void R_init_sSNAPPY(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

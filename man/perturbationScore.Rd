@@ -43,7 +43,7 @@ graphite::pathwayDatabases()
 weightedAdjMatrix(species = "hsapiens", database = "kegg",
 outputDir = "gsTopology.rda")
 }
-load(system.file("extdata", "gsTopology.rda", package = "SSPT"))
+load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 ssPertScore <- perturbationScore(ls$logFC, gsTopology)
 }
 \references{

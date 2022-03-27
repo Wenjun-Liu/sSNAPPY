@@ -1,8 +1,8 @@
-#' SSPT: A package for testing single sample pathway perturbation
+#' sSNAPPY: A package for testing directional single sample pathway perturbation
 #'
-#' @description A package for testing single sample pathway perturbation
+#' @description A package for testing directional single sample pathway perturbation
 #' @docType package
-#' @name SSPT
-#' @useDynLib SSPT, .registration=TRUE
+#' @name sSNAPPY
+#' @useDynLib sSNAPPY, .registration=TRUE
 NULL
 #> NULL
