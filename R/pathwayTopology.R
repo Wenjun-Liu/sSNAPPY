@@ -2,7 +2,6 @@
 #'
 #' @description Convert pathway topology matrices to normalized weighted directed adjacency matrices describing the gene signaling network.
 #'
-#' @param species See example for supported species.
 #' @param database See example for supported databases.
 #' @param pathwayName Optional. Subset of pathway names as a vector.
 #' @param beta Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type.
@@ -23,6 +22,7 @@
 #'
 #' The converted weighted adjacent matrices will be stored in list and write into the file directory specified through the `outputDir` parameter.
 #'
+#' This function only supports and can only be used to retreive human databases as this stage.
 #' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
 #' Bioinformatics. 2009 Jan 1;25(1):75-82.
 #' Sales, G., Calura, E., Cavalieri, D. et al. graphite - a Bioconductor package to convert pathway topology to gene network.
@@ -30,27 +30,25 @@
 #' @export
 #'
 #' @examples
-#' # explore all species and databases supported by graphite
+#' # explore all databases supported by graphite
 #' \dontrun{
 #' graphite::pathwayDatabases()
-#' weightedAdjMatrix(species = "hsapiens",
-#' database = "kegg",
+#' weightedAdjMatrix(database = "kegg",
 #' outputDir = "gsTopology.rda")
 #' }
 #' # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
 #' \dontrun{
-#' weightedAdjMatrix(species = "hsapiens", database = "kegg",
+#' weightedAdjMatrix(database = "kegg",
 #' pathwayName = c("Glycolysis / Gluconeogenesis",
 #' "Citrate cycle (TCA cycle)","Pentose phosphate pathway"),
 #' outputDir = "gsTopology.rda")
 #' }
 #'
-weightedAdjMatrix <-  function(species, database, pathwayName = NULL, beta = NULL, outputDir){
+weightedAdjMatrix <-  function(database, pathwayName = NULL, beta = NULL, outputDir){
 
     supportedDatabase <- graphite::pathwayDatabases()
-    if(any(c(!species %in% supportedDatabase$species,!database %in% supportedDatabase$database)))stop(
-        "Requested species or database currently not supported by `grahpite`. Run `pathwayDatabses`
-        to get databases available."
+    if(!database %in% supportedDatabase$database)stop(
+        "Requested database currently not supported. See example for how to find databases available"
     )
 
     rel<-c("activation","compound","binding/association","expression","inhibition",
@@ -71,7 +69,7 @@ weightedAdjMatrix <-  function(species, database, pathwayName = NULL, beta = NUL
         }
     }
 
-    datpT <- .retrieveTopology(species, database, pathwayName)
+    datpT <- .retrieveTopology(database, pathwayName)
     int2keep <- names(beta[beta !=0])
     datpT <- lapply(datpT, function(x) x[names(x) %in% int2keep] )
 
@@ -103,8 +101,8 @@ weightedAdjMatrix <-  function(species, database, pathwayName = NULL, beta = NUL
 }
 
 #' @importFrom graphite pathways convertIdentifiers prepareSPIA
-.retrieveTopology <- function(species, database, pathwayName = NULL){
-    pys <- pathways(species, database)
+.retrieveTopology <- function(database, pathwayName = NULL){
+    pys <- pathways("hsapiens", database)
     if(!is.null(pathwayName)){
         if (any(pathwayName %in% names(pys))){
             pys <- pys[names(pys) %in% pathwayName]

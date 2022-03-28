@@ -43,9 +43,9 @@ test_that("generate_PermutedScore returns error when expected", {
                                         gsTopology = BminsI, weight = ssFC$weight), "NA values not allowed")
 })
 
-test_that("permutedPertScore_RCPP produces the expected outcome"){
-
-}
+# test_that("permutedPertScore_RCPP produces the expected outcome"){
+#     temp <- permutedPertScore_RCPP()
+# }
 
 test_that("generate_PermutedScore produces the expected outcome", {
     results_sub <- generate_PermutedScore(y[, 1:4], numOfTreat =2, NB = 100, gsTopology = BminsI, weight = ssFC$weight)

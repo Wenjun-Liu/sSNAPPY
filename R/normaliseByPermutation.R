@@ -16,7 +16,6 @@
 #' @param NB Number of permutations
 #' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix`
 #' @param weight A vector of gene-wise weights derived from function `weight_ssFC`
-#' @param seed seed for sample label shuffling
 #' @param BPPARAM The parallel back-end to uses, if not specified, it is defaulted to the one returned by \code{BiocParallel::bpparam()}.
 #' @import Rcpp
 #' @importFrom BiocParallel bpparam bplapply
@@ -50,7 +49,7 @@
 #'  }
 
 generate_PermutedScore <- function(logCPM, numOfTreat,
-                                        NB = 1000, seed = 123,
+                                        NB = 1000,
                                         gsTopology, weight, BPPARAM = BiocParallel:: bpparam()){
 
     # checks
@@ -79,7 +78,7 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 
     }
 
-    permutedFC <- .generate_permutedFC(logCPM, numOfTreat, NB, weight, seed)
+    permutedFC <- .generate_permutedFC(logCPM, numOfTreat, NB, weight)
 
     allG <- rownames(logCPM)
     newS <-  ncol(permutedFC[[1]])
@@ -137,20 +136,18 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
 
 
 #' Permute sample labels to generate permuted logFCs
+#' @param logCPM Matrix of normaslised logCPM where rows are genes and columns are samples. Row names need to be gene entrez IDs.
+#' @param numOfTreat Number of treatments (including control)
+#' @param NB Number of permutations
+#' @param weight A vector of gene-wise weights derived from function `weight_ssFC`
 .generate_permutedFC <- function(logCPM, numOfTreat,
-                                 NB, weight, seed){
+                                 NB, weight){
 
     nSample <- ncol(logCPM)
     index <- seq(1, nSample, by = numOfTreat)
-    set.seed(seed)
-
-    # BPPARAM <- BiocParallel::registered()[[1]]
-    # BPPARAM$workers <- ncores
-
     sapply(1:NB, function(x){
         # permute sample labels to get permuted logCPM
-        colnames(logCPM) <- sample(colnames(logCPM), nSample)
-
+        logCPM <- logCPM[,sample(1: nSample, nSample)]
         temp <- sapply(seq_along(index), function(y){
            (logCPM[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)] - logCPM[,index[[y]]]) * weight
         } , simplify = FALSE)

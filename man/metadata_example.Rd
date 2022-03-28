@@ -10,6 +10,7 @@ A data frame with 16 rows and 6 columns
 \item{patient}{patient p1-p8}
 \item{treatment}{treatment: Vehicle or E2}
 \item{time}{amount of time the sample was treated for, in hours}
+\item{PR}{progesterone receptor status}
 \item{sample}{sample name, corresponding to column names of the logCPM matrix}
 }
 }

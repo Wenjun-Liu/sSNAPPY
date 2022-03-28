@@ -4,7 +4,16 @@
 \alias{.generate_permutedFC}
 \title{Permute sample labels to generate permuted logFCs}
 \usage{
-.generate_permutedFC(logCPM, numOfTreat, NB = 1000, weight, seed)
+.generate_permutedFC(logCPM, numOfTreat, NB, weight)
+}
+\arguments{
+\item{logCPM}{Matrix of normaslised logCPM where rows are genes and columns are samples. Row names need to be gene entrez IDs.}
+
+\item{numOfTreat}{Number of treatments (including control)}
+
+\item{NB}{Number of permutations}
+
+\item{weight}{A vector of gene-wise weights derived from function \code{weight_ssFC}}
 }
 \description{
 Permute sample labels to generate permuted logFCs

@@ -8,7 +8,6 @@ generate_PermutedScore(
   logCPM,
   numOfTreat,
   NB = 1000,
-  seed = 123,
   gsTopology,
   weight,
   BPPARAM = BiocParallel::bpparam()
@@ -20,8 +19,6 @@ generate_PermutedScore(
 \item{numOfTreat}{Number of treatments (including control)}
 
 \item{NB}{Number of permutations}
-
-\item{seed}{seed for sample label shuffling}
 
 \item{gsTopology}{List of pathway topology matrices generated using function \code{weightedAdjMatrix}}
 

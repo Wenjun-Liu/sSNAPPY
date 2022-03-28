@@ -1,4 +1,4 @@
-url: https://wenjun-liu.github.io/SSPT/
+url: https://wenjun-liu.github.io/sSNAPPY/
 template:
   params:
     bootswatch: Sandstone
@@ -29,4 +29,4 @@ navbar:
   - text: Reference
     href: reference/index.html
   - text: Get Started
-    href: articles/SSPT.html
+    href: articles/sSNAPPY.html

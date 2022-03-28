@@ -18,6 +18,7 @@
 #'   \item{patient}{patient p1-p8}
 #'   \item{treatment}{treatment: Vehicle or E2}
 #'   \item{time}{amount of time the sample was treated for, in hours}
+#'   \item{PR}{progesterone receptor status}
 #'   \item{sample}{sample name, corresponding to column names of the logCPM matrix}
 #' }
 #' @source \url{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/}

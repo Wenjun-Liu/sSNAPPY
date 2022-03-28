@@ -4,17 +4,9 @@
 \alias{weightedAdjMatrix}
 \title{Create pathway topology weighted adjacent matrix}
 \usage{
-weightedAdjMatrix(
-  species,
-  database,
-  pathwayName = NULL,
-  beta = NULL,
-  outputDir
-)
+weightedAdjMatrix(database, pathwayName = NULL, beta = NULL, outputDir)
 }
 \arguments{
-\item{species}{See example for supported species.}
-
 \item{database}{See example for supported databases.}
 
 \item{pathwayName}{Optional. Subset of pathway names as a vector.}
@@ -40,18 +32,19 @@ whose names must be: c("activation","compound","binding/association","expression
 chosen as: c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0).
 
 The converted weighted adjacent matrices will be stored in list and write into the file directory specified through the \code{outputDir} parameter.
+
+This function only supports and can only be used to retreive human databases as this stage.
 }
 \examples{
 # explore all species and databases supported by graphite
 \dontrun{
 graphite::pathwayDatabases()
-weightedAdjMatrix(species = "hsapiens",
-database = "kegg",
+weightedAdjMatrix(database = "kegg",
 outputDir = "gsTopology.rda")
 }
 # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
 \dontrun{
-weightedAdjMatrix(species = "hsapiens", database = "kegg",
+weightedAdjMatrix(database = "kegg",
 pathwayName = c("Glycolysis / Gluconeogenesis",
 "Citrate cycle (TCA cycle)","Pentose phosphate pathway"),
 outputDir = "gsTopology.rda")
