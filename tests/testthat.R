@@ -1,4 +1,4 @@
 library(testthat)
-library(SSPT)
+library(sSNAPPY)
 
-test_check("SSPT")
+test_check("sSNAPPY")

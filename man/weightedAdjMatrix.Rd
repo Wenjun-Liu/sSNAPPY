@@ -36,7 +36,7 @@ The converted weighted adjacent matrices will be stored in list and write into t
 This function only supports and can only be used to retreive human databases as this stage.
 }
 \examples{
-# explore all species and databases supported by graphite
+# explore all databases supported by graphite
 \dontrun{
 graphite::pathwayDatabases()
 weightedAdjMatrix(database = "kegg",

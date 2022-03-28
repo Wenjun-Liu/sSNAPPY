@@ -60,8 +60,8 @@ ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
 # explore all species and databases supported by graphite
 \dontrun{
 load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
-permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
- NB = 100, gsTopology = gsTopology, weight = ls$weight)
+permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 3,
+ NB = 1000, gsTopology = gsTopology, weight = ls$weight)
 
 # To see what other parallel back-end can be used:
  BiocParallel::registered()

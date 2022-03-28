@@ -1,7 +1,7 @@
 test_that("weightedAdjMatrix returns erros when expected", {
-    expect_error(weightedAdjMatrix("random", outputDir = "data/test.rds"),"Requested database currently not supported. See example for how to find databases available")
-    expect_error(weightedAdjMatrix("kegg", outputDir = "data/test.rds", beta = c(0,1,2)), "Beta has wrong length or names. See details for requirements")
-    expect_error(weightedAdjMatrix("kegg", outputDir = "data/test.rds", pathwayName = c("A", "B")), "Pathway names provided not detected in retrieved database")
+    expect_error(weightedAdjMatrix(database = "random", outputDir = "data/test.rds"),"Requested database currently not supported. See example for how to find databases available")
+    expect_error(weightedAdjMatrix(database = "kegg", outputDir = "data/test.rds", beta = c(0,1,2)), "Beta has wrong length or names. See details for requirements")
+    expect_error(weightedAdjMatrix(database = "kegg", outputDir = "data/test.rds", pathwayName = c("A", "B")), "Pathway names provided not detected in retrieved database")
 
     })
 

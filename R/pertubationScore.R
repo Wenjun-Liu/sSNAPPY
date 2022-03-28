@@ -1,13 +1,13 @@
 
-#' @title Single Sample Perturbation Score
+#' @title Compute Single Sample Perturbation Score
 #'
 #' @description Propagate weighted single sample logFCs down the pathway topologies to compute single sample perturbation scores for each pathway
 #'
 #' @details This function use the algorithm adopted from `SPIA` (see citation) to compute a single sample perturbation score per sample per
-#' pathway. The rownames of the weighted single sample logFC matrix and the pathway toplogy matrices must use the same type of gene identifier (ie. entrez ID).
+#' pathway. The rownames of the weighted single sample logFC matrix and the pathway topology matrices must use the same type of gene identifier (ie. entrez ID).
 #'
-#' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ssFC`
-#' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix`
+#' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ssFC()`
+#' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix()`
 #'
 #' @importFrom purrr set_names
 #' @importFrom plyr compact

@@ -28,7 +28,7 @@ single sample logFCs are ready for computing perturbation scores."><!-- mathjax 
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/SSPT.html">Get Started</a>
+  <a href="../articles/sSNAPPY.html">Get Started</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -106,16 +106,15 @@ samples can be put into matching pairs. It must also be included as a column in 
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># Inspect metadata data frame to make sure it has treatment, sample and patient columns</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">metadata_example</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   patient, treatment, time [6]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   sample         patient treatment  time PR      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Vehicle_N1_24  N1      Vehicle      24 Negative</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> E2+R5020_N1_24 N1      E2+R5020     24 Negative</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> R5020_N1_24    N1      R5020        24 Negative</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Vehicle_N2_48  N2      Vehicle      48 Negative</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> E2+R5020_N2_48 N2      E2+R5020     48 Negative</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> R5020_N2_48    N2      R5020        48 Negative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 4</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   patient treatment sample         PR      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> N2      Vehicle   Vehicle_N2_48  Negative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> N2      E2+R5020  E2+R5020_N2_48 Negative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> N2      R5020     R5020_N2_48    Negative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> N3      Vehicle   Vehicle_N3_48  Negative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> N3      E2+R5020  E2+R5020_N3_48 Negative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> N3      R5020     R5020_N3_48    Negative</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span>, <span class="va">metadata_example</span><span class="op">$</span><span class="va">sample</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span class="va">ls</span> <span class="op">&lt;-</span> <span class="fu">weight_ssFC</span><span class="op">(</span><span class="va">logCPM_example</span>, metadata <span class="op">=</span> <span class="va">metadata_example</span>,</span>

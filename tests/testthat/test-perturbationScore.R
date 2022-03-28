@@ -16,10 +16,10 @@ sample <- sample %>%
             stringr::str_split(x, "_")[[1]][1]
         }, character(1)))
 ssFC <- weight_ssFC(y, sample, "patient", "control")
-pathwayDir <- system.file("testdata", "test_BminsI.rda", package = "SSPT")
+pathwayDir <- system.file("extdata", "gsTopology.rda", package = "sSNAPPY")
 load(pathwayDir)
 # the number of pathways with at least one of those five genes in it
-interesectName <- names(BminsI[lapply(BminsI, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
+interesectName <- names(gsTopology[lapply(gsTopology, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
 
 # create logCPM matrix with gene_id as rownames (instead of entrezID required)
 y_wrongIdentifier <- y
@@ -27,18 +27,27 @@ rownames(y_wrongIdentifier) <- c("ENSG00000000003","ENSG00000000419","ENSG000000
 ssFC_wrongIdentifier <- weight_ssFC(y_wrongIdentifier, sample, "patient", "control")
 
 test_that("perturbationScore returns error when expected", {
-    expect_error(perturbationScore(ssFC_wrongIdentifier$logFC, BminsI), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
+    expect_error(perturbationScore(ssFC_wrongIdentifier$logFC, gsTopology), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
 })
 
+notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(ssFC$logFC))
+if (length(notExpressed) != 0){
+    # set the FCs of unexpressed pathway genes to 0
+    temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(ssFC$logFC))
+    rownames(temp) <- notExpressed
+    colnames(temp) <- colnames(ssFC$logFC)
+    # set the weights of unexpressed pathway genes to 0
+    ssFC$logFC <- rbind(ssFC$logFC, temp)}
+
 test_that("ssPertScore_RCPP produces the expected outcome",{
-    ls <- ssPertScore_RCPP(BminsI, ssFC$logFC, rownames(ssFC$logFC), colnames(ssFC$logFC))
-    expect_equal(names(ls), names(BminsI))
+    ls <- ssPertScore_RCPP(gsTopology, ssFC$logFC, rownames(ssFC$logFC), colnames(ssFC$logFC))
+    expect_equal(names(ls), names(gsTopology))
     expect_true(is.vector(ls[[1]]))
     expect_equal(names(ls[[1]]), stringr::str_subset(sample$sample, "control", negate = TRUE))
 })
 
 test_that("perturbationScore produces the expected outcome", {
-    output <- perturbationScore(ssFC$logFC, BminsI)
+    output <- perturbationScore(ssFC$logFC, gsTopology)
     expect_equal(colnames(output), c("sample", "tA", "gs_name"))
     expect_false(anyNA(output$tA))
     expect_equal(unique(output$sample), stringr::str_subset(sample$sample, "control", negate = TRUE))

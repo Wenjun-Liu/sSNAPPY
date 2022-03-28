@@ -3,8 +3,8 @@ pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   sSNAPPY: sSNAPPY.html
-last_built: 2022-03-28T05:52Z
+last_built: 2022-03-28T11:36Z
 urls:
-  reference: https://wenjun-liu.github.io/SSPT/reference
-  article: https://wenjun-liu.github.io/SSPT/articles
+  reference: https://wenjun-liu.github.io/sSNAPPY/reference
+  article: https://wenjun-liu.github.io/sSNAPPY/articles
 

@@ -9,7 +9,7 @@ output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Single Sample Directional Pathway Perturbation Analysis}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::knitr}
 editor_options: 
   chunk_output_type: inline
 ---
@@ -45,7 +45,7 @@ library(DT)
 
 # load data
 
-The example dataset used for this tutorial has been built into the `sSNAPPY` package. It's a subset of data retrieved from [Singhal H et al. 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/), where ER-positive primary breast cancer tumor tissues collected from 12 patients were split into fragments of equal sizes for different treatments. For the purpose of this tutorial, we only took the RNA-seq data from samples treated with vehicle, E2 OR E2 + R5020 from each patient. More detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
+The example dataset used for this tutorial has been built into the `sSNAPPY` package. It's a subset of data retrieved from [Singhal H et al. 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/), where ER-positive primary breast cancer tumor tissues collected from 12 patients were split into fragments of equal sizes for different treatments. For the purpose of this tutorial, we only took the RNA-seq data from samples that were treated with vehicle, E2 OR E2 + R5020 for 48 hrs. They were from 5 different patients, giving rise to 15 samples in total. More detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
 
 
 ```{r data}
@@ -191,12 +191,12 @@ Output of the `generate_PermutedScore()` function is a list where each element i
 The permutation step relies on the parallel computing feature provided by `BiocParallel`. User can choose to customize the parallel back-end or stick with the default one returned by `BiocParallel::bpparam()`. Depending on the size of the data, this step can take some time to complete. If the sample size is large, we recommend users to consider performing this step on a HPC. 
 
 ```{r permutedScore}
-# permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 3, NB = 1000, gsTopology = gsTopology, weight = weightedFC$weight)
+permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 3, NB = 1000, gsTopology = gsTopology, weight = weightedFC$weight)
 ```
 
 Let's randomly choose six pathways and examine the permutation-derived emipirical distribution of their perturbation scores. They should all be approximately normal distributed. 
 
-```{r NullDistribution, fig.width=14, fig.height=8}
+```{r NullDistribution, fig.width=10, fig.height=6}
 pl <- permutedScore %>%
     keep(~all(.!=0)) %>%
     .[sample(seq_along(.), 6)] %>%
@@ -246,12 +246,13 @@ We can use the `plot_gsNetwork` function to visualise the significantly perturbe
 
 Nodes in the network plots could be colored by the predicted direction of perturbation (ie. sign of robust z-score):
 
-```{r sigGS_nt_zscore, fig.width= 20, fig.height=6}
+```{r sigGS_nt_zscore, fig.width= 15, fig.height=5}
 pl <- normalisedScores %>%
     dplyr::filter(adjPvalue < 0.05) %>%
     split(f = .$sample) %>%
     lapply(
         plot_gsNetwork, 
+        layout = "dh",
         gsTopology = gsTopology, 
         colorBy = "robustZ"
         
@@ -262,13 +263,15 @@ plot_grid(
 )
 ```
 
-Or pvalues: 
-```{r sigGS_nt_pvalue, fig.width= 20, fig.height=6}
+Or pvalues:
+
+```{r sigGS_nt_pvalue, fig.width= 15, fig.height=5}
 pl <- normalisedScores %>%
     dplyr::filter(adjPvalue < 0.05) %>%
     split(f = .$sample) %>%
     lapply(
         plot_gsNetwork, 
+        layout = "dh",
         gsTopology = gsTopology, 
         colorBy = "pvalue", 
         color_lg_title = "P-value"
@@ -332,15 +335,18 @@ treat_sig %>%
         backgroundColor = styleEqual(c("Inhibited", "Activation"), c('lightblue', 'indianred'))
     )
 ```
+Results from this analysis indicate that the estrogen signaling pathway was significantly activated among both E2 and E2+R5020 treated samples, which makes sense biologically.
+
 ### Visualisation
 
 Results of `lm` can also be visualised using the `plot_gsNetwork` function. We just need to change the name of the `Estimate` column to `robustZ` to  color the networks by the predicted directionality.
 
-```{r fig.width=10, fig.height=8}
+```{r fig.width=6, fig.height=4}
 treat_sig %>% 
     dplyr::filter(FDR < 0.05, Treatment == "R5020") %>%
     dplyr::rename(robustZ = Estimate) %>%
     plot_gsNetwork(
+        layout = "stress",
         gsTopology = gsTopology, 
         colorBy = "robustZ"
     ) +
@@ -353,3 +359,9 @@ treat_sig %>%
 # References
 - Sales G, Calura E, Cavalieri D, Romualdi C (2012). “graphite - a Bioconductor package to convert pathway topology to gene network.” BMC Bioinformatics. https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-20.
 - Tarca, Adi Laurentiu et al. (2009). “A novel signaling pathway impact analysis.” Bioinformatics vol. 25,1 : 75-82. doi:10.1093/bioinformatics/btn577
+
+# Session Info
+
+```{r sessionInfo}
+sessionInfo()
+```

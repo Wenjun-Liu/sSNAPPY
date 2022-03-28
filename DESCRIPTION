@@ -1,5 +1,5 @@
 Package: sSNAPPY
-Title: Singel Sample directioNAl Pathway Perturbation analYsis
+Title: Single Sample directioNAl Pathway Perturbation analYsis
 Version: 0.99.0
 Authors@R: 
     person("Wenjun", "Liu", , "wenjun.liu@example.com", role = c("aut", "cre"),
@@ -48,5 +48,5 @@ Depends:
     R (>= 4.1.0)
 biocViews:
     Software
-URL: https://wenjun-liu.github.io/SSPT/
+URL: https://wenjun-liu.github.io/sSNAPPY/
 VignetteBuilder: knitr

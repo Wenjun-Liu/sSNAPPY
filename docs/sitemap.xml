@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/404.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/404.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/LICENSE-text.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/LICENSE.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/articles/index.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/articles/sSNAPPY.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/articles/sSNAPPY.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/authors.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/authors.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/index.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/index.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/dot-compute_ssFC.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/dot-compute_ssFC.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/dot-generate_permutedFC.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/dot-generate_permutedFC.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/generate_PermutedScore.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/generate_PermutedScore.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/get_GSgenelist.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/get_GSgenelist.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/index.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/jacIdex_func.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/jacIdex_func.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/logCPM_example.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/logCPM_example.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/make_gsNetwork.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/make_gsNetwork.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/metadata_example.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/metadata_example.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/normaliseByPermutation.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/normaliseByPermutation.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/perturbationScore.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/perturbationScore.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/plot_gsNetwork.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/plot_gsNetwork.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/sSNAPPY.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/sSNAPPY.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/str_replace_nth.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/str_replace_nth.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/weight_ssFC.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/weight_ssFC.html</loc>
   </url>
   <url>
-    <loc>https://wenjun-liu.github.io/SSPT/reference/weightedAdjMatrix.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/weightedAdjMatrix.html</loc>
   </url>
 </urlset>

@@ -26,7 +26,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/SSPT.html">Get Started</a>
+  <a href="../articles/sSNAPPY.html">Get Started</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -50,6 +50,17 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">.generate_permutedFC</span><span class="op">(</span><span class="va">logCPM</span>, <span class="va">numOfTreat</span>, <span class="va">NB</span>, <span class="va">weight</span><span class="op">)</span></code></pre></div>
     </div>
 
+    <div id="arguments">
+    <h2>Arguments</h2>
+    <dl><dt>logCPM</dt>
+<dd><p>Matrix of normaslised logCPM where rows are genes and columns are samples. Row names need to be gene entrez IDs.</p></dd>
+<dt>numOfTreat</dt>
+<dd><p>Number of treatments (including control)</p></dd>
+<dt>NB</dt>
+<dd><p>Number of permutations</p></dd>
+<dt>weight</dt>
+<dd><p>A vector of gene-wise weights derived from function <code>weight_ssFC</code></p></dd>
+</dl></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
