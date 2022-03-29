@@ -37,7 +37,8 @@ Imports:
     ggplot2,
     ggraph,
     igraph,
-    reshape2
+    reshape2,
+    org.Hs.eg.db
 LinkingTo: 
     Rcpp,
     RcppArmadillo
