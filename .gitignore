@@ -1,11 +1,12 @@
 .Rproj.user
-.Rhistory
+.rhistory
 .RData
 .Ruserdata
 .Rbuildignore
-*.Rproj
+.rproj
 TODO.md
 /inst/doc/
 /Meta/
 data/..rda
-src/*.o
+.o
+.so
