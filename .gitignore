@@ -5,7 +5,7 @@
 .Rbuildignore
 *.Rproj
 TODO.md
-/doc/
+/inst/doc/
 /Meta/
 data/..rda
 src/*.o
