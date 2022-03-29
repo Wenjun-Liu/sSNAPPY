@@ -65,25 +65,18 @@ weightedAdjMatrix <-  function(database, pathwayName = NULL, beta = NULL, output
         names(beta)<-rel
     }else{
         if(!all(names(beta) %in% rel) | length(names(beta))!=length(rel)){
-            stop("Beta has wrong length or names. See details for requirements")
-        }
-    }
+            stop("Beta has wrong length or names. See details for requirements")}}
 
     datpT <- .retrieveTopology(database, pathwayName)
     int2keep <- names(beta[beta !=0])
     datpT <- lapply(datpT, function(x) x[names(x) %in% int2keep] )
-
-    #sometimes SPIA add a list element called `<graphite_placeholder>`. Remove it if it exists
+  #sometimes SPIA add a list element called `<graphite_placeholder>`. Remove it if it exists
     if("<graphite_placeholder>" %in% names(datpT)){
-        datpT <- datpT[names(datpT) != "<graphite_placeholder>" ]
-    }
-
+        datpT <- datpT[names(datpT) != "<graphite_placeholder>" ] }
 
     gsTopology <- sapply(names(datpT), function(x){
         g2gInteraction <- sapply(int2keep, function(y){
-            datpT[[x]][[y]] * beta[y]
-
-        }, simplify = FALSE)
+            datpT[[x]][[y]] * beta[y]}, simplify = FALSE)
         g2gInteraction <-   Reduce('+', g2gInteraction)
 
         numDownstream <- Reduce('+', datpT[[x]])
@@ -92,7 +85,6 @@ weightedAdjMatrix <-  function(database, pathwayName = NULL, beta = NULL, output
         B <- g2gInteraction/numDownstream
         diag(B) <- diag(B)-1
         B
-
     }, simplify = FALSE)
 
     save(gsTopology, file = outputDir)
