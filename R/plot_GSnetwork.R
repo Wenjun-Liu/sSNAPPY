@@ -53,42 +53,22 @@ plot_gsNetwork <- function(normalisedScores, gsTopology, colorBy = c("robustZ", 
 
     # plot network edges
     pl <- ggraph(g, layout = layout) +
-        geom_edge_link(
-            alpha = edgeAlpha,
-            aes_(width=~I(weight*scale_edgeWidth)),
-            colour='darkgrey'
-        )
+        geom_edge_link(alpha = edgeAlpha, aes_(width=~I(weight*scale_edgeWidth)), colour='darkgrey')
 
     if (colorBy == "robustZ"){
-        pl <- pl + geom_node_point(
-            aes_(color = ~I(color),
-                 size = ~I(size/scale_nodeSize)),
-            shape = nodeShape,
-            stroke = 0.5
-        ) +
+        pl <- pl + geom_node_point(aes_(color = ~I(color), size = ~I(size/scale_nodeSize)), shape = nodeShape,
+            stroke = 0.5) +
             scale_color_manual(values = c(up_col, down_col),name = color_lg_title)
     } else(
         pl <- pl + geom_node_point(
-            aes_(color = ~color,
-                 size = ~I(size/scale_nodeSize)),
-            shape = nodeShape,
-            stroke = 0.5
-        ) +
-            scale_color_continuous(low="red", high="blue", name = color_lg_title)
-    )
+            aes_(color = ~color, size = ~I(size/scale_nodeSize)), shape = nodeShape, stroke = 0.5) +
+            scale_color_continuous(low="red", high="blue", name = color_lg_title))
 
     if(!color_lg){
-     pl <- pl +
-         guides(color = "none")
+     pl <- pl + guides(color = "none")
     }
 
-    pl + geom_node_text(
-        aes(label = name),
-        size = lb_size,
-        repel = TRUE,
-        colour = lb_color
-    )
-
+    pl + geom_node_text(aes(label = name), size = lb_size, repel = TRUE, colour = lb_color)
 
 }
 
@@ -106,7 +86,6 @@ make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ",
 
     # create dummy variable to pass R CMD CHECK
     from <- to <- E <- robustZ <- NULL
-
     GS2Gene <- get_GSgenelist(gsTopology)
     GS2Gene <- left_join(normalisedScores, GS2Gene, by = "gs_name")
 
@@ -126,25 +105,17 @@ make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ",
     g <- graph.data.frame(dplyr::select(w, from, to), directed = FALSE)
     g <- set_edge_attr(g, "weight", value = w$weight)
 
-
-    GSsize <- melt(lapply(GSlist, nrow))
+   GSsize <- melt(lapply(GSlist, nrow))
     colnames(GSsize) <- c("size", "from")
     g <- set_vertex_attr(g, "size", index = GSsize$from, value = GSsize$size)
-    # GSsize <- GSsize[match(V(g)$name, GSsize$from),]
-    # V(g)$size <- GSsize$size
-
 
     if (colorBy == "robustZ"){
         GScolor <- mutate(GS2Gene, color =  ifelse(robustZ < 0, "Inhibited", "Activated"))
         g <- set_vertex_attr(g, "color", index = GScolor$gs_name, value = GScolor$color)
-        # GScolor <- GScolor[match(V(g)$name, GScolor$gs_name), ]
-        # V(g)$color <- GScolor$color
     }
 
     if (colorBy == "pvalue"){
         GSpvalue <- unique(GS2Gene[,c("gs_name", "pvalue")])
-        # GSpvalue <- GSpvalue[match(V(g)$name, GSpvalue$gs_name), ]
-        # V(g)$color <- GSpvalue$pvalue
         g <- set_vertex_attr(g, "color", index = GSpvalue$gs_name, value = GSpvalue$pvalue)
     }
 
@@ -153,10 +124,7 @@ make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ",
                                                                                      str_replace_nth(x, " ", "\n", foldafter),
                                                                                      x)}, character(1)))
     }
-
     g
-
-
 }
 
 

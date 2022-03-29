@@ -101,7 +101,6 @@ weight_ssFC <- function(logCPM, metadata, factor, control){
     ls <- sapply(pairs, function(x){
     contrSample <- dplyr::filter(metadata, metadata$treatment == control, !!sym(factor) == x)
     contrSample <- as.character(pull(contrSample, sample))
-
     treatedSample <- dplyr::filter(metadata, metadata$treatment != control, !!sym(factor) == x)
     treatedSample <- as.character(pull(treatedSample, sample))
 
