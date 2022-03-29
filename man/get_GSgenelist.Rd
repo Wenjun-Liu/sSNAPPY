@@ -9,6 +9,9 @@ get_GSgenelist(gsTopology)
 \arguments{
 \item{gsTopology}{List of pathway topology matrices generated using function \code{weightedAdjMatrix}}
 }
+\value{
+dataframe
+}
 \description{
 Get gene-set to gene_id data frame
 }

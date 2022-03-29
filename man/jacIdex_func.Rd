@@ -11,6 +11,9 @@ jacIdex_func(x, y)
 
 \item{y}{second element}
 }
+\value{
+numeric
+}
 \description{
 Comppute Jaccard index
 }

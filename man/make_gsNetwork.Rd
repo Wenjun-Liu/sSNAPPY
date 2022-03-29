@@ -23,6 +23,9 @@ make_gsNetwork(
 
 \item{foldafter}{The number of words after which gene-set names should be folded. Defaulted to 2}
 }
+\value{
+igraph object
+}
 \description{
 Create gene-set network plot object
 }

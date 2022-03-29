@@ -56,8 +56,10 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
-    if ( ncol(logCPM) %% numOfTreat != 0 ) stop ("Number of samples must be divisible by the number of treatments")
-    if (nrow(logCPM) != length(weight)) stop("Gene-wise weights do not match with the dimension of logCPM")
+    if ( ncol(logCPM) %% numOfTreat != 0 )
+        stop ("Number of samples must be divisible by the number of treatments")
+    if (nrow(logCPM) != length(weight))
+        stop("Gene-wise weights do not match with the dimension of logCPM")
     logCPM <- as.matrix(logCPM)
 
     rownames(logCPM) <- paste("ENTREZID:", rownames(logCPM), sep = "")
@@ -68,7 +70,9 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
     NB <- min(NB, factorial(ncol(logCPM)))
 
     # set expression values and weights of unexpressed pathway genes to 0
-    notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(logCPM))
+    notExpressed <- setdiff(
+        unique(unlist(unname(lapply(gsTopology, rownames)))),
+        rownames(logCPM))
     if (length(notExpressed) != 0){
         temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(logCPM))
         rownames(temp) <- notExpressed
@@ -85,7 +89,7 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 
     BiocParallel::bplapply(gsTopology, function(x){
         temp <- permutedPertScore_RCPP(X = x, pathwayG = rownames(x), allG,
-                                           permutedFC = permutedFC, newS)
+    permutedFC = permutedFC, newS)
         unlist(temp)
     }, BPPARAM = BPPARAM)
 
@@ -140,14 +144,15 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
 #' @param numOfTreat Number of treatments (including control)
 #' @param NB Number of permutations
 #' @param weight A vector of gene-wise weights derived from function `weight_ssFC`
+#' @return A list
 .generate_permutedFC <- function(logCPM, numOfTreat,
                                  NB, weight){
 
     nSample <- ncol(logCPM)
     index <- seq(1, nSample, by = numOfTreat)
-    sapply(1:NB, function(x){
+    sapply(seq_len(NB), function(x){
         # permute sample labels to get permuted logCPM
-        logCPM <- logCPM[,sample(1: nSample, nSample)]
+        logCPM <- logCPM[,sample(seq_len(nSample), nSample)]
         temp <- sapply(seq_along(index), function(y){
            (logCPM[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)] - logCPM[,index[[y]]]) * weight
         } , simplify = FALSE)

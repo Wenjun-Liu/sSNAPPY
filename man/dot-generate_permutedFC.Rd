@@ -15,6 +15,9 @@
 
 \item{weight}{A vector of gene-wise weights derived from function \code{weight_ssFC}}
 }
+\value{
+A list
+}
 \description{
 Permute sample labels to generate permuted logFCs
 }

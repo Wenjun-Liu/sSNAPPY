@@ -15,6 +15,9 @@ str_replace_nth(x, pattern, replacement, n)
 
 \item{n}{the nth orrcurrences of pattern that will be replaced}
 }
+\value{
+string
+}
 \description{
 Replace the nth occurrence of string with another string
 }

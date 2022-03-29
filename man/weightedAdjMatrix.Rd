@@ -16,6 +16,9 @@ See details for more information.}
 
 \item{outputDir}{A file directory specifying where the weighted adjacent matrix should be stored as an RData object.}
 }
+\value{
+A list where each element is a matrix corresponding to a pathway
+}
 \description{
 Retrieve pathway topology matrices and convert to normalized weighted directed adjacency matrices describing gene signaling networks.
 }
