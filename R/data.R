@@ -1,4 +1,4 @@
-#' logCPM_example: Normalised logCPM of patient-derived explant models obtained from 12 ER-positive primamry breast cancer patients (GSE80098)
+#' logCPM_example: Normalised logCPM of patient-derived explant models obtained from 5 ER-positive primamry breast cancer patients (GSE80098)
 #'
 #' This data was adopted from a study by Singhal H, et al., which was published as *Genomic agonism and phenotypic antagonism between estrogen and progesterone receptors in breast cancer*
 #' in 2016. In this study, 12 primary malignant breast tissues (8PR+ and 4 PR-) were developed into patient-derived explants and treated with Vehicle, E2, E2+R5020, or R5020 for 24 or 48 hrs.

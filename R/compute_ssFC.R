@@ -92,13 +92,14 @@ weight_ssFC <- function(logCPM, metadata, factor, control){
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
-    pairs <- unique(metadata[,factor])
+
+    pairs <- unique(as.character(pull(metadata, sym(factor))))
     ls <- sapply(pairs, function(x){
        contrSample <- dplyr::filter(metadata, metadata$treatment == control, !!sym(factor) == x)
-       contrSample <- pull(contrSample, sample)
+       contrSample <- as.character(pull(contrSample, sample))
 
        treatedSample <- dplyr::filter(metadata, metadata$treatment != control, !!sym(factor) == x)
-       treatedSample <- pull(treatedSample, sample)
+       treatedSample <- as.character(pull(treatedSample, sample))
 
        logCPM[, treatedSample] - logCPM[, contrSample]
     }, simplify = FALSE)

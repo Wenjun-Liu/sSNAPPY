@@ -2,7 +2,7 @@
 % Please edit documentation in R/normaliseByPermutation.R
 \name{generate_PermutedScore}
 \alias{generate_PermutedScore}
-\title{Simulate permuted perturbation scores}
+\title{Permute sample labels to simulate null distribution of perturbation scores}
 \usage{
 generate_PermutedScore(
   logCPM,

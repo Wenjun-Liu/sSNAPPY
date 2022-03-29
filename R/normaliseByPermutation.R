@@ -1,4 +1,4 @@
-#' @title Simulate permuted perturbation scores
+#' @title Permute sample labels to simulate null distribution of perturbation scores
 #'
 #' @description Simulate null distributions of perturbation scores for each pathway through sample permutation.
 #'

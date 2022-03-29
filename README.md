@@ -15,5 +15,5 @@ The overall workflow of the analysis is:
 
 To install this package, please use BiocManager.
 
-`install.packages("BiocManager")
-BiocManager::install("steveped/extraChIPs")`
+`install.packages("BiocManager") 
+BiocManager::install("sSNAPPY")`

@@ -1,6 +1,6 @@
-#' @title Create pathway topology weighted adjacent matrix
+#' @title Retrieve pathway topology as weighted adjacent matrix
 #'
-#' @description Convert pathway topology matrices to normalized weighted directed adjacency matrices describing the gene signaling network.
+#' @description Retrieve pathway topology matrices and convert to normalized weighted directed adjacency matrices describing gene signaling networks.
 #'
 #' @param database See example for supported databases.
 #' @param pathwayName Optional. Subset of pathway names as a vector.

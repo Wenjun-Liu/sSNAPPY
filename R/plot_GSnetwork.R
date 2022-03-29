@@ -24,15 +24,17 @@
 #' @examples
 #' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 #' load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
-#' # Extract results for P1 samples, and randomly take 10 gene-sets as an example
-#' normScores_P1 <- dplyr::filter(normalisedScores, sample == "P1")[50:60,]
+#' # Extract pathways significantly perturbed in a sample
+#' normScores_sub <- dplyr::filter(normalisedScores, sample == "E2+R5020_N2_48", adjPvalue < 0.05)
 #'
 #' # Color network plot nodes by robust z-score
-#' plot_gsNetwork(normScores_P1, gsTopology,
-#' colorBy = "robustZ", color_lg_title = "Robust Z-score")
+#' plot_gsNetwork(normScores_sub, gsTopology,
+#' colorBy = "robustZ", layout = "dh",
+#' color_lg_title = "Robust Z-score")
 #'
 #' # Color network plot nodes by p-values
-#' plot_gsNetwork(normScores_P1, gsTopology, colorBy = "pvalue", color_lg_title = "P-value")
+#' plot_gsNetwork(normScores_sub, gsTopology, layout = "dh",
+#' colorBy = "pvalue", color_lg_title = "P-value")
 plot_gsNetwork <- function(normalisedScores, gsTopology, colorBy = c("robustZ", "pvalue"), foldGSname = TRUE, foldafter = 2, layout = "fr",
                            edgeAlpha = 0.8,  up_col = "brown3", down_col = "steelblue3", scale_edgeWidth = 10, scale_nodeSize = 15,
                            nodeShape = 16, color_lg = TRUE, color_lg_title = NULL, lb_size = 3, lb_color = "black"){

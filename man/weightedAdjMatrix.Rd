@@ -2,7 +2,7 @@
 % Please edit documentation in R/pathwayTopology.R
 \name{weightedAdjMatrix}
 \alias{weightedAdjMatrix}
-\title{Create pathway topology weighted adjacent matrix}
+\title{Retrieve pathway topology as weighted adjacent matrix}
 \usage{
 weightedAdjMatrix(database, pathwayName = NULL, beta = NULL, outputDir)
 }
@@ -17,7 +17,7 @@ See details for more information.}
 \item{outputDir}{A file directory specifying where the weighted adjacent matrix should be stored as an RData object.}
 }
 \description{
-Convert pathway topology matrices to normalized weighted directed adjacency matrices describing the gene signaling network.
+Retrieve pathway topology matrices and convert to normalized weighted directed adjacency matrices describing gene signaling networks.
 }
 \details{
 This function takes the pathway topology information retrieved using \code{graphite} and convert them to normalized weighted directed adjacency

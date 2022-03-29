@@ -65,13 +65,15 @@ Plot gene-set network
 \examples{
 load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
-# Extract results for P1 samples, and randomly take 10 gene-sets as an example
-normScores_P1 <- dplyr::filter(normalisedScores, sample == "P1")[50:60,]
+# Extract pathways significantly perturbed in a sample
+normScores_sub <- dplyr::filter(normalisedScores, sample == "E2+R5020_N2_48", adjPvalue < 0.05)
 
 # Color network plot nodes by robust z-score
-plot_gsNetwork(normScores_P1, gsTopology,
-colorBy = "robustZ", color_lg_title = "Robust Z-score")
+plot_gsNetwork(normScores_sub, gsTopology,
+colorBy = "robustZ", layout = "dh",
+color_lg_title = "Robust Z-score")
 
 # Color network plot nodes by p-values
-plot_gsNetwork(normScores_P1, gsTopology, colorBy = "pvalue", color_lg_title = "P-value")
+plot_gsNetwork(normScores_sub, gsTopology, layout = "dh",
+colorBy = "pvalue", color_lg_title = "P-value")
 }

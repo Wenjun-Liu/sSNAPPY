@@ -34,12 +34,11 @@ name: R-CMD-check-bioc
 ## Note that you can always run a GHA test without the cache by using the word
 ## "/nocache" in the commit message.
 env:
-  has_testthat: 'false'
-  run_covr: 'false'
-  run_pkgdown: 'false'
+  has_testthat: 'true'
+  run_covr: 'true'
+  run_pkgdown: 'true'
   has_RUnit: 'false'
   cache-version: 'cache-v1'
-  run_docker: 'false'
 
 jobs:
   build-check:
@@ -235,7 +234,7 @@ jobs:
         run: |
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck(
-              args = c("--no-manual", "--no-vignettes", "--timings"),
+              args = c("--no-manual", "--no-vignettes", "--no-build-vignettes", "--timings"),
               build_args = c("--no-manual", "--keep-empty-dirs", "--no-resave-data"),
               error_on = "warning",
               check_dir = "check"
@@ -261,7 +260,8 @@ jobs:
               dir('check', 'tar.gz$', full.names = TRUE),
               `quit-with-status` = TRUE,
               `no-check-R-ver` = TRUE,
-              `no-check-bioc-help` = TRUE
+              `no-check-bioc-help` = TRUE,
+              `no-check-vignettes`=TRUE
           )
         shell: Rscript {0}
 
