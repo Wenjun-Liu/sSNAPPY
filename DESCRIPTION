@@ -11,14 +11,11 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 LazyData: TRUE
 Suggests: 
-    AnnotationHub,
     BiocManager,
     BiocStyle,
     cowplot,
     DT,
-    ensembldb,
     knitr,
-    org.Hs.eg.db,
     pander,
     rmarkdown,
     stringr,

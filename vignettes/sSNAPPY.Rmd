@@ -63,19 +63,12 @@ metadata_example %>%
 
 It is expected that the logCPM matrix will be filtered to remove undetectable genes and normalised to correct for library sizes or other systematic artefacts, such as gene length or GC contents, prior to applying this method. Filtration and normalisation has been performed on the example dataset. 
 
-Before single-sample logFCs ssLogFCs can be computed, rownames of the logCPM matrix need to be converted to `entrez ID`. This is because all the pathway topology information retrieved will be in  `entrez ID`. The conversion can be achieved through bioconductor packages `AnnotationHub` and `ensembldb` as shown below. 
+Before single-sample logFCs ssLogFCs can be computed, rownames of the logCPM matrix need to be converted to `entrez ID`. This is because all the pathway topology information retrieved will be in  `entrez ID`. The conversion can be achieved through bioconductor packages `AnnotationHub` and `ensembldb`.  
 
-```{r convertRownames}
-if (!requireNamespace("AnnotationHub", quietly=TRUE))BiocManager::install("AnnotationHub")
-if (!requireNamespace("ensembldb", quietly=TRUE))BiocManager::install("ensembldb")
-ah <- AnnotationHub::AnnotationHub()
-ah <- AnnotationHub::subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
-ensDb <- ah[[1]]
-rownames(logCPM_example) <- ensembldb::mapIds(ensDb, rownames(logCPM_example), "ENTREZID", keytype = "GENEID")
-# Remove genes that couldn't be matched to entrez IDs
-logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
+```{r logCPM_example}
 head(logCPM_example)
 ```
+
 To compute the ssLogFCs, samples must be in matching pairs. In the example, treated samples are matched to the corresponding control sample that were derived from the same patients. So the `factor` parameter of the `weight_ssFC()` functions needs to be set to be "patient". The function also requires the control treatment level to be specified, which was "Vehicle" in this case. 
 
 `weight_ssFC()` requires both the logCPM matrix and sample metadata as input. The column names of the logCPM matrix should be sample name, matching to a column called `sample` in the metadata. The metadata must also contain a treatment column, and a column corresponding to the `factor` parameter (ie. patient in this case).

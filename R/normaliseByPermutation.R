@@ -23,17 +23,6 @@
 #' @export
 #'
 #' @examples
-#' require(AnnotationHub)
-#' require(ensembldb)
-#' # convert rownamews of logCPM from gene ids to gene entrez IDs through `AnnotationHub`
-#' ah <- AnnotationHub()
-#' ah <- subset(ah,genome == "GRCh38" & title == "Ensembl 101 EnsDb for Homo sapiens")
-#' ensDb <- ah[[1]]
-#' rownames(logCPM_example) <- mapIds(ensDb, rownames(logCPM_example), "ENTREZID", keytype = "GENEID")
-#'
-#' # Remove genes that couldn't be matched to entrez IDs
-#' logCPM_example <- logCPM_example[!is.na(rownames(logCPM_example)),]
-#'
 #' #compute weighted single sample logFCs
 #' ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
 #'  factor = "patient", control = "Vehicle")

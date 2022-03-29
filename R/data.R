@@ -6,7 +6,7 @@
 #' and the filtered counts were normalised using [conditional quantile normalisation](bioconductor.org/packages/devel/bioc/vignettes/cqn/inst/doc/cqn.pdf) to offset effects of systematic artefacts,
 #' such as gene length and GC contents.
 #'
-#' @format A matrix with 18481 rows and 15 columns
+#' @format A matrix with 15344 rows and 15 columns
 #' @source \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE80098}
 "logCPM_example"
 

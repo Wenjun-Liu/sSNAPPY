@@ -4,6 +4,7 @@
 .Ruserdata
 .Rbuildignore
 .Rproj
+.github
 TODO.md
 /inst/doc/
 /Meta/
