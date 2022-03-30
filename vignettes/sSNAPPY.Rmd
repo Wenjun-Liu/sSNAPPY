@@ -81,7 +81,7 @@ The `weight_ssFC()` function firstly computes raw ssLogFCs for each gene by subt
 
 It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have larger variance, which is also demonstrated by the plots below. To reduce the impact of this artefact, `weight_ssFC` also weight each ssLogFCs by estimating the relationship between the variance in ssLogFCs and mean logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
 
-The output of the `weight_ssFC()` function is a list with two element, where one is the weighted ssLogFCs matrix and the other is a vector of gene-wise weights.
+
 
 ```{r lowess, fig.width=8,fig.height=4, echo=FALSE}
 perSample_FC <- sapply(levels(metadata_example$patient), function(x){
@@ -123,6 +123,8 @@ p2 <- data.frame(
 plot_grid(p1, p2)
 
 ```
+
+The output of the `weight_ssFC()` function is a list with two element, where one is the weighted ssLogFCs matrix and the other is a vector of gene-wise weights.
 
 # Retrieve pathway topologies in required format
 
@@ -256,8 +258,15 @@ pl <- normalisedScores %>%
     # layout = "dh",
     gsTopology = gsTopology, 
     colorBy = "robustZ"
-  )
-plot_grid(plotlist = pl, nrow = 1)
+  ) %>%
+    lapply(function(x){
+        x + theme(
+        panel.grid = element_blank(), 
+        panel.background = element_blank()
+        ) })
+plot_grid(
+    plotlist = pl, 
+    nrow = 1)
 ```
 
 Or p-values:
@@ -339,12 +348,12 @@ Results from this analysis indicate that the estrogen signalling pathway was sig
 
 Results of `lm` can also be visualised using the `plot_gsNetwork` function. We just need to change the name of the `Estimate` column to `robustZ` to  colour the networks by the predicted directionality.
 
-```{r fig.width=6, fig.height=4}
+```{r fig.width=10, fig.height=6}
 treat_sig %>% 
     dplyr::filter(FDR < 0.05, Treatment == "R5020") %>%
     dplyr::rename(robustZ = Estimate) %>%
     plot_gsNetwork(
-        # layout = "stress",
+        layout = "stress",
         gsTopology = gsTopology, 
         colorBy = "robustZ"
     ) +

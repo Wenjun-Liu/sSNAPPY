@@ -1,7 +1,6 @@
-url: https://wenjun-liu.github.io/sSNAPPY/
 template:
   params:
-    bootswatch: Sandstone
+    bootswatch: simplex
 
 authors:
   Wenjun Liu:
@@ -26,10 +25,16 @@ reference:
 - title: Package
   contents:
   - sSNAPPY
+
 navbar:
   type: default
   left:
-  - text: Reference
-    href: reference/index.html
   - text: Get Started
     href: articles/sSNAPPY.html
+  - text: Reference
+    href: reference/index.html
+  - text: News
+    href: news/index.html
+  right:
+  - icon: fa-github fa-lg
+    href: https://github.com/Wenjun-Liu/sSNAPPY
