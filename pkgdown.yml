@@ -1,9 +1,10 @@
-pandoc: 2.7.3
+pandoc: 2.17.1.1
 pkgdown: 2.0.2
 pkgdown_sha: ~
-articles: {}
-last_built: 2022-03-14T14:54Z
+articles:
+  sSNAPPY: sSNAPPY.html
+last_built: 2022-03-30T04:39Z
 urls:
-  reference: https://wenjun-liu.github.io/SSPT/reference
-  article: https://wenjun-liu.github.io/SSPT/articles
+  reference: https://wenjun-liu.github.io/sSNAPPY/reference
+  article: https://wenjun-liu.github.io/sSNAPPY/articles
 
