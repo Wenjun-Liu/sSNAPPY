@@ -184,12 +184,12 @@ Output of the `generate_PermutedScore()` function is a list where each element i
 The permutation step relies on the parallel computing feature provided by `BiocParallel`. User can choose to customize the parallel back-end or stick with the default one returned by `BiocParallel::bpparam()`. Depending on the size of the data, this step can take some time to complete. If the sample size is large, we recommend users to consider performing this step on a HPC. 
 
 ```{r permutedScore}
-system.time(permutedScore <- generate_PermutedScore(
+permutedScore <- generate_PermutedScore(
   logCPM = logCPM_example, 
   numOfTreat = 3, NB = 1000, 
   gsTopology = gsTopology, 
   weight = weightedFC$weight
-))
+)
 ```
 
 Let's randomly choose six pathways and examine the permutation-derived empirical distribution of their perturbation scores. They should all be approximately normal distributed. 
@@ -253,7 +253,7 @@ pl <- normalisedScores %>%
   split(f = .$sample) %>%
   lapply(
     plot_gsNetwork, 
-    layout = "dh",
+    # layout = "dh",
     gsTopology = gsTopology, 
     colorBy = "robustZ"
   )
@@ -344,7 +344,7 @@ treat_sig %>%
     dplyr::filter(FDR < 0.05, Treatment == "R5020") %>%
     dplyr::rename(robustZ = Estimate) %>%
     plot_gsNetwork(
-        layout = "stress",
+        # layout = "stress",
         gsTopology = gsTopology, 
         colorBy = "robustZ"
     ) +

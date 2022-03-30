@@ -105,11 +105,9 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 #' ssPertScore <- perturbationScore(ls$logFC, gsTopology)
 #' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
-#'  NB = 100, gsTopology = gsTopology, weight = ls$weight)
+#'  NB = 1000, gsTopology = gsTopology, weight = ls$weight)
 #' normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
 #'  }
-#' load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
-#' head(normalisedScores)
 normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"){
     pvalue <- NULL
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
