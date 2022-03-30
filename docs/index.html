@@ -60,23 +60,10 @@
   <div class="contents col-md-9">
 
 <div class="section level1">
-<div class="page-header"><h1 id="ssnappy-singel-sample-directional-pathway-perturbation-analysis">sSNAPPY: Singel Sample directioNAl Pathway Perturbation
-analYsis<a class="anchor" aria-label="anchor" href="#ssnappy-singel-sample-directional-pathway-perturbation-analysis"></a>
+<div class="page-header"><h1 id="ssnappy-singel-sample-directional-pathway-perturbation-analysis">sSNAPPY: Singel Sample directioNAl Pathway Perturbation analYsis<a class="anchor" aria-label="anchor" href="#ssnappy-singel-sample-directional-pathway-perturbation-analysis"></a>
 </h1></div>
-<p><code>sSNAPPY</code> is a package for computing directional pathway
-perturbation scores from logCPM in RNA-seq data. The final output can be
-used to test the significance of pathway perturbation at both
-individual-sample and overall treatment levels.</p>
-<p>The overall workflow of the analysis is: - Compute weighted
-single-sample logFCs for each of the treated samples - Retrieve pathway
-topologies from chosen database, such as <em>KEGG</em> or
-<em>wikiPathways</em> - Calculate a raw directional pathway perturbation
-score per pathway per treated sample - Simulate the null distribution of
-perturbation scores through sample permutation - Use the
-<code>median</code> and <code>MAD</code> of the null distribution to
-normalise raw scores and derive significance of pathway perturbation for
-individual samples - Fit models to test overall treatment effects on
-pathway perturbation</p>
+<p><code>sSNAPPY</code> is a package for computing directional pathway perturbation scores from logCPM in RNA-seq data. The final output can be used to test the significance of pathway perturbation at both individual-sample and overall treatment levels.</p>
+<p>The overall workflow of the analysis is: - Compute weighted single-sample logFCs for each of the treated samples - Retrieve pathway topologies from chosen database, such as <em>KEGG</em> or <em>wikiPathways</em> - Calculate a raw directional pathway perturbation score per pathway per treated sample - Simulate the null distribution of perturbation scores through sample permutation - Use the <code>median</code> and <code>MAD</code> of the null distribution to normalise raw scores and derive significance of pathway perturbation for individual samples - Fit models to test overall treatment effects on pathway perturbation</p>
 </div>
 <div class="section level1">
 <h1 id="installation-instructions">Installation Instructions<a class="anchor" aria-label="anchor" href="#installation-instructions"></a>
@@ -120,14 +107,12 @@ pathway perturbation</p>
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun
-Liu</a>.</p>
+<p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun Liu</a>.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
