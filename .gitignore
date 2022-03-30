@@ -2,8 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
-.Rbuildignore
-.Rproj
+*.Rproj
 .github
 TODO.md
 /inst/doc/
