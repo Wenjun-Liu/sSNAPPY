@@ -42,6 +42,7 @@ library(ggplot2)
 library(cowplot)
 library(DT)
 ```
+
 # load data
 
 The example dataset used for this tutorial has been built into the `sSNAPPY` package. It's a subset of data retrieved from [Singhal H et al. 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/), where ER-positive primary breast cancer tumor tissues collected from 12 patients were split into fragments of equal sizes for different treatments. For the purpose of this tutorial, we only took the RNA-seq data from samples that were treated with vehicle, E2 OR E2 + R5020 for 48 hrs. They were from 5 different patients, giving rise to 15 samples in total. More detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
