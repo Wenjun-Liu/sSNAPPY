@@ -69,14 +69,6 @@ plot_gsNetwork <- function(normalisedScores, gsTopology, colorBy = c("robustZ", 
 
 }
 
-#' Create gene-set network plot object
-#'
-#' @param normalisedScores A dataframe as described in the details section
-#' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix`
-#' @param colorBy Choose to color nodes either by "robustZ" or "pvalue". A column must exist in the normalisedScores for the chosen parameter
-#' @param foldGSname logical(1). Should long gene-set names be folded into two lines
-#' @param foldafter The number of words after which gene-set names should be folded. Defaulted to 2
-#' @return igraph object
 #' @importFrom reshape2 melt
 #' @importFrom igraph E V graph.data.frame set_edge_attr set_vertex_attr
 make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ", "pvalue"), foldGSname = TRUE, foldafter = 2){
@@ -126,10 +118,7 @@ make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ",
 
 
 
-#' Get gene-set to gene_id data frame
-#'
-#' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix`
-#' @return dataframe
+
 #' @importFrom reshape2 melt
 get_GSgenelist <- function(gsTopology){
     GStoGene <- lapply(gsTopology, rownames)
@@ -138,24 +127,14 @@ get_GSgenelist <- function(gsTopology){
     GStoGene
 }
 
-#' Comppute Jaccard index
-#'
-#' @param x first element
-#' @param y second element
-#' @return numeric
+
 jacIdex_func <- function(x, y) {
     x <- unlist(x)
     y <- unlist(y)
     length(intersect(x, y))/length(unique(c(x,y)))
 }
 
-#' Replace the nth occurrence of string with another string
-#'
-#' @param x string to search for pattern
-#' @param pattern pattern to search for
-#' @param replacement replacement string
-#' @param n the nth orrcurrences of pattern that will be replaced
-#' @return string
+
 str_replace_nth <- function(x, pattern, replacement, n) {
     g <- gregexpr(pattern, x)[[1]][n]
     s <- scan(text = gsub("[()]", "", pattern),

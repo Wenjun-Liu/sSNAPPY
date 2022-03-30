@@ -7,6 +7,7 @@
 #' @param beta Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type.
 #' See details for more information.
 #' @param outputDir A file directory specifying where the weighted adjacent matrix should be stored as an RData object.
+#' @import org.Hs.eg.db
 #' @return A list where each element is a matrix corresponding to a pathway
 #' @details
 #' This function takes the pathway topology information retrieved using `graphite` and convert them to normalized weighted directed adjacency

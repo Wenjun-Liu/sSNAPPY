@@ -80,6 +80,19 @@ calculated.</p>
 <span class="r-in"> NB <span class="op">=</span> <span class="fl">1000</span>, gsTopology <span class="op">=</span> <span class="va">gsTopology</span>, weight <span class="op">=</span> <span class="va">ls</span><span class="op">$</span><span class="va">weight</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">normalisedScores</span> <span class="op">&lt;-</span> <span class="fu">normaliseByPermutation</span><span class="op">(</span><span class="va">permutedScore</span>, <span class="va">ssPertScore</span><span class="op">)</span></span>
 <span class="r-in"> <span class="op">}</span></span>
+<span class="r-in"> <span class="co"># Load the example output</span></span>
+<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"normalisedScores.rda"</span>, package <span class="op">=</span> <span class="st">"sSNAPPY"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"> <span class="va">normalisedScores</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                          gs_name          MAD       MEDIAN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                     PI3K-Akt signaling pathway 0.0729064237 6.170875e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                     TGF-beta signaling pathway 0.0008945622 1.122996e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Growth hormone synthesis, secretion and action 0.0111580180 2.093763e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                                     Amoebiasis 0.0007878172 1.149350e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           sample           tA   robustZ       pvalue    adjPvalue</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 E2+R5020_N2_48  0.253394383  3.467147 5.260139e-04 2.787874e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 E2+R5020_N2_48 -0.008456029 -9.465255 2.928469e-21 6.208354e-19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 E2+R5020_N2_48  0.043061569  3.840484 1.227918e-04 1.301593e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 E2+R5020_N2_48  0.002924865  3.698030 2.172789e-04 1.535438e-02</span>
 </code></pre></div>
     </div>
   </div>

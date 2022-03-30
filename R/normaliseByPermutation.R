@@ -108,6 +108,9 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #'  NB = 1000, gsTopology = gsTopology, weight = ls$weight)
 #' normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
 #'  }
+#'  # Load the example output
+#'  load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
+#'  normalisedScores
 normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"){
     pvalue <- NULL
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
@@ -126,12 +129,6 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
 }
 
 
-#' Permute sample labels to generate permuted logFCs
-#' @param logCPM Matrix of normaslised logCPM where rows are genes and columns are samples. Row names need to be gene entrez IDs.
-#' @param numOfTreat Number of treatments (including control)
-#' @param NB Number of permutations
-#' @param weight A vector of gene-wise weights derived from function `weight_ssFC`
-#' @return A list
 .generate_permutedFC <- function(logCPM, numOfTreat,
                                  NB, weight){
 

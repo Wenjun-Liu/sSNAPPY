@@ -33,4 +33,7 @@ permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
  NB = 1000, gsTopology = gsTopology, weight = ls$weight)
 normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
  }
+ # Load the example output
+ load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
+ normalisedScores
 }
