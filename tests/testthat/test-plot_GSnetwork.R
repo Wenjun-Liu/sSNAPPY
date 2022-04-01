@@ -7,8 +7,8 @@ Scores <- data.frame(
     pvalue = runif(5)) %>%
     mutate(color_Z = ifelse(robustZ < 0, "Inhibited", "Activated"))
 GS <- Scores$gs_name
-g_Zscore <- make_gsNetwork(Scores, gsTopology, colorBy = "robustZ")
-g_pvalue <- make_gsNetwork(Scores, gsTopology, colorBy = "pvalue")
+g_Zscore <- make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", plotIsolated = TRUE)
+g_pvalue <- make_gsNetwork(Scores, gsTopology, colorBy = "pvalue", plotIsolated = TRUE)
 
 test_that("make_gsNetwork produces the expected outcome",{
     expect_s3_class(g_Zscore, "igraph")
@@ -18,7 +18,7 @@ test_that("make_gsNetwork produces the expected outcome",{
     expect_true(is.numeric(igraph::V(g_pvalue)$color))
     expect_equal(stringr::str_subset(V(g_Zscore)$name, "Histidine"), "Histidine metabolism")
     expect_equal(stringr::str_subset(V(g_Zscore)$name, "Ascorbate"), "Ascorbate and\naldarate metabolism")
-    g_Zscore_n3 <- make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", foldafter = 3)
+    g_Zscore_n3 <- make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", foldafter = 3, plotIsolated = TRUE)
     expect_equal(stringr::str_subset(V(g_Zscore_n3)$name, "Ascorbate"), "Ascorbate and aldarate\nmetabolism")
 })
 
