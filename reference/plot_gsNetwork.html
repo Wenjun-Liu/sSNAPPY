@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sSNAPPY</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
       </span>
     </div>
 
@@ -72,7 +72,8 @@
   color_lg <span class="op">=</span> <span class="cn">TRUE</span>,
   color_lg_title <span class="op">=</span> <span class="cn">NULL</span>,
   lb_size <span class="op">=</span> <span class="fl">3</span>,
-  lb_color <span class="op">=</span> <span class="st">"black"</span>
+  lb_color <span class="op">=</span> <span class="st">"black"</span>,
+  plotIsolated <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -110,6 +111,8 @@
 <dd><p>Size of node text labels</p></dd>
 <dt>lb_color</dt>
 <dd><p>Color of node text labels</p></dd>
+<dt>plotIsolated</dt>
+<dd><p>logical(1). If nodes not connected to any other node should be plotted. Default to FALSE</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -120,14 +123,16 @@
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gsTopology.rda"</span>, package <span class="op">=</span> <span class="st">"sSNAPPY"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"normalisedScores.rda"</span>, package <span class="op">=</span> <span class="st">"sSNAPPY"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="co">#Subset pathways significantly perturbed in sample R5020_N2_48</span></span>
+<span class="r-in"><span class="va">subset</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">normalisedScores</span>, <span class="va">adjPvalue</span> <span class="op">&lt;</span> <span class="fl">0.05</span>, <span class="va">sample</span> <span class="op">==</span> <span class="st">"R5020_N2_48"</span><span class="op">)</span></span>
 <span class="r-in"><span class="co"># Color network plot nodes by robust z-score</span></span>
-<span class="r-in"><span class="fu">plot_gsNetwork</span><span class="op">(</span><span class="va">normalisedScores</span>, <span class="va">gsTopology</span>,</span>
+<span class="r-in"><span class="fu">plot_gsNetwork</span><span class="op">(</span><span class="va">subset</span>, <span class="va">gsTopology</span>,</span>
 <span class="r-in">colorBy <span class="op">=</span> <span class="st">"robustZ"</span>, layout <span class="op">=</span> <span class="st">"dh"</span>,</span>
 <span class="r-in">color_lg_title <span class="op">=</span> <span class="st">"Robust Z-score"</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="plot_gsNetwork-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># Color network plot nodes by p-values</span></span>
-<span class="r-in"><span class="fu">plot_gsNetwork</span><span class="op">(</span><span class="va">normalisedScores</span>, <span class="va">gsTopology</span>, layout <span class="op">=</span> <span class="st">"dh"</span>,</span>
+<span class="r-in"><span class="fu">plot_gsNetwork</span><span class="op">(</span><span class="va">subset</span>, <span class="va">gsTopology</span>, layout <span class="op">=</span> <span class="st">"dh"</span>,</span>
 <span class="r-in">colorBy <span class="op">=</span> <span class="st">"pvalue"</span>, color_lg_title <span class="op">=</span> <span class="st">"P-value"</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="plot_gsNetwork-2.png" alt="" width="700" height="433"></span>
 </code></pre></div>
