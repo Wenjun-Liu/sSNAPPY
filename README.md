@@ -7,5 +7,6 @@
 
 To install this package, please use BiocManager.
 
-`install.packages("BiocManager") 
-BiocManager::install("sSNAPPY")`
+`install.packages("BiocManager")`
+
+`BiocManager::install("sSNAPPY")`

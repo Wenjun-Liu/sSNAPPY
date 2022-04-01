@@ -20,7 +20,8 @@ plot_gsNetwork(
   color_lg = TRUE,
   color_lg_title = NULL,
   lb_size = 3,
-  lb_color = "black"
+  lb_color = "black",
+  plotIsolated = FALSE
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ plot_gsNetwork(
 \item{lb_size}{Size of node text labels}
 
 \item{lb_color}{Color of node text labels}
+
+\item{plotIsolated}{logical(1). If nodes not connected to any other node should be plotted. Default to FALSE}
 }
 \value{
 A ggplot2 object
@@ -65,12 +68,14 @@ Plot gene-set network
 \examples{
 load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
+#Subset pathways significantly perturbed in sample R5020_N2_48
+subset <- dplyr::filter(normalisedScores, adjPvalue < 0.05, sample == "R5020_N2_48")
 # Color network plot nodes by robust z-score
-plot_gsNetwork(normalisedScores, gsTopology,
+plot_gsNetwork(subset, gsTopology,
 colorBy = "robustZ", layout = "dh",
 color_lg_title = "Robust Z-score")
 
 # Color network plot nodes by p-values
-plot_gsNetwork(normalisedScores, gsTopology, layout = "dh",
+plot_gsNetwork(subset, gsTopology, layout = "dh",
 colorBy = "pvalue", color_lg_title = "P-value")
 }

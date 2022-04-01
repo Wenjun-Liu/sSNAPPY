@@ -16,6 +16,7 @@
 #' @param color_lg_title Title for the color legend
 #' @param lb_size Size of node text labels
 #' @param lb_color Color of node text labels
+#' @param plotIsolated logical(1). If nodes not connected to any other node should be plotted. Default to FALSE
 #' @importFrom ggraph ggraph geom_node_point geom_node_text geom_edge_link
 #' @importFrom ggplot2 scale_color_continuous scale_color_manual aes_ guides aes
 #' @return A ggplot2 object
@@ -24,17 +25,19 @@
 #' @examples
 #' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 #' load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
+#' #Subset pathways significantly perturbed in sample R5020_N2_48
+#' subset <- dplyr::filter(normalisedScores, adjPvalue < 0.05, sample == "R5020_N2_48")
 #' # Color network plot nodes by robust z-score
-#' plot_gsNetwork(normalisedScores, gsTopology,
+#' plot_gsNetwork(subset, gsTopology,
 #' colorBy = "robustZ", layout = "dh",
 #' color_lg_title = "Robust Z-score")
 #'
 #' # Color network plot nodes by p-values
-#' plot_gsNetwork(normalisedScores, gsTopology, layout = "dh",
+#' plot_gsNetwork(subset, gsTopology, layout = "dh",
 #' colorBy = "pvalue", color_lg_title = "P-value")
 plot_gsNetwork <- function(normalisedScores, gsTopology, colorBy = c("robustZ", "pvalue"), foldGSname = TRUE, foldafter = 2, layout = "fr",
                            edgeAlpha = 0.8,  up_col = "brown3", down_col = "steelblue3", scale_edgeWidth = 10, scale_nodeSize = 15,
-                           nodeShape = 16, color_lg = TRUE, color_lg_title = NULL, lb_size = 3, lb_color = "black"){
+                           nodeShape = 16, color_lg = TRUE, color_lg_title = NULL, lb_size = 3, lb_color = "black", plotIsolated = FALSE){
 
     name <- NULL
     ## check if input has required columns
@@ -46,7 +49,8 @@ plot_gsNetwork <- function(normalisedScores, gsTopology, colorBy = c("robustZ", 
     if(length(unique(normalisedScores$gs_name)) < 2) stop("At least 2 gene-sets are required for a network plot")
 
     # create igraph object
-    g <- make_gsNetwork(normalisedScores, gsTopology, colorBy = colorBy, foldGSname = TRUE)
+    g <- make_gsNetwork(normalisedScores, gsTopology, colorBy = colorBy, foldGSname = foldGSname,
+                        foldafter = foldafter, plotIsolated = plotIsolated)
 
     # plot network edges
     pl <- ggraph(g, layout = layout) +
@@ -65,13 +69,15 @@ plot_gsNetwork <- function(normalisedScores, gsTopology, colorBy = c("robustZ", 
      pl <- pl + guides(color = "none")
     }
 
+
     pl + geom_node_text(aes(label = name), size = lb_size, repel = TRUE, colour = lb_color)
 
 }
 
 #' @importFrom reshape2 melt
-#' @importFrom igraph E V graph.data.frame set_edge_attr set_vertex_attr
-make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ", "pvalue"), foldGSname = TRUE, foldafter = 2){
+#' @importFrom igraph E V graph.data.frame set_edge_attr set_vertex_attr degree delete_vertices delete_edges
+make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ", "pvalue"),
+                           foldGSname = TRUE, foldafter = 2, plotIsolated){
 
     # create dummy variable to pass R CMD CHECK
     from <- to <- E <- robustZ <- NULL
@@ -84,7 +90,7 @@ make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ",
 
     w <- sapply(seq_len(nGS-1), function(x){
         sapply((x+1):nGS, function(y){
-            data.frame(from = GSname[x], to = GSname[y], weight = jacIdex_func(GSlist[[x]], GSlist[[y]]))
+            data.frame(from = GSname[x], to = GSname[y], weight = jacIdex_func(GSlist[[x]]$gene_id, GSlist[[y]]$gene_id))
         }, simplify = FALSE)
     }, simplify = FALSE)
 
@@ -94,7 +100,7 @@ make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ",
     g <- graph.data.frame(dplyr::select(w, from, to), directed = FALSE)
     g <- set_edge_attr(g, "weight", value = w$weight)
 
-   GSsize <- melt(lapply(GSlist, nrow))
+    GSsize <- melt(lapply(GSlist, nrow))
     colnames(GSsize) <- c("size", "from")
     g <- set_vertex_attr(g, "size", index = GSsize$from, value = GSsize$size)
 
@@ -108,11 +114,17 @@ make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ",
         g <- set_vertex_attr(g, "color", index = GSpvalue$gs_name, value = GSpvalue$pvalue)
     }
 
+    if(!plotIsolated){
+        removeEdge <- which(E(g)$weight == 0)
+        g <-  delete_edges(g, removeEdge)
+        IsolatedNode <- which(degree(g) == 0)
+        g <- delete_vertices(g, IsolatedNode)
+    }
+
     if(foldGSname){
         g <- set_vertex_attr(g, "name", value = vapply(V(g)$name, function(x){ifelse(length(strsplit(x, " ")[[1]]) > foldafter,
                                                                                      str_replace_nth(x, " ", "\n", foldafter),
-                                                                                     x)}, character(1)))
-    }
+                                                                                     x)}, character(1))) }
     g
 }
 
@@ -134,7 +146,7 @@ jacIdex_func <- function(x, y) {
     length(intersect(x, y))/length(unique(c(x,y)))
 }
 
-
+# This function was a modified version of the str_replace_nth function from martinctc/textworks
 str_replace_nth <- function(x, pattern, replacement, n) {
     g <- gregexpr(pattern, x)[[1]][n]
     s <- scan(text = gsub("[()]", "", pattern),

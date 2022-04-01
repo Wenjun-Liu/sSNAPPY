@@ -185,7 +185,7 @@ Output of the `generate_PermutedScore()` function is a list where each element i
 
 The permutation step relies on the parallel computing feature provided by `BiocParallel`. User can choose to customize the parallel back-end or stick with the default one returned by `BiocParallel::bpparam()`. Depending on the size of the data, this step can take some time to complete. If the sample size is large, we recommend users to consider performing this step on a HPC. 
 
-```{r permutedScore}
+```{r permutedScore, eval = FALSE}
 permutedScore <- generate_PermutedScore(
   logCPM = logCPM_example, 
   numOfTreat = 3, NB = 1000, 
@@ -194,30 +194,45 @@ permutedScore <- generate_PermutedScore(
 )
 ```
 
-Let's randomly choose six pathways and examine the permutation-derived empirical distribution of their perturbation scores. They should all be approximately normal distributed. 
+```{r echo = FALSE}
+load(system.file("extdata", "permutedScore.rda", package = "sSNAPPY"))
+```
 
-```{r NullDistribution, fig.width=8, fig.height=6, message=FALSE}
+Six pathways were randomly chosen and the permutation-derived empirical distribution of their perturbation scores were visualised. They should all be approximately normal distributed. 
+
+```{r NullDistribution, echo = FALSE, fig.width=8, fig.height=6, message=FALSE}
+set.seed(123)
 pl <- permutedScore %>%
     keep(~all(.!=0)) %>%
-    .[sample(seq_along(.), 6)] %>%
+.[sample(seq_along(.), 6)] %>%
     lapply(
-      function(x){
-        ggplot(mapping = aes(x)) + 
-          geom_histogram() +
-          xlab("Perturbation Score")
-      }
+        function(x){
+            ggplot(mapping = aes(x)) + 
+                geom_histogram() +
+                xlab("Perturbation Score") +
+                theme_bw()
+        }
     ) 
 plot_grid(plotlist = pl, nrow = 2)
 ```
 
-## Significance of individal score
+# Test Significances
+
+## Of individal score
 
 After the empirical null distributions are generated, the median and mad will be calculated for each pathway to convert the test single-sample perturbation scores derived from the `perturbationScore()` to robust z-scores: $$ (Score - Median)/MAD$$ Two-sided p-values associated with each robust z-scores are also computed and will be corrected for multiple-testing using a user-define approach. The default is `fdr`.
 
 The pathways that were significant perturbed within individual samples are:
 
-```{r normalisedScores}
+```{r normalisedScores, eval=FALSE}
 normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
+```
+
+```{r echo = FALSE}
+load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
+```
+
+```{r DT_indi}
 normalisedScores %>%
     dplyr::filter(adjPvalue < 0.05) %>%
     left_join(metadata_example) %>%
@@ -277,17 +292,21 @@ pl <- normalisedScores %>%
     split(f = .$sample) %>%
     lapply(
         plot_gsNetwork, 
-        layout = "dh",
         gsTopology = gsTopology, 
         colorBy = "pvalue", 
         color_lg_title = "P-value"
-    )
+    ) %>%
+    lapply(function(x){
+        x + theme(
+        panel.grid = element_blank(), 
+        panel.background = element_blank()
+        ) })
 plot_grid(plotlist = pl, nrow = 1)
 ```
 
 The function allows you to customize the layout, colour, edge transparency and other aesthetics of the graph. More information can be found in the help page (`?plot_gsNetwork`). Output of the graph is a `ggplot` object and the theme of it can be changed just as other `ggplot` figures. 
 
-## Significance of overall treatment effect
+## Of overall treatment effect
 
 Normalised perturbation scores can also be used to model mean treatment effects. An advantage of this method is that it has great flexibility that allows you to incorporate other cofactors or covariate in your modelling. 
 
@@ -344,24 +363,27 @@ treat_sig %>%
 ```
 Results from this analysis indicate that the estrogen signalling pathway was significantly activated among both E2 and E2+R5020 treated samples, which makes sense biologically.
 
+
 ### Visualisation
 
-Results of `lm` can also be visualised using the `plot_gsNetwork` function. We just need to change the name of the `Estimate` column to `robustZ` to  colour the networks by the predicted directionality.
+Results of `lm` can also be visualised using the `plot_gsNetwork()` function. We just need to change the name of the `Estimate` column to `robustZ` to  colour the networks by the predicted directionality.
 
-```{r fig.width=10, fig.height=6}
+```{r fig.width=12, fig.height=8}
 treat_sig %>% 
-    dplyr::filter(FDR < 0.05, Treatment == "R5020") %>%
+    dplyr::filter(FDR < 0.05, Treatment == "E2+R5020") %>%
     dplyr::rename(robustZ = Estimate) %>%
     plot_gsNetwork(
-        layout = "stress",
+       
         gsTopology = gsTopology, 
         colorBy = "robustZ"
     ) +
     theme(
         panel.grid = element_blank(), 
         panel.background = element_blank()
-    ) 
+    )
 ```
+
+By default, `plot_gsNetwork()` function does not include nodes that are not connected to any other nodes, which could be turnt of by setting the `plotIsolated` to TURE. 
 
 # References
 - Sales G, Calura E, Cavalieri D, Romualdi C (2012). “graphite - a Bioconductor package to convert pathway topology to gene network.” BMC Bioinformatics. https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-20.
