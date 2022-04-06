@@ -1,33 +1,38 @@
 #' @title Compute weighted single sample LogFCs from normalised logCPM
 #'
-#' @description Compute weighted single sample logFCs for each treated samples using normalised
-#' logCPM values. Fit a lowess curve on variance of single sample logFCs ~ mean of logCPM, and use
-#' it to predict a gene-wise weight. The weighted single sample logFCs are ready for computing perturbation scores.
+#' @description Compute weighted single sample logFCs for each treated samples
+#' using normalised logCPM values. Fit a lowess curve on variance of single
+#' sample logFCs ~ mean of logCPM, and use it to predict a gene-wise weight.
+#' The weighted single sample logFCs are ready for computing perturbation scores.
 #'
 #' @details
 #'
-#' This function computes weighted single sample logFCs from normalised logCPM values, used for
-#' computing single sample perturbation scores. Since genes with smaller logCPM turn to have a larger
-#' variance among single sample logFCs. A lowess curve is fitted to estimate the relationship between
-#' variance of single sample logFCs and mean of logCPM, and the relationship is used to estimate the
-#' variance of each mean logCPM value. Gene-wise weights, which are inverse of variances, are then
-#' multiplied to single sample logFCs to downweight genes with low counts. It is assumed that the genes
-#' with extremely low counts have been removed and the count matrix has been normalised prior to logCPM
-#' matrix was derived. Rownames of the matrix must be genes' entrez ID. To convert other gene identifiers
-#' to entrz ID, see example.
+#' This function computes weighted single sample logFCs from normalised logCPM
+#' values, used forcomputing single sample perturbation scores. Since genes with
+#' smaller logCPM turn to have a larger variance among single sample logFCs.
+#' A lowess curve is fitted to estimate the relationship between variance of
+#' single sample logFCs and mean of logCPM, and the relationship is used to estimate
+#' the variance of each mean logCPM value. Gene-wise weights, which are inverse of
+#' variances, are then multiplied to single sample logFCs to downweight genes with
+#' low counts. It is assumed that the genes with extremely low counts have been
+#' removed and the count matrix has been normalised prior to logCPM matrix was
+#' derived. Rownames of the matrix must be genes' entrez ID. To convert other gene
+#' identifiers to entrz ID, see example.
 #'
-#' Sample metadata should have the same number of rows as the number of columns in the logCPM matrix.
-#' Metadata also must have a column called "sample" storing sample names (column names of logCPM matrix),
-#' and a column called "treatment" storing treatment of each sample.The control treatment level specified
-#' by `control` parameter must exist in the treatment column.
+#' Sample metadata should have the same number of rows as the number of columns in
+#' the logCPM matrix. Metadata also must have a column called "sample" storing
+#' sample names (column names of logCPM matrix), and a column called "treatment"
+#' storing treatment of each sample.The control treatment level specified by `control`
+#' parameter must exist in the treatment column.
 #'
-#' This analysis was designed for experimental designs that include matched pairs of samples, such as when
-#' tissues collected from the same patient were treated with different treatments to study different treatment
-#' effects. Parameter `factor` tells the function how samples can be put into matching pairs. It must also be
-#' included as a column in the metadata.
+#' This analysis was designed for experimental designs that include matched pairs of
+#' samples, such as when tissues collected from the same patient were treated with
+#' different treatments to study different treatment effects. Parameter `factor` tells
+#' the function how samples can be put into matching pairs. It must also be included as
+#' a column in the metadata.
 #'
-#' @param logCPM Matrix of normaslised logCPM where rows are genes and columns are samples. Row names need to
-#' be gene entrez ID and column names need to be sample names
+#' @param logCPM Matrix of normaslised logCPM where rows are genes and columns are samples.
+#' Row names need to be gene entrez ID and column names need to be sample names
 #' @param metadata Sample metadata data frame as described in the details section.
 #' @param factor Factor defines how samples can be put into matching pairs (eg. patient).
 #' @param control Treatment level that is the control.

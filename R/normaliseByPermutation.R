@@ -118,10 +118,8 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
     summaryScore <- rownames_to_column(summaryScore,"gs_name")
     summaryScore <- filter(summaryScore, summaryScore$MAD != 0)
     summaryScore <- left_join(summaryScore, testScore, by = "gs_name")
-    summaryScore <- mutate(summaryScore,
-           robustZ = (summaryScore$tA - summaryScore$MEDIAN)/summaryScore$MAD)
-    summaryScore <- mutate(summaryScore,
-           pvalue = 2*pnorm(-abs(summaryScore$robustZ)))
+    summaryScore <- mutate(summaryScore,robustZ = (summaryScore$tA - summaryScore$MEDIAN)/summaryScore$MAD)
+    summaryScore <- mutate(summaryScore, pvalue = 2*pnorm(-abs(summaryScore$robustZ)))
     summaryScore <- split(summaryScore, f = summaryScore$sample)
     summaryScore <-lapply(summaryScore, mutate, adjPvalue = p.adjust(pvalue, pAdj_method))
     bind_rows(summaryScore)
@@ -131,14 +129,13 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
 
 .generate_permutedFC <- function(logCPM, numOfTreat,
                                  NB, weight){
-
     nSample <- ncol(logCPM)
     index <- seq(1, nSample, by = numOfTreat)
     sapply(seq_len(NB), function(x){
         # permute sample labels to get permuted logCPM
         logCPM <- logCPM[,sample(seq_len(nSample), nSample)]
         temp <- sapply(seq_along(index), function(y){
-           (logCPM[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)] - logCPM[,index[[y]]]) * weight
+      (logCPM[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)] - logCPM[,index[[y]]]) * weight
         } , simplify = FALSE)
         do.call(cbind, temp)
     }, simplify = FALSE)

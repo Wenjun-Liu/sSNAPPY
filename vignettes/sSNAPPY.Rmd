@@ -25,17 +25,10 @@ This vignette demonstrates how to use the package `sSNAPPY` to compute direction
 The package also provides a function to visualize overlap between pathway genes contained in perturbed biological pathways as network plots. 
 
 
-# Install `sSNAPPY` package from `Bioconductor`
+# Load packages
 
-```{r setup}
-if (!requireNamespace("BiocManager", quietly=TRUE)) install.packages("BiocManager")
-BiocManager::install("sSNAPPY")
+```{r setup, echo=FALSE, results="hide", warning=FALSE}
 library(sSNAPPY)
-```
-
-Load the other packages used in this tutorial. 
-
-```{r otherPackages, echo=FALSE, results="hide", warning=FALSE}
 library(tidyverse)
 library(magrittr)
 library(ggplot2)
@@ -133,8 +126,7 @@ The output of the `weight_ssFC()` function is a list with two element, where one
 Therefore, pathway topology information need to be firstly retrieved from your chosen database and converted to weight adjacency matrices, the format required to apply the scoring algorithm. This step is achieved through a chain of functions that are part of the [*graphite* package (Sales G et al. 2012)](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-20) and has been nested into one simple function in this package: `weightedAdjMatrix()`. Databases that are currently supported are:
 
 ```{r pathwayDatabases}
-if (!requireNamespace("graphite", quietly=TRUE))
-    install.packages("graphite")
+library(graphite)
 graphite::pathwayDatabases() %>%
   dplyr::filter(species ==  "hsapiens") %>%
   pander::pander()

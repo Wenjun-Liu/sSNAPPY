@@ -62,7 +62,7 @@ weightedAdjMatrix <-  function(database, pathwayName = NULL, beta = NULL, output
            "indirect effect","activation_compound","activation_ubiquination")
 
     if(is.null(beta)){
-        beta=c(1,0,0,1,-1,1,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,1,0,1,1)
+        beta <- c(1,0,0,1,-1,1,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,1,0,1,1)
         names(beta)<-rel
     }else{
         if(!all(names(beta) %in% rel) | length(names(beta))!=length(rel)){

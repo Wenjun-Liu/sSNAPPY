@@ -77,7 +77,7 @@ plot_gsNetwork <- function(normalisedScores, gsTopology, colorBy = c("robustZ", 
 #' @importFrom reshape2 melt
 #' @importFrom igraph E V graph.data.frame set_edge_attr set_vertex_attr degree delete_vertices delete_edges
 make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ", "pvalue"),
-                           foldGSname = TRUE, foldafter = 2, plotIsolated){
+                           foldGSname = TRUE, foldafter = 2, plotIsolated ){
 
     # create dummy variable to pass R CMD CHECK
     from <- to <- E <- robustZ <- NULL
