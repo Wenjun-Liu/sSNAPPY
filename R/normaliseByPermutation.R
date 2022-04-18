@@ -14,7 +14,7 @@
 #' @param logCPM Matrix of normaslised logCPM where rows are genes and columns are samples. Row names need to be gene entrez IDs.
 #' @param numOfTreat Number of treatments (including control)
 #' @param NB Number of permutations
-#' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix`
+#' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology`
 #' @param weight A vector of gene-wise weights derived from function `weight_ssFC`
 #' @param BPPARAM The parallel back-end to uses, if not specified, it is defaulted to the one returned by \code{BiocParallel::bpparam()}.
 #' @import Rcpp
@@ -24,6 +24,8 @@
 #'
 #' @examples
 #' #compute weighted single sample logFCs
+#' data(metadata_example)
+#' data(logCPM_example)
 #' ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
 #'  factor = "patient", control = "Vehicle")
 #'
@@ -103,18 +105,18 @@ generate_PermutedScore <- function(logCPM, numOfTreat,
 #' @examples
 #' \dontrun{
 #' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
-#' ssPertScore <- perturbationScore(ls$logFC, gsTopology)
+#' ssPertScore <- compute_perturbationScore(ls$logFC, gsTopology)
 #' permutedScore <- generate_PermutedScore(logCPM_example, numOfTreat = 2,
 #'  NB = 1000, gsTopology = gsTopology, weight = ls$weight)
-#' normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
+#' normalisedScores <- normalise_byPermu(permutedScore, ssPertScore)
 #'  }
 #'  # Load the example output
 #'  load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
 #'  normalisedScores
-normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"){
+normalise_byPermu <- function(permutedScore, testScore, pAdj_method = "fdr"){
     pvalue <- NULL
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
-    summaryScore <- as.data.frame(t(sapply(permutedScore, summary_func)))
+    summaryScore <- as.data.frame(t(vapply(permutedScore, summary_func, c("MAD" = 0, "MEDIAN" = 0))))
     summaryScore <- rownames_to_column(summaryScore,"gs_name")
     summaryScore <- filter(summaryScore, summaryScore$MAD != 0)
     summaryScore <- left_join(summaryScore, testScore, by = "gs_name")
@@ -131,14 +133,14 @@ normaliseByPermutation <- function(permutedScore, testScore, pAdj_method = "fdr"
                                  NB, weight){
     nSample <- ncol(logCPM)
     index <- seq(1, nSample, by = numOfTreat)
-    sapply(seq_len(NB), function(x){
+    lapply(seq_len(NB), function(x){
         # permute sample labels to get permuted logCPM
         logCPM <- logCPM[,sample(seq_len(nSample), nSample)]
-        temp <- sapply(seq_along(index), function(y){
+        temp <- lapply(seq_along(index), function(y){
       (logCPM[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)] - logCPM[,index[[y]]]) * weight
-        } , simplify = FALSE)
+        })
         do.call(cbind, temp)
-    }, simplify = FALSE)
+    })
 
 
 

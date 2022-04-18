@@ -6,7 +6,7 @@
 #' pathway. The rownames of the weighted single sample logFC matrix and the pathway topology matrices must use the same type of gene identifier (ie. entrez ID).
 #'
 #' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ssFC()`
-#' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix()`
+#' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology()`
 #'
 #' @importFrom purrr set_names
 #' @importFrom plyr compact
@@ -19,19 +19,20 @@
 #' @return A list where each element is a matrix corresponding to a pathway. Each column of an element corresponds to a sample.
 #' @examples
 #' #compute weighted single sample logFCs
+#' data(metadata_example)
+#' data(logCPM_example)
 #' ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
 #' factor = "patient", control = "Vehicle")
 #'
 #' # explore all species and databases supported by graphite
 #' \dontrun{
 #' graphite::pathwayDatabases()
-#' weightedAdjMatrix(species = "hsapiens", database = "kegg",
-#' outputDir = "gsTopology.rda")
+#' retrieve_topology(species = "hsapiens", database = "kegg")
 #' }
 #' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
-#' ssPertScore <- perturbationScore(ls$logFC, gsTopology)
+#' ssPertScore <- compute_perturbationScore(ls$logFC, gsTopology)
 #' @export
-perturbationScore <- function(weightedFC, gsTopology){
+compute_perturbationScore <- function(weightedFC, gsTopology){
     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(gsTopology, rownames))))) == 0)
         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
     # extract all unique pathway genes and find ones that are not expressed
@@ -47,12 +48,12 @@ perturbationScore <- function(weightedFC, gsTopology){
     PF <-  ssPertScore_RCPP(gsTopology, weightedFC, rownames(weightedFC), colnames(weightedFC))
 
     # Remove list elements that are null or all zeros
-    suppressWarnings(PF <- PF[sapply(PF, any)])
-    PF <- sapply(names(PF), function(x){
+    suppressWarnings(PF <- PF[vapply(PF, any, logical(1))])
+    PF <- lapply(names(PF), function(x){
         temp <- as.data.frame(PF[[x]])
         temp <- set_colnames(temp, "tA")
         temp <- rownames_to_column(temp,"sample")
         temp <- mutate(temp, gs_name = x)
-    }, simplify = FALSE)
+    })
     bind_rows(PF)
 }

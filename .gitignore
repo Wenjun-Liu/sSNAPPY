@@ -10,3 +10,4 @@ TODO.md
 data/..rda
 .o
 .so
+src/*.o

@@ -1,6 +1,6 @@
 Package: sSNAPPY
 Title: Single Sample directioNAl Pathway Perturbation analYsis
-Version: 0.99.2
+Version: 0.99.3
 Authors@R: 
     person("Wenjun", "Liu", , "wenjun.liu@adelaide.edu.au", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-3069"))
@@ -12,7 +12,6 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-LazyData: TRUE
 Suggests: 
     BiocManager,
     BiocStyle,
@@ -21,11 +20,13 @@ Suggests:
     knitr,
     pander,
     rmarkdown,
+    spelling,
     stringr,
     testthat (>= 3.0.0),
     tidyverse
 Config/testthat/edition: 3
 SystemRequirements: C++11
+LazyData: false
 Imports: 
     dplyr,
     magrittr,
@@ -48,6 +49,8 @@ LinkingTo:
 Depends: 
     R (>= 4.1.0)
 biocViews:
-    Software, GeneExpression, GeneSetEnrichment
+    Software, GeneExpression, GeneSetEnrichment, GeneSignaling
 URL: https://wenjun-liu.github.io/sSNAPPY/
 VignetteBuilder: knitr
+BugReports: https://github.com/Wenjun-Liu/sSNAPPY/issues
+Language: en-US

@@ -20,7 +20,7 @@ generate_PermutedScore(
 
 \item{NB}{Number of permutations}
 
-\item{gsTopology}{List of pathway topology matrices generated using function \code{weightedAdjMatrix}}
+\item{gsTopology}{List of pathway topology matrices generated using function \code{retrieve_topology}}
 
 \item{weight}{A vector of gene-wise weights derived from function \code{weight_ssFC}}
 
@@ -43,6 +43,8 @@ number of permutations possible instead.
 }
 \examples{
 #compute weighted single sample logFCs
+data(metadata_example)
+data(logCPM_example)
 ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
  factor = "patient", control = "Vehicle")
 

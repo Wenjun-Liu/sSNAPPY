@@ -25,6 +25,9 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/compute_perturbationScore.html</loc>
+  </url>
+  <url>
     <loc>/reference/dot-compute_ssFC.html</loc>
   </url>
   <url>
@@ -55,10 +58,16 @@
     <loc>/reference/normaliseByPermutation.html</loc>
   </url>
   <url>
+    <loc>/reference/normalise_byPermu.html</loc>
+  </url>
+  <url>
     <loc>/reference/perturbationScore.html</loc>
   </url>
   <url>
     <loc>/reference/plot_gsNetwork.html</loc>
+  </url>
+  <url>
+    <loc>/reference/retrieve_topology.html</loc>
   </url>
   <url>
     <loc>/reference/sSNAPPY.html</loc>

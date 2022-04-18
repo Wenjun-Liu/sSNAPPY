@@ -1,7 +1,7 @@
 #' @title Plot gene-set network
 #'
 #' @param normalisedScores A dataframe as described in the details section
-#' @param gsTopology List of pathway topology matrices generated using function `weightedAdjMatrix`
+#' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology`
 #' @param colorBy Choose to color nodes either by "robustZ" or "pvalue". A column must exist in the normalisedScores for the chosen parameter
 #' @param foldGSname logical(1). Should long gene-set names be folded into two lines
 #' @param foldafter The number of words after which gene-set names should be folded. Defaulted to 2
@@ -88,11 +88,11 @@ make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ",
     nGS <- length(GSlist)
     GSname <- names(GSlist)
 
-    w <- sapply(seq_len(nGS-1), function(x){
-        sapply((x+1):nGS, function(y){
+    w <- lapply(seq_len(nGS-1), function(x){
+        lapply((x+1):nGS, function(y){
             data.frame(from = GSname[x], to = GSname[y], weight = jacIdex_func(GSlist[[x]]$gene_id, GSlist[[y]]$gene_id))
-        }, simplify = FALSE)
-    }, simplify = FALSE)
+        })
+    })
 
     w <- bind_rows(lapply(w, bind_rows))
     w <- filter(w, from != to)

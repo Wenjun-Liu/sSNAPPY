@@ -26,8 +26,8 @@ y_wrongIdentifier <- y
 rownames(y_wrongIdentifier) <- c("ENSG00000000003","ENSG00000000419","ENSG00000000457","ENSG00000000460","ENSG00000000938")
 ssFC_wrongIdentifier <- weight_ssFC(y_wrongIdentifier, sample, "patient", "control")
 
-test_that("perturbationScore returns error when expected", {
-    expect_error(perturbationScore(ssFC_wrongIdentifier$logFC, gsTopology), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
+test_that("compute_perturbationScore returns error when expected", {
+    expect_error(compute_perturbationScore(ssFC_wrongIdentifier$logFC, gsTopology), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
 })
 
 notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(ssFC$logFC))
@@ -46,8 +46,8 @@ test_that("ssPertScore_RCPP produces the expected outcome",{
     expect_equal(names(ls[[1]]), stringr::str_subset(sample$sample, "control", negate = TRUE))
 })
 
-test_that("perturbationScore produces the expected outcome", {
-    output <- perturbationScore(ssFC$logFC, gsTopology)
+test_that("compute_perturbationScore produces the expected outcome", {
+    output <- compute_perturbationScore(ssFC$logFC, gsTopology)
     expect_equal(colnames(output), c("sample", "tA", "gs_name"))
     expect_false(anyNA(output$tA))
     expect_equal(unique(output$sample), stringr::str_subset(sample$sample, "control", negate = TRUE))

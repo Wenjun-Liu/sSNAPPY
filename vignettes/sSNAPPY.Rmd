@@ -5,7 +5,9 @@ author:
   affiliation: Dame Roma Mitchell Cancer Research Laboratories, Adelaide Medical School, University of Adelaide
   email: wenjun.liu@adelaide.edu.au
 pacakge: sSNAPPY
-output: BiocStyle::html_document
+output: 
+    BiocStyle::html_document:
+    toc: yes
 vignette: >
   %\VignetteIndexEntry{Single Sample Directional Pathway Perturbation Analysis}
   %\VignetteEncoding{UTF-8}
@@ -24,10 +26,21 @@ This vignette demonstrates how to use the package `sSNAPPY` to compute direction
 
 The package also provides a function to visualize overlap between pathway genes contained in perturbed biological pathways as network plots. 
 
+# Installation
+
+The package `sSNAPPY` can be installed using the package `BiocManager`, along with other packages required for this vignette (`tidyverse`, `magrittr`, `ggplot2`, `cowplot`, and `DT`). 
+
+```{r install, eval = FALSE}
+if (!"BiocManager" %in% rownames(installed.packages()))
+  install.packages("BiocManager")
+pkg <- c("tidyverse", "magrittr", "ggplot2", "cowplot", "DT")
+BiocManager::install(pkg)
+BiocManager::install("sSNAPPY")
+```
 
 # Load packages
 
-```{r setup, echo=FALSE, results="hide", warning=FALSE}
+```{r setup,  results="hide", warning=FALSE}
 library(sSNAPPY)
 library(tidyverse)
 library(magrittr)
@@ -38,10 +51,12 @@ library(DT)
 
 # load data
 
-The example dataset used for this tutorial has been built into the `sSNAPPY` package. It's a subset of data retrieved from [Singhal H et al. 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/), where ER-positive primary breast cancer tumor tissues collected from 12 patients were split into fragments of equal sizes for different treatments. For the purpose of this tutorial, we only took the RNA-seq data from samples that were treated with vehicle, E2 OR E2 + R5020 for 48 hrs. They were from 5 different patients, giving rise to 15 samples in total. More detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
+The example dataset used for this tutorial can loaded with `data()` as shown below. It's a subset of data retrieved from [Singhal H et al. 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/), where ER-positive primary breast cancer tumor tissues collected from 12 patients were split into fragments of equal sizes for different treatments. For the purpose of this tutorial, we only took the RNA-seq data from samples that were treated with vehicle, E2 OR E2 + R5020 for 48 hrs. They were from 5 different patients, giving rise to 15 samples in total. More detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
 
 
 ```{r data}
+data(logCPM_example)
+data(metadata_example)
 # check if samples included in the logCPM matrix and metadata dataframe are identical
 setequal(colnames(logCPM_example), metadata_example$sample)
 # View sample metadata
@@ -77,12 +92,12 @@ It has been demonstrated previously that in RNA-seq data, lowly expressed genes 
 
 
 ```{r lowess, fig.width=8,fig.height=4, echo=FALSE}
-perSample_FC <- sapply(levels(metadata_example$patient), function(x){
-    temp <- logCPM_example[1:1000,str_detect(colnames(logCPM_example), x)] 
+perSample_FC <- lapply(levels(metadata_example$patient), function(x){
+    temp <- logCPM_example[seq_len(1000),str_detect(colnames(logCPM_example), x)] 
     ratio <- temp[, str_detect(colnames(temp), "Vehicle", negate = TRUE)] - temp[, str_detect(colnames(temp), "Vehicle")] 
-}, simplify = FALSE) %>%
+}) %>%
     do.call(cbind,.)
-aveCPM <- logCPM_example[1:1000,] %>%
+aveCPM <- logCPM_example[seq_len(1000),] %>%
     rowMeans() %>%
     enframe(name = "gene_id", 
             value = "aveCPM")
@@ -121,9 +136,9 @@ The output of the `weight_ssFC()` function is a list with two element, where one
 
 # Retrieve pathway topologies in required format
 
-*sSNAPPY* adopts the pathway perturbation scoring algorithm proposed in [*SPIA* (Tarca AL et al. 2009)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732297/), which makes use of gene-set topologies and gene-gene interaction to propagate pathway genes' logFCs down the topologies to compute pathway perturbation scores, where signs of scores reflect the potential directions of changes. 
+*sSNAPPY* adopts the pathway perturbation scoring algorithm proposed in `r Biocpkg("SPIA")`, which makes use of gene-set topologies and gene-gene interaction to propagate pathway genes' logFCs down the topologies to compute pathway perturbation scores, where signs of scores reflect the potential directions of changes. 
 
-Therefore, pathway topology information need to be firstly retrieved from your chosen database and converted to weight adjacency matrices, the format required to apply the scoring algorithm. This step is achieved through a chain of functions that are part of the [*graphite* package (Sales G et al. 2012)](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-20) and has been nested into one simple function in this package: `weightedAdjMatrix()`. Databases that are currently supported are:
+Therefore, pathway topology information need to be firstly retrieved from your chosen database and converted to weight adjacency matrices, the format required to apply the scoring algorithm. This step is achieved through a chain of functions that are part of the `r Biocpkg("grapghite")` and has been nested into one simple function in this package: `retrieve_topology()`. Databases that are currently supported are:
 
 ```{r pathwayDatabases}
 library(graphite)
@@ -132,38 +147,34 @@ graphite::pathwayDatabases() %>%
   pander::pander()
 ```
 
-The retrieved topology information will be saved as an Rdata file in the specified directory so this step only needs to be performed once for each database. When loaded into the environment, the topologies will be saved in a `list` called `gsTopology` by default. 
+The retrieved topology information will be a list where each element is a pathway. We recommend you to save it as a file so this step only needs to be performed once for each database.
 
 This vignette chose *KEGG* pathways as an example. 
 
-```{r weightedAdjMatrix}
-weightedAdjMatrix(database = "kegg", outputDir = "gsTopology.rda")
-load("gsTopology.rda")
+```{r retrieve_topology}
+gsTopology <- retrieve_topology(database = "kegg")
 head(names(gsTopology))
 ```
 
 If only selected pathways are of interest, it's possible to only retrieve the topologies of those pathways by specifying the pathway names. 
 
 ```{r eval = FALSE}
-weightedAdjMatrix(
+gsTopology <- retrieve_topology(
   database = "kegg",
   pathwayName = c(
     "Glycolysis / Gluconeogenesis", 
     "Citrate cycle (TCA cycle)",
     "Pentose phosphate pathway"
-    ), 
-  outputDir = "gsTopology.rda"
-)
-load("gsTopology.rda")
+    ))
 names(gsTopology)
 ```
 
 # Score single sample pathway perturbation
 
-Once the expression matrix, sample metadata and pathway topologies are all ready, single sample pathway perturbation scores (PS) can be computed using function `perturbationScore()`, which returns a data.frame containing the test perturbation scores for each sample each pathway. 
+Once the expression matrix, sample metadata and pathway topologies are all ready, single sample pathway perturbation scores (PS) can be computed using function `compute_perturbationScore()`, which returns a data.frame containing the test perturbation scores for each sample each pathway. 
 
 ```{r ssPertScore}
-ssPertScore <- perturbationScore(weightedFC$logFC, gsTopology)
+ssPertScore <- compute_perturbationScore(weightedFC$logFC, gsTopology)
 head(ssPertScore)
 ```
 
@@ -175,7 +186,7 @@ For each round of permutation, sample labels are randomly shuffled to derive the
 
 Output of the `generate_PermutedScore()` function is a list where each element is a vector of permuted perturbation scores for a pathway. 
 
-The permutation step relies on the parallel computing feature provided by `BiocParallel`. User can choose to customize the parallel back-end or stick with the default one returned by `BiocParallel::bpparam()`. Depending on the size of the data, this step can take some time to complete. If the sample size is large, we recommend users to consider performing this step on a HPC. 
+The permutation step relies on the parallel computing feature provided by `r Biocpkg("BiocParallel")`. User can choose to customize the parallel back-end or stick with the default one returned by `BiocParallel::bpparam()`. Depending on the size of the data, this step can take some time to complete. If the sample size is large, we recommend users to consider performing this step on a HPC. 
 
 ```{r permutedScore, eval = FALSE}
 permutedScore <- generate_PermutedScore(
@@ -212,12 +223,12 @@ plot_grid(plotlist = pl, nrow = 2)
 
 ## Of individal score
 
-After the empirical null distributions are generated, the median and mad will be calculated for each pathway to convert the test single-sample perturbation scores derived from the `perturbationScore()` to robust z-scores: $$ (Score - Median)/MAD$$ Two-sided p-values associated with each robust z-scores are also computed and will be corrected for multiple-testing using a user-define approach. The default is `fdr`.
+After the empirical null distributions are generated, the median and mad will be calculated for each pathway to convert the test single-sample perturbation scores derived from the `compute_perturbationScore()` to robust z-scores: $$ (Score - Median)/MAD$$ Two-sided p-values associated with each robust z-scores are also computed and will be corrected for multiple-testing using a user-define approach. The default is `fdr`.
 
 The pathways that were significant perturbed within individual samples are:
 
 ```{r normalisedScores, eval=FALSE}
-normalisedScores <- normaliseByPermutation(permutedScore, ssPertScore)
+normalisedScores <- normalise_byPermu(permutedScore, ssPertScore)
 ```
 
 ```{r echo = FALSE}
@@ -252,7 +263,7 @@ normalisedScores %>%
 
 ### Visualisation
 
-We can use the `plot_gsNetwork` function to visualise the significantly perturbed biological pathways as networks, where edges between gene-sets reflect how much overlap those two gene-sets share. The function can take `normaliseByPermutation`'s output, or a subset of it as its direct input. 
+We can use the `plot_gsNetwork` function to visualise the significantly perturbed biological pathways as networks, where edges between gene-sets reflect how much overlap those two gene-sets share. The function can take `normalise_byPermu`'s output, or a subset of it as its direct input. 
 
 Nodes in the network plots could be coloured by the predicted direction of perturbation (i.e.. sign of robust z-score):
 
@@ -311,12 +322,12 @@ fit <- normalisedScores %>%
     #.["Estrogen signaling pathway"] %>%
     lapply(function(x)lm(robustZ ~ 0 + treatment + PR, data = x)) %>%
     lapply(summary)
-treat_sig <- sapply(
+treat_sig <- lapply(
   names(fit), 
   function(x){
     fit[[x]]$coefficients %>%
       as.data.frame() %>%
-      .[1:2,] %>%
+      .[seq_len(2),] %>%
       dplyr::select(Estimate, pvalue = `Pr(>|t|)` ) %>%
       rownames_to_column("Treatment") %>%
       mutate(
@@ -324,8 +335,7 @@ treat_sig <- sapply(
         FDR = p.adjust(pvalue, "fdr"), 
         Treatment = str_remove_all(Treatment, "treatment")
       ) 
-  }, 
-  simplify = FALSE) %>%
+  }) %>%
   bind_rows() 
 ```
 

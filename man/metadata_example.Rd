@@ -17,7 +17,7 @@ A data frame with 15 rows and 4 columns
 \url{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/}
 }
 \usage{
-metadata_example
+data(metadata_example)
 }
 \description{
 metadata_example: Sample metadata for malignant breast cancer tumors PDE from 5 ER+ breast cancer patients (GSE80098)

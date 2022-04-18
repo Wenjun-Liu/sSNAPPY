@@ -43,7 +43,8 @@
 #' $logFC weighted single sample logFC matrix
 #' @examples
 #' # Inspect metadata data frame to make sure it has treatment, sample and patient columns
-#' head(metadata_example)
+#' data(metadata_example)
+#' data(logCPM_example)
 #' length(setdiff(colnames(logCPM_example), metadata_example$sample)) == 0
 #' ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
 #'  factor = "patient", control = "Vehicle")
@@ -92,14 +93,14 @@ weight_ssFC <- function(logCPM, metadata, factor, control){
 
 
     pairs <- unique(as.character(pull(metadata, sym(factor))))
-    ls <- sapply(pairs, function(x){
+    ls <- lapply(pairs, function(x){
     contrSample <- dplyr::filter(metadata, metadata$treatment == control, !!sym(factor) == x)
     contrSample <- as.character(pull(contrSample, sample))
     treatedSample <- dplyr::filter(metadata, metadata$treatment != control, !!sym(factor) == x)
     treatedSample <- as.character(pull(treatedSample, sample))
 
     logCPM[, treatedSample] - logCPM[, contrSample]
-    }, simplify = FALSE)
+    })
     do.call(cbind,ls)
 
 }

@@ -8,6 +8,7 @@
 #'
 #' @format A matrix with 7672 rows and 15 columns
 #' @source \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE80098}
+#' @usage data(logCPM_example)
 "logCPM_example"
 
 
@@ -21,4 +22,5 @@
 #'   \item{sample}{sample name, corresponding to column names of the logCPM matrix}
 #' }
 #' @source \url{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/}
+#' @usage data(metadata_example)
 "metadata_example"

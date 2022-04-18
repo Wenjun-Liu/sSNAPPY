@@ -6,7 +6,6 @@
 #' @param pathwayName Optional. Subset of pathway names as a vector.
 #' @param beta Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type.
 #' See details for more information.
-#' @param outputDir A file directory specifying where the weighted adjacent matrix should be stored as an RData object.
 #' @import org.Hs.eg.db
 #' @return A list where each element is a matrix corresponding to a pathway
 #' @details
@@ -21,7 +20,7 @@
 #' "repression","binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation"). If unspecified, beta will be by default
 #' chosen as: c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0).
 #'
-#' The converted weighted adjacent matrices will be stored in list and write into the file directory specified through the `outputDir` parameter.
+#' The converted weighted adjacent matrices will be stored in a list. We recommend users to store the returned list as a file so this step only needs to be performed once.
 #'
 #' This function only supports and can only be used to retreive human databases as this stage.
 #' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
@@ -34,18 +33,16 @@
 #' # explore all databases supported by graphite
 #' \dontrun{
 #' graphite::pathwayDatabases()
-#' weightedAdjMatrix(database = "kegg",
-#' outputDir = "gsTopology.rda")
+#' retrieve_topology(database = "kegg")
 #' }
 #' # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
 #' \dontrun{
-#' weightedAdjMatrix(database = "kegg",
+#' retrieve_topology(database = "kegg",
 #' pathwayName = c("Glycolysis / Gluconeogenesis",
-#' "Citrate cycle (TCA cycle)","Pentose phosphate pathway"),
-#' outputDir = "gsTopology.rda")
+#' "Citrate cycle (TCA cycle)","Pentose phosphate pathway"))
 #' }
 #'
-weightedAdjMatrix <-  function(database, pathwayName = NULL, beta = NULL, outputDir){
+retrieve_topology <-  function(database, pathwayName = NULL, beta = NULL){
 
     supportedDatabase <- graphite::pathwayDatabases()
     if(!database %in% supportedDatabase$database)stop(
@@ -75,9 +72,9 @@ weightedAdjMatrix <-  function(database, pathwayName = NULL, beta = NULL, output
     if("<graphite_placeholder>" %in% names(datpT)){
         datpT <- datpT[names(datpT) != "<graphite_placeholder>" ] }
 
-    gsTopology <- sapply(names(datpT), function(x){
-        g2gInteraction <- sapply(int2keep, function(y){
-            datpT[[x]][[y]] * beta[y]}, simplify = FALSE)
+    gsTopology <- lapply(names(datpT), function(x){
+        g2gInteraction <- lapply(int2keep, function(y){
+            datpT[[x]][[y]] * beta[y]})
         g2gInteraction <-   Reduce('+', g2gInteraction)
 
         numDownstream <- Reduce('+', datpT[[x]])
@@ -86,10 +83,9 @@ weightedAdjMatrix <-  function(database, pathwayName = NULL, beta = NULL, output
         B <- g2gInteraction/numDownstream
         diag(B) <- diag(B)-1
         B
-    }, simplify = FALSE)
-
-    save(gsTopology, file = outputDir)
-
+    })
+    names(gsTopology) <- names(datpT)
+    gsTopology
 
 }
 

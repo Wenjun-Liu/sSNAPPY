@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sSNAPPY</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -47,7 +47,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Permute sample labels to simulate null distribution of perturbation scores</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/Wenjun-Liu/sSNAPPY/blob/HEAD/R/normaliseByPermutation.R" class="external-link"><code>R/normaliseByPermutation.R</code></a></small>
     <div class="hidden name"><code>generate_PermutedScore.Rd</code></div>
     </div>
 
@@ -75,7 +75,7 @@
 <dt>NB</dt>
 <dd><p>Number of permutations</p></dd>
 <dt>gsTopology</dt>
-<dd><p>List of pathway topology matrices generated using function <code>weightedAdjMatrix</code></p></dd>
+<dd><p>List of pathway topology matrices generated using function <code>retrieve_topology</code></p></dd>
 <dt>weight</dt>
 <dd><p>A vector of gene-wise weights derived from function <code>weight_ssFC</code></p></dd>
 <dt>BPPARAM</dt>
@@ -98,6 +98,8 @@ number of permutations possible instead.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">#compute weighted single sample logFCs</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">metadata_example</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">ls</span> <span class="op">&lt;-</span> <span class="fu"><a href="weight_ssFC.html">weight_ssFC</a></span><span class="op">(</span><span class="va">logCPM_example</span>, metadata <span class="op">=</span> <span class="va">metadata_example</span>,</span>
 <span class="r-in"> factor <span class="op">=</span> <span class="st">"patient"</span>, control <span class="op">=</span> <span class="st">"Vehicle"</span><span class="op">)</span></span>
 <span class="r-in"></span>

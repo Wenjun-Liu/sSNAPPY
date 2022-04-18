@@ -11,7 +11,7 @@ A matrix with 7672 rows and 15 columns
 \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE80098}
 }
 \usage{
-logCPM_example
+data(logCPM_example)
 }
 \description{
 This data was adopted from a study by Singhal H, et al., which was published as \emph{Genomic agonism and phenotypic antagonism between estrogen and progesterone receptors in breast cancer}

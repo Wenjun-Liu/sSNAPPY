@@ -7,6 +7,8 @@
 
 To install this package, please use BiocManager.
 
-`install.packages("BiocManager")`
-
-`BiocManager::install("sSNAPPY")`
+```r
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("sSNAPPY")
+```

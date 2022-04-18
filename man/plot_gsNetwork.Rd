@@ -27,7 +27,7 @@ plot_gsNetwork(
 \arguments{
 \item{normalisedScores}{A dataframe as described in the details section}
 
-\item{gsTopology}{List of pathway topology matrices generated using function \code{weightedAdjMatrix}}
+\item{gsTopology}{List of pathway topology matrices generated using function \code{retrieve_topology}}
 
 \item{colorBy}{Choose to color nodes either by "robustZ" or "pvalue". A column must exist in the normalisedScores for the chosen parameter}
 

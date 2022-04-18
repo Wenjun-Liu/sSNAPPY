@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sSNAPPY</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -47,7 +47,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Retrieve pathway topology as weighted adjacent matrix</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/Wenjun-Liu/sSNAPPY/blob/HEAD/R/pathwayTopology.R" class="external-link"><code>R/pathwayTopology.R</code></a></small>
     <div class="hidden name"><code>retrieve_topology.Rd</code></div>
     </div>
 
@@ -56,7 +56,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">retrieve_topology</span><span class="op">(</span><span class="va">database</span>, pathwayName <span class="op">=</span> <span class="cn">NULL</span>, beta <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">outputDir</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">retrieve_topology</span><span class="op">(</span><span class="va">database</span>, pathwayName <span class="op">=</span> <span class="cn">NULL</span>, beta <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -68,8 +68,6 @@
 <dt>beta</dt>
 <dd><p>Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type.
 See details for more information.</p></dd>
-<dt>outputDir</dt>
-<dd><p>A file directory specifying where the weighted adjacent matrix should be stored as an RData object.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -86,7 +84,7 @@ whose names must be: c("activation","compound","binding/association","expression
 "state","activation_indirect","inhibition_ubiquination","ubiquination","expression_indirect","indirect_inhibition",
 "repression","binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation"). If unspecified, beta will be by default
 chosen as: c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0).</p>
-<p>The converted weighted adjacent matrices will be stored in list and write into the file directory specified through the <code>outputDir</code> parameter.</p>
+<p>The converted weighted adjacent matrices will be stored in a list. We recommend users to store the returned list as a file so this step only needs to be performed once.</p>
 <p>This function only supports and can only be used to retreive human databases as this stage.</p>
     </div>
     <div id="references">
@@ -102,15 +100,13 @@ BMC Bioinformatics 13, 20 (2012).</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># explore all databases supported by graphite</span></span>
 <span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span class="r-in"><span class="fu">graphite</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/graphite/man/pathwayDatabases.html" class="external-link">pathwayDatabases</a></span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">retrieve_topology</span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span>,</span>
-<span class="r-in">outputDir <span class="op">=</span> <span class="st">"gsTopology.rda"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu">retrieve_topology</span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
 <span class="r-in"><span class="co"># if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter</span></span>
 <span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span class="r-in"><span class="fu">retrieve_topology</span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span>,</span>
 <span class="r-in">pathwayName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Glycolysis / Gluconeogenesis"</span>,</span>
-<span class="r-in"><span class="st">"Citrate cycle (TCA cycle)"</span>,<span class="st">"Pentose phosphate pathway"</span><span class="op">)</span>,</span>
-<span class="r-in">outputDir <span class="op">=</span> <span class="st">"gsTopology.rda"</span><span class="op">)</span></span>
+<span class="r-in"><span class="st">"Citrate cycle (TCA cycle)"</span>,<span class="st">"Pentose phosphate pathway"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
 <span class="r-in"></span>
 </code></pre></div>

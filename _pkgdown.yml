@@ -11,10 +11,10 @@ reference:
 - title: All functions
   contents:
   - weight_ssFC
-  - weightedAdjMatrix
-  - perturbationScore
+  - retrieve_topology
+  - compute_perturbationScore
   - generate_PermutedScore
-  - normaliseByPermutation
+  - normalise_byPermu
   - plot_gsNetwork
 
 - title: Example datasets

@@ -90,12 +90,12 @@ test_that("generate_PermutedScore produces the expected outcome", {
     expect_equal(length(results[[1]]), 10*(6-3+1))
 })
 
-test_that("normaliseByPermutation produces the expected outcome",{
+test_that("normalise_byPermu produces the expected outcome",{
     perS <- list(
         "Chemokine signaling pathway"= rnorm(40, mean = 1, sd = 0.3)
     )
-    ssPertScore <- perturbationScore(ssFC$logFC, gsTopology)
-    output <- normaliseByPermutation(perS, ssPertScore)
+    ssPertScore <- compute_perturbationScore(ssFC$logFC, gsTopology)
+    output <- normalise_byPermu(perS, ssPertScore)
     expect_equal(unique(output$sample), c("patient1_treat1", "patient1_treat2", "patient2_treat1", "patient2_treat2"))
     expect_false(anyNA(output$robustZ))
     expect_true(length(intersect(output$MAD, 0)) == 0)
