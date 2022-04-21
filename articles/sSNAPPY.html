@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sSNAPPY</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@ Adelaide<br><a class="author_email" href="mailto:#"></a><a href="mailto:wenjun.l
       </address>
                   
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/Wenjun-Liu/sSNAPPY/blob/HEAD/vignettes/sSNAPPY.Rmd" class="external-link"><code>vignettes/sSNAPPY.Rmd</code></a></small>
       <div class="hidden name"><code>sSNAPPY.Rmd</code></div>
 
     </div>
@@ -106,15 +106,37 @@ pathway genes contained in perturbed biological pathways as network
 plots.</p>
 </div>
 <div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>The package <code>sSNAPPY</code> can be installed using the package
+<code>BiocManager</code>, along with other packages required for this
+vignette (<code>tidyverse</code>, <code>magrittr</code>,
+<code>ggplot2</code>, <code>cowplot</code>, and <code>DT</code>).</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"BiocManager"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span>
+<span class="va">pkg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tidyverse"</span>, <span class="st">"magrittr"</span>, <span class="st">"ggplot2"</span>, <span class="st">"cowplot"</span>, <span class="st">"DT"</span><span class="op">)</span>
+<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="va">pkg</span><span class="op">)</span>
+<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"sSNAPPY"</span><span class="op">)</span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="load-packages">Load packages<a class="anchor" aria-label="anchor" href="#load-packages"></a>
 </h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wenjun-liu.github.io/sSNAPPY/" class="external-link">sSNAPPY</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/DT" class="external-link">DT</a></span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="load-data">load data<a class="anchor" aria-label="anchor" href="#load-data"></a>
 </h2>
-<p>The example dataset used for this tutorial has been built into the
-<code>sSNAPPY</code> package. It’s a subset of data retrieved from <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/" class="external-link">Singhal H
-et al. 2016</a>, where ER-positive primary breast cancer tumor tissues
+<p>The example dataset used for this tutorial can loaded with
+<code><a href="https://rdrr.io/r/utils/data.html" class="external-link">data()</a></code> as shown below. It’s a subset of data retrieved from
+<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/" class="external-link">Singhal
+H et al. 2016</a>, where ER-positive primary breast cancer tumor tissues
 collected from 12 patients were split into fragments of equal sizes for
 different treatments. For the purpose of this tutorial, we only took the
 RNA-seq data from samples that were treated with vehicle, E2 OR E2 +
@@ -122,15 +144,17 @@ R5020 for 48 hrs. They were from 5 different patients, giving rise to 15
 samples in total. More detailed description of the dataset can be
 assessed through the help page (<code><a href="../reference/logCPM_example.html">?logCPM_example</a></code> and
 <code><a href="../reference/metadata_example.html">?metadata_example</a></code>).</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># check if samples included in the logCPM matrix and metadata dataframe are identical</span>
-<span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setequal</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span>, <span class="va">metadata_example</span><span class="op">$</span><span class="va">sample</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] TRUE</span></code></pre>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">metadata_example</span><span class="op">)</span>
+<span class="co"># check if samples included in the logCPM matrix and metadata dataframe are identical</span>
+<span class="fu"><a href="https://generics.r-lib.org/reference/setops.html" class="external-link">setequal</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span>, <span class="va">metadata_example</span><span class="op">$</span><span class="va">sample</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## [1] TRUE</span></code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># View sample metadata</span>
-<span class="fu">datatable</span><span class="op">(</span><span class="va">metadata_example</span>,  filter <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></code></pre></div>
-<div id="htmlwidget-dd214ea644520ba65377" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-dd214ea644520ba65377">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td><\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;N2&quot;,&quot;N3&quot;,&quot;P4&quot;,&quot;P5&quot;,&quot;P6&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Vehicle&quot;,&quot;E2&quot;,&quot;E2+R5020&quot;,&quot;R5020&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;E2+R5020_N2_48&quot;,&quot;E2+R5020_N3_48&quot;,&quot;E2+R5020_P4_48&quot;,&quot;E2+R5020_P5_48&quot;,&quot;E2+R5020_P6_48&quot;,&quot;R5020_N2_48&quot;,&quot;R5020_N3_48&quot;,&quot;R5020_P4_48&quot;,&quot;R5020_P5_48&quot;,&quot;R5020_P6_48&quot;,&quot;Vehicle_N2_48&quot;,&quot;Vehicle_N3_48&quot;,&quot;Vehicle_P4_48&quot;,&quot;Vehicle_P5_48&quot;,&quot;Vehicle_P6_48&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Negative&quot;,&quot;Positive&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],["N2","N2","N2","N3","N3","N3","P4","P4","P4","P5","P5","P5","P6","P6","P6"],["Vehicle","E2+R5020","R5020","Vehicle","E2+R5020","R5020","Vehicle","E2+R5020","R5020","Vehicle","E2+R5020","R5020","Vehicle","E2+R5020","R5020"],["Vehicle_N2_48","E2+R5020_N2_48","R5020_N2_48","Vehicle_N3_48","E2+R5020_N3_48","R5020_N3_48","Vehicle_P4_48","E2+R5020_P4_48","R5020_P4_48","Vehicle_P5_48","E2+R5020_P5_48","R5020_P5_48","Vehicle_P6_48","E2+R5020_P6_48","R5020_P6_48"],["Negative","Negative","Negative","Negative","Negative","Negative","Positive","Positive","Positive","Positive","Positive","Positive","Positive","Positive","Positive"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>patient<\/th>\n      <th>treatment<\/th>\n      <th>sample<\/th>\n      <th>PR<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true}},"evals":[],"jsHooks":[]}</script>
+<span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span><span class="va">metadata_example</span>,  filter <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></code></pre></div>
+<div id="htmlwidget-786641aad23ca0f225bf" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-786641aad23ca0f225bf">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td><\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;N2&quot;,&quot;N3&quot;,&quot;P4&quot;,&quot;P5&quot;,&quot;P6&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Vehicle&quot;,&quot;E2&quot;,&quot;E2+R5020&quot;,&quot;R5020&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;E2+R5020_N2_48&quot;,&quot;E2+R5020_N3_48&quot;,&quot;E2+R5020_P4_48&quot;,&quot;E2+R5020_P5_48&quot;,&quot;E2+R5020_P6_48&quot;,&quot;R5020_N2_48&quot;,&quot;R5020_N3_48&quot;,&quot;R5020_P4_48&quot;,&quot;R5020_P5_48&quot;,&quot;R5020_P6_48&quot;,&quot;Vehicle_N2_48&quot;,&quot;Vehicle_N3_48&quot;,&quot;Vehicle_P4_48&quot;,&quot;Vehicle_P5_48&quot;,&quot;Vehicle_P6_48&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Negative&quot;,&quot;Positive&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],["N2","N2","N2","N3","N3","N3","P4","P4","P4","P5","P5","P5","P6","P6","P6"],["Vehicle","E2+R5020","R5020","Vehicle","E2+R5020","R5020","Vehicle","E2+R5020","R5020","Vehicle","E2+R5020","R5020","Vehicle","E2+R5020","R5020"],["Vehicle_N2_48","E2+R5020_N2_48","R5020_N2_48","Vehicle_N3_48","E2+R5020_N3_48","R5020_N3_48","Vehicle_P4_48","E2+R5020_P4_48","R5020_P4_48","Vehicle_P5_48","E2+R5020_P5_48","R5020_P5_48","Vehicle_P6_48","E2+R5020_P6_48","R5020_P6_48"],["Negative","Negative","Negative","Negative","Negative","Negative","Positive","Positive","Positive","Positive","Positive","Positive","Positive","Positive","Positive"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>patient<\/th>\n      <th>treatment<\/th>\n      <th>sample<\/th>\n      <th>PR<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div class="section level2">
 <h2 id="compute-weighted-single-sample-logfcs-sslogfcs">Compute weighted single-sample logFCs (ssLogFCs)<a class="anchor" aria-label="anchor" href="#compute-weighted-single-sample-logfcs-sslogfcs"></a>
@@ -146,7 +170,7 @@ is because all the pathway topology information retrieved will be in
 <code>entrez ID</code>. The conversion can be achieved through
 bioconductor packages <code>AnnotationHub</code> and
 <code>ensembldb</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##       Vehicle_N2_48 E2+R5020_N2_48 R5020_N2_48 Vehicle_N3_48 E2+R5020_N3_48</span>
 <span class="co">## 7105       4.081669       5.109147    4.695391      4.673548       5.217774</span>
@@ -172,31 +196,31 @@ bioconductor packages <code>AnnotationHub</code> and
 <p>To compute the ssLogFCs, samples must be in matching pairs. In the
 example, treated samples are matched to the corresponding control sample
 that were derived from the same patients. So the <code>factor</code>
-parameter of the <code><a href="../reference/weight_ssFC.html">weight_ssFC()</a></code> functions needs to be set to
-be “patient”. The function also requires the control treatment level to
-be specified, which was “Vehicle” in this case.</p>
-<p><code><a href="../reference/weight_ssFC.html">weight_ssFC()</a></code> requires both the logCPM matrix and sample
-metadata as input. The column names of the logCPM matrix should be
-sample name, matching to a column called <code>sample</code> in the
+parameter of the <code><a href="../reference/weight_ss_fc.html">weight_ss_fc()</a></code> functions needs to be set
+to be “patient”. The function also requires the control treatment level
+to be specified, which was “Vehicle” in this case.</p>
+<p><code><a href="../reference/weight_ss_fc.html">weight_ss_fc()</a></code> requires both the logCPM matrix and
+sample metadata as input. The column names of the logCPM matrix should
+be sample name, matching to a column called <code>sample</code> in the
 metadata. The metadata must also contain a treatment column, and a
 column corresponding to the <code>factor</code> parameter (i.e.. patient
 in this case).</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#compute weighted single sample logFCs</span>
-<span class="va">weightedFC</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weight_ssFC.html">weight_ssFC</a></span><span class="op">(</span><span class="va">logCPM_example</span>, metadata <span class="op">=</span> <span class="va">metadata_example</span>,
+<span class="va">weightedFC</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weight_ss_fc.html">weight_ss_fc</a></span><span class="op">(</span><span class="va">logCPM_example</span>, metadata <span class="op">=</span> <span class="va">metadata_example</span>,
 factor <span class="op">=</span> <span class="st">"patient"</span>, control <span class="op">=</span> <span class="st">"Vehicle"</span><span class="op">)</span></code></pre></div>
-<p>The <code><a href="../reference/weight_ssFC.html">weight_ssFC()</a></code> function firstly computes raw ssLogFCs
-for each gene by subtracting logCPM values of control sample from the
-logCPM values of treated samples for each patient.</p>
+<p>The <code><a href="../reference/weight_ss_fc.html">weight_ss_fc()</a></code> function firstly computes raw
+ssLogFCs for each gene by subtracting logCPM values of control sample
+from the logCPM values of treated samples for each patient.</p>
 <p>It has been demonstrated previously that in RNA-seq data, lowly
 expressed genes turn to have larger variance, which is also demonstrated
 by the plots below. To reduce the impact of this artefact,
-<code>weight_ssFC</code> also weight each ssLogFCs by estimating the
+<code>weight_ss_fc</code> also weight each ssLogFCs by estimating the
 relationship between the variance in ssLogFCs and mean logCPM, and
 defining the gene-wise weight to be the inverse of the predicted
 variance of that gene’s mean logCPM value.</p>
 <p><img src="sSNAPPY_files/figure-html/lowess-1.png" width="768"></p>
-<p>The output of the <code><a href="../reference/weight_ssFC.html">weight_ssFC()</a></code> function is a list with
+<p>The output of the <code><a href="../reference/weight_ss_fc.html">weight_ss_fc()</a></code> function is a list with
 two element, where one is the weighted ssLogFCs matrix and the other is
 a vector of gene-wise weights.</p>
 </div>
@@ -204,22 +228,22 @@ a vector of gene-wise weights.</p>
 <h2 id="retrieve-pathway-topologies-in-required-format">Retrieve pathway topologies in required format<a class="anchor" aria-label="anchor" href="#retrieve-pathway-topologies-in-required-format"></a>
 </h2>
 <p><em>sSNAPPY</em> adopts the pathway perturbation scoring algorithm
-proposed in <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732297/" class="external-link"><em>SPIA</em>
-(Tarca AL et al. 2009)</a>, which makes use of gene-set topologies and
-gene-gene interaction to propagate pathway genes’ logFCs down the
-topologies to compute pathway perturbation scores, where signs of scores
-reflect the potential directions of changes.</p>
+proposed in <em><a href="https://bioconductor.org/packages/3.15/SPIA" class="external-link">SPIA</a></em>, which
+makes use of gene-set topologies and gene-gene interaction to propagate
+pathway genes’ logFCs down the topologies to compute pathway
+perturbation scores, where signs of scores reflect the potential
+directions of changes.</p>
 <p>Therefore, pathway topology information need to be firstly retrieved
 from your chosen database and converted to weight adjacency matrices,
 the format required to apply the scoring algorithm. This step is
-achieved through a chain of functions that are part of the <a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-20" class="external-link"><em>graphite</em>
-package (Sales G et al. 2012)</a> and has been nested into one simple
-function in this package: <code><a href="../reference/weightedAdjMatrix.html">weightedAdjMatrix()</a></code>. Databases
-that are currently supported are:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+achieved through a chain of functions that are part of the <em><a href="https://bioconductor.org/packages/3.15/grapghite" class="external-link">grapghite</a></em>
+and has been nested into one simple function in this package:
+<code><a href="../reference/retrieve_topology.html">retrieve_topology()</a></code>. Databases that are currently supported
+are:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">graphite</span><span class="op">)</span>
-<span class="fu">graphite</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/graphite/man/pathwayDatabases.html" class="external-link">pathwayDatabases</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">species</span> <span class="op">==</span>  <span class="st">"hsapiens"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+<span class="fu">graphite</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/graphite/man/pathwayDatabases.html" class="external-link">pathwayDatabases</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">species</span> <span class="op">==</span>  <span class="st">"hsapiens"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
   <span class="fu">pander</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pander/man/pander.html" class="external-link">pander</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <table style="width:36%;" class="table">
 <colgroup>
@@ -261,15 +285,12 @@ that are currently supported are:</p>
 </tr>
 </tbody>
 </table>
-<p>The retrieved topology information will be saved as an Rdata file in
-the specified directory so this step only needs to be performed once for
-each database. When loaded into the environment, the topologies will be
-saved in a <code>list</code> called <code>gsTopology</code> by
-default.</p>
+<p>The retrieved topology information will be a list where each element
+is a pathway. We recommend you to save it as a file so this step only
+needs to be performed once for each database.</p>
 <p>This vignette chose <em>KEGG</em> pathways as an example.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/weightedAdjMatrix.html">weightedAdjMatrix</a></span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span>, outputDir <span class="op">=</span> <span class="st">"gsTopology.rda"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="st">"gsTopology.rda"</span><span class="op">)</span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">gsTopology</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/retrieve_topology.html">retrieve_topology</a></span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gsTopology</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] "Glycolysis / Gluconeogenesis"            </span>
 <span class="co">## [2] "Citrate cycle (TCA cycle)"               </span>
@@ -280,29 +301,28 @@ default.</p>
 <p>If only selected pathways are of interest, it’s possible to only
 retrieve the topologies of those pathways by specifying the pathway
 names.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/weightedAdjMatrix.html">weightedAdjMatrix</a></span><span class="op">(</span>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">gsTopology_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/retrieve_topology.html">retrieve_topology</a></span><span class="op">(</span>
   database <span class="op">=</span> <span class="st">"kegg"</span>,
   pathwayName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
     <span class="st">"Glycolysis / Gluconeogenesis"</span>, 
     <span class="st">"Citrate cycle (TCA cycle)"</span>,
     <span class="st">"Pentose phosphate pathway"</span>
-    <span class="op">)</span>, 
-  outputDir <span class="op">=</span> <span class="st">"gsTopology.rda"</span>
-<span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="st">"gsTopology.rda"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gsTopology</span><span class="op">)</span></code></pre></div>
+    <span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gsTopology_sub</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## [1] "Glycolysis / Gluconeogenesis" "Citrate cycle (TCA cycle)"   </span>
+<span class="co">## [3] "Pentose phosphate pathway"</span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="score-single-sample-pathway-perturbation">Score single sample pathway perturbation<a class="anchor" aria-label="anchor" href="#score-single-sample-pathway-perturbation"></a>
 </h2>
 <p>Once the expression matrix, sample metadata and pathway topologies
 are all ready, single sample pathway perturbation scores (PS) can be
-computed using function <code><a href="../reference/perturbationScore.html">perturbationScore()</a></code>, which returns
-a data.frame containing the test perturbation scores for each sample
-each pathway.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ssPertScore</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/perturbationScore.html">perturbationScore</a></span><span class="op">(</span><span class="va">weightedFC</span><span class="op">$</span><span class="va">logFC</span>, <span class="va">gsTopology</span><span class="op">)</span>
+computed using function <code><a href="../reference/computePerturbationScore.html">computePerturbationScore()</a></code>, which
+returns a data.frame containing the test perturbation scores for each
+sample each pathway.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ssPertScore</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computePerturbationScore.html">computePerturbationScore</a></span><span class="op">(</span><span class="va">weightedFC</span><span class="op">$</span><span class="va">logFC</span>, <span class="va">gsTopology</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ssPertScore</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##           sample           tA                                   gs_name</span>
 <span class="co">## 1 E2+R5020_N2_48  0.006751152 EGFR tyrosine kinase inhibitor resistance</span>
@@ -323,22 +343,23 @@ sample-label permutation approach.</p>
 derive the permuted ssLogFCs, which are then used to score pathway
 perturbation. We recommend to perform a minimum of 1000 rounds of
 permutation, which means at least 8 samples are required. The
-<code><a href="../reference/generate_PermutedScore.html">generate_PermutedScore()</a></code> function does not require sample
+<code><a href="../reference/generatePermutedScores.html">generatePermutedScores()</a></code> function does not require sample
 metadata but the number of treatments in the study design, including the
 control treatment, need to be specified. In this example data, the
 number of treatment was 3.</p>
-<p>Output of the <code><a href="../reference/generate_PermutedScore.html">generate_PermutedScore()</a></code> function is a
+<p>Output of the <code><a href="../reference/generatePermutedScores.html">generatePermutedScores()</a></code> function is a
 list where each element is a vector of permuted perturbation scores for
 a pathway.</p>
 <p>The permutation step relies on the parallel computing feature
-provided by <code>BiocParallel</code>. User can choose to customize the
-parallel back-end or stick with the default one returned by
-<code><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">BiocParallel::bpparam()</a></code>. Depending on the size of the data,
-this step can take some time to complete. If the sample size is large,
-we recommend users to consider performing this step on a HPC.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">permutedScore</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_PermutedScore.html">generate_PermutedScore</a></span><span class="op">(</span>
-  logCPM <span class="op">=</span> <span class="va">logCPM_example</span>, 
+provided by <em><a href="https://bioconductor.org/packages/3.15/BiocParallel" class="external-link">BiocParallel</a></em>.
+User can choose to customize the parallel back-end or stick with the
+default one returned by <code><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">BiocParallel::bpparam()</a></code>. Depending
+on the size of the data, this step can take some time to complete. If
+the sample size is large, we recommend users to consider performing this
+step on a HPC.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">permutedScore</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generatePermutedScores.html">generatePermutedScores</a></span><span class="op">(</span>
+  expreMatrix  <span class="op">=</span> <span class="va">logCPM_example</span>, 
   numOfTreat <span class="op">=</span> <span class="fl">3</span>, NB <span class="op">=</span> <span class="fl">1000</span>, 
   gsTopology <span class="op">=</span> <span class="va">gsTopology</span>, 
   weight <span class="op">=</span> <span class="va">weightedFC</span><span class="op">$</span><span class="va">weight</span>
@@ -357,89 +378,89 @@ They should all be approximately normal distributed.</p>
 <p>After the empirical null distributions are generated, the median and
 mad will be calculated for each pathway to convert the test
 single-sample perturbation scores derived from the
-<code><a href="../reference/perturbationScore.html">perturbationScore()</a></code> to robust z-scores: <span class="math display">\[ (Score - Median)/MAD\]</span> Two-sided p-values
+<code><a href="../reference/computePerturbationScore.html">computePerturbationScore()</a></code> to robust z-scores: <span class="math display">\[ (Score - Median)/MAD\]</span> Two-sided p-values
 associated with each robust z-scores are also computed and will be
 corrected for multiple-testing using a user-define approach. The default
 is <code>fdr</code>.</p>
 <p>The pathways that were significant perturbed within individual
 samples are:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">normalisedScores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/normaliseByPermutation.html">normaliseByPermutation</a></span><span class="op">(</span><span class="va">permutedScore</span>, <span class="va">ssPertScore</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">normalisedScores</span> <span class="op">%&gt;%</span>
-    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjPvalue</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">left_join</span><span class="op">(</span><span class="va">metadata_example</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">mutate_at</span><span class="op">(</span><span class="fu">vars</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"gs_name"</span><span class="op">)</span><span class="op">)</span>, <span class="va">as.factor</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">mutate_if</span><span class="op">(</span><span class="va">is.numeric</span>, <span class="va">sprintf</span>, fmt <span class="op">=</span> <span class="st">'%#.4f'</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">mutate</span><span class="op">(</span>Direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">robustZ</span> <span class="op">&lt;</span> <span class="fl">0</span>, <span class="st">"Inhibited"</span>, <span class="st">"Activation"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">normalisedScores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/normaliseByPermu.html">normaliseByPermu</a></span><span class="op">(</span><span class="va">permutedScore</span>, <span class="va">ssPertScore</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">normalisedScores</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjPvalue</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">metadata_example</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html" class="external-link">mutate_at</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"gs_name"</span><span class="op">)</span><span class="op">)</span>, <span class="va">as.factor</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html" class="external-link">mutate_if</a></span><span class="op">(</span><span class="va">is.numeric</span>, <span class="va">sprintf</span>, fmt <span class="op">=</span> <span class="st">'%#.4f'</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">robustZ</span> <span class="op">&lt;</span> <span class="fl">0</span>, <span class="st">"Inhibited"</span>, <span class="st">"Activation"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
     <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>
         <span class="va">sample</span>, <span class="va">patient</span>, Treatment <span class="op">=</span> <span class="va">treatment</span>,
         `Perturbation Score` <span class="op">=</span> <span class="va">robustZ</span>, <span class="va">Direction</span>,
         `Gene-set name` <span class="op">=</span> <span class="va">gs_name</span>, 
         `P-value` <span class="op">=</span> <span class="va">pvalue</span>, 
         FDR <span class="op">=</span> <span class="va">adjPvalue</span>
-    <span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">datatable</span><span class="op">(</span>
+    <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span>
         filter <span class="op">=</span> <span class="st">"top"</span>, 
         options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
             columnDefs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>targets <span class="op">=</span> <span class="st">"Direction"</span>, visible <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span>
         <span class="op">)</span>
-    <span class="op">)</span> <span class="op">%&gt;%</span> 
-    <span class="fu">formatStyle</span><span class="op">(</span>
+    <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
+    <span class="fu"><a href="https://rdrr.io/pkg/DT/man/formatCurrency.html" class="external-link">formatStyle</a></span><span class="op">(</span>
         <span class="st">'Perturbation Score'</span>, <span class="st">'Direction'</span>,
-        backgroundColor <span class="op">=</span> <span class="fu">styleEqual</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Inhibited"</span>, <span class="st">"Activation"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'lightblue'</span>, <span class="st">'indianred'</span><span class="op">)</span><span class="op">)</span>
+        backgroundColor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/DT/man/styleInterval.html" class="external-link">styleEqual</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Inhibited"</span>, <span class="st">"Activation"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'lightblue'</span>, <span class="st">'indianred'</span><span class="op">)</span><span class="op">)</span>
     <span class="op">)</span></code></pre></div>
-<div id="htmlwidget-99c5a632bf0b244b5c6b" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-99c5a632bf0b244b5c6b">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td><\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;E2+R5020_N2_48&quot;,&quot;R5020_N2_48&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\" disabled=\"\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;N2&quot;,&quot;N3&quot;,&quot;P4&quot;,&quot;P5&quot;,&quot;P6&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Vehicle&quot;,&quot;E2&quot;,&quot;E2+R5020&quot;,&quot;R5020&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Amoebiasis&quot;,&quot;Growth hormone synthesis, secretion and action&quot;,&quot;PI3K-Akt signaling pathway&quot;,&quot;TGF-beta signaling pathway&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["1","2","3","4","5","6","7","8"],["E2+R5020_N2_48","E2+R5020_N2_48","E2+R5020_N2_48","E2+R5020_N2_48","R5020_N2_48","R5020_N2_48","R5020_N2_48","R5020_N2_48"],["N2","N2","N2","N2","N2","N2","N2","N2"],["E2+R5020","E2+R5020","E2+R5020","E2+R5020","R5020","R5020","R5020","R5020"],["3.4211","-9.3911","3.8617","3.6179","3.6375","-10.4166","4.2110","3.7037"],["Activation","Inhibited","Activation","Activation","Activation","Inhibited","Activation","Activation"],["PI3K-Akt signaling pathway","TGF-beta signaling pathway","Growth hormone synthesis, secretion and action","Amoebiasis","PI3K-Akt signaling pathway","TGF-beta signaling pathway","Growth hormone synthesis, secretion and action","Amoebiasis"],["0.0006","0.0000","0.0001","0.0003","0.0003","0.0000","0.0000","0.0002"],["0.0337","0.0000","0.0122","0.0214","0.0149","0.0000","0.0027","0.0149"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>sample<\/th>\n      <th>patient<\/th>\n      <th>Treatment<\/th>\n      <th>Perturbation Score<\/th>\n      <th>Direction<\/th>\n      <th>Gene-set name<\/th>\n      <th>P-value<\/th>\n      <th>FDR<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"targets":5,"visible":false},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[5]; $(this.api().cell(row, 4).node()).css({'background-color':value == \"Inhibited\" ? \"lightblue\" : value == \"Activation\" ? \"indianred\" : null});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script><div class="section level4">
+<div id="htmlwidget-40e4c72abab9dbfa4d32" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-40e4c72abab9dbfa4d32">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td><\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;E2+R5020_N2_48&quot;,&quot;R5020_N2_48&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\" disabled=\"\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;N2&quot;,&quot;N3&quot;,&quot;P4&quot;,&quot;P5&quot;,&quot;P6&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Vehicle&quot;,&quot;E2&quot;,&quot;E2+R5020&quot;,&quot;R5020&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Amoebiasis&quot;,&quot;Growth hormone synthesis, secretion and action&quot;,&quot;PI3K-Akt signaling pathway&quot;,&quot;TGF-beta signaling pathway&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["1","2","3","4","5","6","7","8"],["E2+R5020_N2_48","E2+R5020_N2_48","E2+R5020_N2_48","E2+R5020_N2_48","R5020_N2_48","R5020_N2_48","R5020_N2_48","R5020_N2_48"],["N2","N2","N2","N2","N2","N2","N2","N2"],["E2+R5020","E2+R5020","E2+R5020","E2+R5020","R5020","R5020","R5020","R5020"],["3.4211","-9.3911","3.8617","3.6179","3.6375","-10.4166","4.2110","3.7037"],["Activation","Inhibited","Activation","Activation","Activation","Inhibited","Activation","Activation"],["PI3K-Akt signaling pathway","TGF-beta signaling pathway","Growth hormone synthesis, secretion and action","Amoebiasis","PI3K-Akt signaling pathway","TGF-beta signaling pathway","Growth hormone synthesis, secretion and action","Amoebiasis"],["0.0006","0.0000","0.0001","0.0003","0.0003","0.0000","0.0000","0.0002"],["0.0337","0.0000","0.0122","0.0214","0.0149","0.0000","0.0027","0.0149"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>sample<\/th>\n      <th>patient<\/th>\n      <th>Treatment<\/th>\n      <th>Perturbation Score<\/th>\n      <th>Direction<\/th>\n      <th>Gene-set name<\/th>\n      <th>P-value<\/th>\n      <th>FDR<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"targets":5,"visible":false},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[5]; $(this.api().cell(row, 4).node()).css({'background-color':value == \"Inhibited\" ? \"lightblue\" : value == \"Activation\" ? \"indianred\" : null});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script><div class="section level4">
 <h4 id="visualisation">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation"></a>
 </h4>
-<p>We can use the <code>plot_gsNetwork</code> function to visualise the
+<p>We can use the <code>plot_gs_network</code> function to visualise the
 significantly perturbed biological pathways as networks, where edges
 between gene-sets reflect how much overlap those two gene-sets share.
-The function can take <code>normaliseByPermutation</code>’s output, or a
+The function can take <code>normaliseByPermu</code>’s output, or a
 subset of it as its direct input.</p>
 <p>Nodes in the network plots could be coloured by the predicted
 direction of perturbation (i.e.. sign of robust z-score):</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">pl</span> <span class="op">&lt;-</span> <span class="va">normalisedScores</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjPvalue</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span>f <span class="op">=</span> <span class="va">.</span><span class="op">$</span><span class="va">sample</span><span class="op">)</span> <span class="op">%&gt;%</span>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">pl</span> <span class="op">&lt;-</span> <span class="va">normalisedScores</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjPvalue</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span>f <span class="op">=</span> <span class="va">.</span><span class="op">$</span><span class="va">sample</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
   <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span>
-    <span class="va">plot_gsNetwork</span>, 
+    <span class="va">plot_gs_network</span>, 
     <span class="co"># layout = "dh",</span>
     gsTopology <span class="op">=</span> <span class="va">gsTopology</span>, 
     colorBy <span class="op">=</span> <span class="st">"robustZ"</span>
-  <span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
     <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span>
-        <span class="va">x</span> <span class="op">+</span> <span class="fu">theme</span><span class="op">(</span>
-        panel.grid <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>, 
-        panel.background <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>
+        <span class="va">x</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>
+        panel.grid <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, 
+        panel.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>
         <span class="op">)</span> <span class="op">}</span><span class="op">)</span>
-<span class="fu">plot_grid</span><span class="op">(</span>
+<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span>
     plotlist <span class="op">=</span> <span class="va">pl</span>, 
     nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="sSNAPPY_files/figure-html/sigGS_nt_zscore-1.png" width="960"></p>
 <p>Or p-values:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">pl</span> <span class="op">&lt;-</span> <span class="va">normalisedScores</span> <span class="op">%&gt;%</span>
-    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjPvalue</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span>f <span class="op">=</span> <span class="va">.</span><span class="op">$</span><span class="va">sample</span><span class="op">)</span> <span class="op">%&gt;%</span>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">pl</span> <span class="op">&lt;-</span> <span class="va">normalisedScores</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjPvalue</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span>f <span class="op">=</span> <span class="va">.</span><span class="op">$</span><span class="va">sample</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
     <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span>
-        <span class="va">plot_gsNetwork</span>, 
+        <span class="va">plot_gs_network</span>, 
         gsTopology <span class="op">=</span> <span class="va">gsTopology</span>, 
         colorBy <span class="op">=</span> <span class="st">"pvalue"</span>, 
         color_lg_title <span class="op">=</span> <span class="st">"P-value"</span>
-    <span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
     <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span>
-        <span class="va">x</span> <span class="op">+</span> <span class="fu">theme</span><span class="op">(</span>
-        panel.grid <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>, 
-        panel.background <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>
+        <span class="va">x</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>
+        panel.grid <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, 
+        panel.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>
         <span class="op">)</span> <span class="op">}</span><span class="op">)</span>
-<span class="fu">plot_grid</span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">pl</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">pl</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="sSNAPPY_files/figure-html/sigGS_nt_pvalue-1.png" width="960"></p>
 <p>The function allows you to customize the layout, colour, edge
 transparency and other aesthetics of the graph. More information can be
-found in the help page (<code><a href="../reference/plot_gsNetwork.html">?plot_gsNetwork</a></code>). Output of the
+found in the help page (<code><a href="../reference/plot_gs_network.html">?plot_gs_network</a></code>). Output of the
 graph is a <code>ggplot</code> object and the theme of it can be changed
 just as other <code>ggplot</code> figures.</p>
 </div>
@@ -454,79 +475,78 @@ in your modelling.</p>
 <p>For example, in the example dataset, samples were collected from
 patients with different progesterone receptor (PR) status and we can
 include it as a cofactor to offset its confounding effect.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">normalisedScores</span> <span class="op">%&gt;%</span>
-    <span class="fu">left_join</span><span class="op">(</span><span class="va">metadata_example</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span>f <span class="op">=</span> <span class="va">.</span><span class="op">$</span><span class="va">gs_name</span><span class="op">)</span> <span class="op">%&gt;%</span>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">normalisedScores</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">metadata_example</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span>f <span class="op">=</span> <span class="va">.</span><span class="op">$</span><span class="va">gs_name</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
     <span class="co">#.["Estrogen signaling pathway"] %&gt;%</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">robustZ</span> <span class="op">~</span> <span class="fl">0</span> <span class="op">+</span> <span class="va">treatment</span> <span class="op">+</span> <span class="va">PR</span>, data <span class="op">=</span> <span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">robustZ</span> <span class="op">~</span> <span class="fl">0</span> <span class="op">+</span> <span class="va">treatment</span> <span class="op">+</span> <span class="va">PR</span>, data <span class="op">=</span> <span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
     <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">summary</span><span class="op">)</span>
-<span class="va">treat_sig</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span>
+<span class="va">treat_sig</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>, 
   <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span>
-    <span class="va">fit</span><span class="op">[[</span><span class="va">x</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">coefficients</span> <span class="op">%&gt;%</span>
-      <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-      <span class="va">.</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,<span class="op">]</span> <span class="op">%&gt;%</span>
-      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">Estimate</span>, pvalue <span class="op">=</span> <span class="va">`Pr(&gt;|t|)`</span> <span class="op">)</span> <span class="op">%&gt;%</span>
-      <span class="fu">rownames_to_column</span><span class="op">(</span><span class="st">"Treatment"</span><span class="op">)</span> <span class="op">%&gt;%</span>
-      <span class="fu">mutate</span><span class="op">(</span>
+    <span class="va">fit</span><span class="op">[[</span><span class="va">x</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">coefficients</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+      <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+      <span class="va">.</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>,<span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">Estimate</span>, pvalue <span class="op">=</span> <span class="va">`Pr(&gt;|t|)`</span> <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+      <span class="fu"><a href="https://tibble.tidyverse.org/reference/rownames.html" class="external-link">rownames_to_column</a></span><span class="op">(</span><span class="st">"Treatment"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>
         gs_name <span class="op">=</span> <span class="va">x</span>, 
         FDR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust</a></span><span class="op">(</span><span class="va">pvalue</span>, <span class="st">"fdr"</span><span class="op">)</span>, 
-        Treatment <span class="op">=</span> <span class="fu">str_remove_all</span><span class="op">(</span><span class="va">Treatment</span>, <span class="st">"treatment"</span><span class="op">)</span>
+        Treatment <span class="op">=</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_remove.html" class="external-link">str_remove_all</a></span><span class="op">(</span><span class="va">Treatment</span>, <span class="st">"treatment"</span><span class="op">)</span>
       <span class="op">)</span> 
-  <span class="op">}</span>, 
-  simplify <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">bind_rows</span><span class="op">(</span><span class="op">)</span> </code></pre></div>
+  <span class="op">}</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="op">)</span> </code></pre></div>
 <p>The pathways that were on average perturbed due to each treatment
 were:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">treat_sig</span> <span class="op">%&gt;%</span> 
-    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">FDR</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">mutate_at</span><span class="op">(</span><span class="fu">vars</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Treatment"</span>, <span class="st">"gs_name"</span><span class="op">)</span><span class="op">)</span>, <span class="va">as.factor</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">mutate_if</span><span class="op">(</span><span class="va">is.numeric</span>, <span class="va">sprintf</span>, fmt <span class="op">=</span> <span class="st">'%#.4f'</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">mutate</span><span class="op">(</span>Direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">Estimate</span> <span class="op">&lt;</span> <span class="fl">0</span>, <span class="st">"Inhibited"</span>, <span class="st">"Activation"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">treat_sig</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
+    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">FDR</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html" class="external-link">mutate_at</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Treatment"</span>, <span class="st">"gs_name"</span><span class="op">)</span><span class="op">)</span>, <span class="va">as.factor</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html" class="external-link">mutate_if</a></span><span class="op">(</span><span class="va">is.numeric</span>, <span class="va">sprintf</span>, fmt <span class="op">=</span> <span class="st">'%#.4f'</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">Estimate</span> <span class="op">&lt;</span> <span class="fl">0</span>, <span class="st">"Inhibited"</span>, <span class="st">"Activation"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
     <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>
         <span class="va">Treatment</span>, `Perturbation Score` <span class="op">=</span> <span class="va">Estimate</span>, <span class="va">Direction</span>,
         `Gene-set name` <span class="op">=</span> <span class="va">gs_name</span>, 
         `P-value` <span class="op">=</span> <span class="va">pvalue</span>, 
         <span class="va">FDR</span>
-    <span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">datatable</span><span class="op">(</span>
+    <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span>
         filter <span class="op">=</span> <span class="st">"top"</span>, 
         options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
             columnDefs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>targets <span class="op">=</span> <span class="st">"Direction"</span>, visible <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span>
         <span class="op">)</span>
-    <span class="op">)</span> <span class="op">%&gt;%</span> 
-    <span class="fu">formatStyle</span><span class="op">(</span>
+    <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
+    <span class="fu"><a href="https://rdrr.io/pkg/DT/man/formatCurrency.html" class="external-link">formatStyle</a></span><span class="op">(</span>
         <span class="st">'Perturbation Score'</span>, <span class="st">'Direction'</span>,
-        backgroundColor <span class="op">=</span> <span class="fu">styleEqual</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Inhibited"</span>, <span class="st">"Activation"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'lightblue'</span>, <span class="st">'indianred'</span><span class="op">)</span><span class="op">)</span>
+        backgroundColor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/DT/man/styleInterval.html" class="external-link">styleEqual</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Inhibited"</span>, <span class="st">"Activation"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'lightblue'</span>, <span class="st">'indianred'</span><span class="op">)</span><span class="op">)</span>
     <span class="op">)</span></code></pre></div>
-<div id="htmlwidget-7add18dc14f023339dbb" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-7add18dc14f023339dbb">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td><\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;E2+R5020&quot;,&quot;R5020&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Aldosterone synthesis and secretion&quot;,&quot;Cellular senescence&quot;,&quot;Cholinergic synapse&quot;,&quot;ECM-receptor interaction&quot;,&quot;Estrogen signaling pathway&quot;,&quot;Focal adhesion&quot;,&quot;Human papillomavirus infection&quot;,&quot;Malaria&quot;,&quot;Melanoma&quot;,&quot;Mineral absorption&quot;,&quot;Neutrophil extracellular trap formation&quot;,&quot;Ovarian steroidogenesis&quot;,&quot;PI3K-Akt signaling pathway&quot;,&quot;Prostate cancer&quot;,&quot;Renin secretion&quot;,&quot;Small cell lung cancer&quot;,&quot;Staphylococcus aureus infection&quot;,&quot;Tight junction&quot;,&quot;Toxoplasmosis&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33"],["E2+R5020","R5020","E2+R5020","E2+R5020","R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","E2+R5020","R5020"],["0.9312","1.3875","-0.8221","-1.1666","-0.7207","1.4590","1.4542","1.5984","1.5399","1.8216","1.2432","1.6762","0.8818","1.0901","1.1917","1.4985","1.9890","2.0026","-0.6840","-0.6824","1.1895","1.0565","2.0949","2.1453","1.2983","1.4653","-1.3402","1.0880","0.5118","0.4816","-1.1231","-1.0704","-0.9608"],["Activation","Activation","Inhibited","Inhibited","Inhibited","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Inhibited","Inhibited","Activation","Activation","Activation","Activation","Activation","Activation","Inhibited","Activation","Activation","Activation","Inhibited","Inhibited","Inhibited"],["Aldosterone synthesis and secretion","Aldosterone synthesis and secretion","Cellular senescence","Cholinergic synapse","Cholinergic synapse","ECM-receptor interaction","Estrogen signaling pathway","Estrogen signaling pathway","Focal adhesion","Focal adhesion","Human papillomavirus infection","Human papillomavirus infection","Malaria","Malaria","Melanoma","Melanoma","Mineral absorption","Mineral absorption","Neutrophil extracellular trap formation","Neutrophil extracellular trap formation","Ovarian steroidogenesis","Ovarian steroidogenesis","PI3K-Akt signaling pathway","PI3K-Akt signaling pathway","Prostate cancer","Prostate cancer","Renin secretion","Small cell lung cancer","Staphylococcus aureus infection","Staphylococcus aureus infection","Tight junction","Toxoplasmosis","Toxoplasmosis"],["0.0189","0.0027","0.0184","0.0013","0.0151","0.0128","0.0015","0.0009","0.0292","0.0144","0.0219","0.0055","0.0300","0.0121","0.0085","0.0026","0.0018","0.0018","0.0347","0.0350","0.0249","0.0394","0.0346","0.0316","0.0308","0.0187","0.0127","0.0164","0.0385","0.0479","0.0056","0.0146","0.0232"],["0.0189","0.0054","0.0368","0.0026","0.0151","0.0257","0.0015","0.0015","0.0292","0.0288","0.0219","0.0110","0.0300","0.0243","0.0085","0.0053","0.0018","0.0018","0.0350","0.0350","0.0394","0.0394","0.0346","0.0346","0.0308","0.0308","0.0254","0.0328","0.0479","0.0479","0.0112","0.0232","0.0232"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Treatment<\/th>\n      <th>Perturbation Score<\/th>\n      <th>Direction<\/th>\n      <th>Gene-set name<\/th>\n      <th>P-value<\/th>\n      <th>FDR<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"targets":3,"visible":false},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[3]; $(this.api().cell(row, 2).node()).css({'background-color':value == \"Inhibited\" ? \"lightblue\" : value == \"Activation\" ? \"indianred\" : null});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script><p>Results from this analysis indicate that the estrogen signalling
+<div id="htmlwidget-99b24b77887ac011afa5" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-99b24b77887ac011afa5">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td><\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;E2+R5020&quot;,&quot;R5020&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Aldosterone synthesis and secretion&quot;,&quot;Cellular senescence&quot;,&quot;Cholinergic synapse&quot;,&quot;ECM-receptor interaction&quot;,&quot;Estrogen signaling pathway&quot;,&quot;Focal adhesion&quot;,&quot;Human papillomavirus infection&quot;,&quot;Malaria&quot;,&quot;Melanoma&quot;,&quot;Mineral absorption&quot;,&quot;Neutrophil extracellular trap formation&quot;,&quot;Ovarian steroidogenesis&quot;,&quot;PI3K-Akt signaling pathway&quot;,&quot;Prostate cancer&quot;,&quot;Renin secretion&quot;,&quot;Small cell lung cancer&quot;,&quot;Staphylococcus aureus infection&quot;,&quot;Tight junction&quot;,&quot;Toxoplasmosis&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33"],["E2+R5020","R5020","E2+R5020","E2+R5020","R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","R5020","E2+R5020","E2+R5020","R5020"],["0.9312","1.3875","-0.8221","-1.1666","-0.7207","1.4590","1.4542","1.5984","1.5399","1.8216","1.2432","1.6762","0.8818","1.0901","1.1917","1.4985","1.9890","2.0026","-0.6840","-0.6824","1.1895","1.0565","2.0949","2.1453","1.2983","1.4653","-1.3402","1.0880","0.5118","0.4816","-1.1231","-1.0704","-0.9608"],["Activation","Activation","Inhibited","Inhibited","Inhibited","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Activation","Inhibited","Inhibited","Activation","Activation","Activation","Activation","Activation","Activation","Inhibited","Activation","Activation","Activation","Inhibited","Inhibited","Inhibited"],["Aldosterone synthesis and secretion","Aldosterone synthesis and secretion","Cellular senescence","Cholinergic synapse","Cholinergic synapse","ECM-receptor interaction","Estrogen signaling pathway","Estrogen signaling pathway","Focal adhesion","Focal adhesion","Human papillomavirus infection","Human papillomavirus infection","Malaria","Malaria","Melanoma","Melanoma","Mineral absorption","Mineral absorption","Neutrophil extracellular trap formation","Neutrophil extracellular trap formation","Ovarian steroidogenesis","Ovarian steroidogenesis","PI3K-Akt signaling pathway","PI3K-Akt signaling pathway","Prostate cancer","Prostate cancer","Renin secretion","Small cell lung cancer","Staphylococcus aureus infection","Staphylococcus aureus infection","Tight junction","Toxoplasmosis","Toxoplasmosis"],["0.0189","0.0027","0.0184","0.0013","0.0151","0.0128","0.0015","0.0009","0.0292","0.0144","0.0219","0.0055","0.0300","0.0121","0.0085","0.0026","0.0018","0.0018","0.0347","0.0350","0.0249","0.0394","0.0346","0.0316","0.0308","0.0187","0.0127","0.0164","0.0385","0.0479","0.0056","0.0146","0.0232"],["0.0189","0.0054","0.0368","0.0026","0.0151","0.0257","0.0015","0.0015","0.0292","0.0288","0.0219","0.0110","0.0300","0.0243","0.0085","0.0053","0.0018","0.0018","0.0350","0.0350","0.0394","0.0394","0.0346","0.0346","0.0308","0.0308","0.0254","0.0328","0.0479","0.0479","0.0112","0.0232","0.0232"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Treatment<\/th>\n      <th>Perturbation Score<\/th>\n      <th>Direction<\/th>\n      <th>Gene-set name<\/th>\n      <th>P-value<\/th>\n      <th>FDR<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"targets":3,"visible":false},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[3]; $(this.api().cell(row, 2).node()).css({'background-color':value == \"Inhibited\" ? \"lightblue\" : value == \"Activation\" ? \"indianred\" : null});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script><p>Results from this analysis indicate that the estrogen signalling
 pathway was significantly activated among both E2 and E2+R5020 treated
 samples, which makes sense biologically.</p>
 <div class="section level4">
 <h4 id="visualisation-1">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation-1"></a>
 </h4>
 <p>Results of <code>lm</code> can also be visualised using the
-<code><a href="../reference/plot_gsNetwork.html">plot_gsNetwork()</a></code> function. We just need to change the name
+<code><a href="../reference/plot_gs_network.html">plot_gs_network()</a></code> function. We just need to change the name
 of the <code>Estimate</code> column to <code>robustZ</code> to colour
 the networks by the predicted directionality.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">treat_sig</span> <span class="op">%&gt;%</span> 
-    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">FDR</span> <span class="op">&lt;</span> <span class="fl">0.05</span>, <span class="va">Treatment</span> <span class="op">==</span> <span class="st">"E2+R5020"</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>robustZ <span class="op">=</span> <span class="va">Estimate</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu"><a href="../reference/plot_gsNetwork.html">plot_gsNetwork</a></span><span class="op">(</span>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">treat_sig</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> 
+    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">FDR</span> <span class="op">&lt;</span> <span class="fl">0.05</span>, <span class="va">Treatment</span> <span class="op">==</span> <span class="st">"E2+R5020"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>robustZ <span class="op">=</span> <span class="va">Estimate</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="../reference/plot_gs_network.html">plot_gs_network</a></span><span class="op">(</span>
        
         gsTopology <span class="op">=</span> <span class="va">gsTopology</span>, 
         colorBy <span class="op">=</span> <span class="st">"robustZ"</span>
     <span class="op">)</span> <span class="op">+</span>
-    <span class="fu">theme</span><span class="op">(</span>
-        panel.grid <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>, 
-        panel.background <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>
+        panel.grid <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, 
+        panel.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>
     <span class="op">)</span></code></pre></div>
-<p><img src="sSNAPPY_files/figure-html/unnamed-chunk-5-1.png" width="1152"></p>
-<p>By default, <code><a href="../reference/plot_gsNetwork.html">plot_gsNetwork()</a></code> function does not include
+<p><img src="sSNAPPY_files/figure-html/unnamed-chunk-4-1.png" width="1152"></p>
+<p>By default, <code><a href="../reference/plot_gs_network.html">plot_gs_network()</a></code> function does not include
 nodes that are not connected to any other nodes, which could be turnt of
 by setting the <code>plotIsolated</code> to TURE.</p>
 </div>
@@ -547,9 +567,9 @@ impact analysis.” Bioinformatics vol. 25,1 : 75-82. <a href="doi:10.1093/bioi
 <div class="section level2">
 <h2 id="session-info">Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## R version 4.1.3 (2022-03-10)</span>
+<pre><code><span class="co">## R Under development (unstable) (2022-03-14 r81896)</span>
 <span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span>
 <span class="co">## Running under: Ubuntu 20.04.4 LTS</span>
 <span class="co">## </span>
@@ -569,51 +589,73 @@ impact analysis.” Bioinformatics vol. 25,1 : 75-82. <a href="doi:10.1093/bioi
 <span class="co">## [8] base     </span>
 <span class="co">## </span>
 <span class="co">## other attached packages:</span>
-<span class="co">##  [1] org.Hs.eg.db_3.14.0  AnnotationDbi_1.56.2 IRanges_2.28.0      </span>
-<span class="co">##  [4] S4Vectors_0.32.4     Biobase_2.54.0       BiocGenerics_0.40.0 </span>
-<span class="co">##  [7] graphite_1.40.0      DT_0.22              cowplot_1.1.1       </span>
+<span class="co">##  [1] org.Hs.eg.db_3.15.0  AnnotationDbi_1.57.1 IRanges_2.29.1      </span>
+<span class="co">##  [4] S4Vectors_0.33.17    Biobase_2.55.2       BiocGenerics_0.41.2 </span>
+<span class="co">##  [7] graphite_1.41.0      DT_0.22              cowplot_1.1.1       </span>
 <span class="co">## [10] magrittr_2.0.3       forcats_0.5.1        stringr_1.4.0       </span>
 <span class="co">## [13] dplyr_1.0.8          purrr_0.3.4          readr_2.1.2         </span>
 <span class="co">## [16] tidyr_1.2.0          tibble_3.1.6         ggplot2_3.3.5       </span>
-<span class="co">## [19] tidyverse_1.3.1      sSNAPPY_0.99.2       BiocStyle_2.22.0    </span>
+<span class="co">## [19] tidyverse_1.3.1      sSNAPPY_0.99.5       BiocStyle_2.23.1    </span>
 <span class="co">## </span>
 <span class="co">## loaded via a namespace (and not attached):</span>
-<span class="co">##   [1] colorspace_2.0-3       ellipsis_0.3.2         rprojroot_2.0.3       </span>
-<span class="co">##   [4] XVector_0.34.0         fs_1.5.2               rstudioapi_0.13       </span>
-<span class="co">##   [7] farver_2.1.0           graphlayouts_0.8.0     ggrepel_0.9.1         </span>
-<span class="co">##  [10] bit64_4.0.5            fansi_1.0.3            lubridate_1.8.0       </span>
-<span class="co">##  [13] xml2_1.3.3             splines_4.1.3          cachem_1.0.6          </span>
-<span class="co">##  [16] knitr_1.38             polyclip_1.10-0        jsonlite_1.8.0        </span>
-<span class="co">##  [19] broom_0.7.12           dbplyr_2.1.1           png_0.1-7             </span>
-<span class="co">##  [22] graph_1.72.0           ggforce_0.3.3          BiocManager_1.30.16   </span>
-<span class="co">##  [25] compiler_4.1.3         httr_1.4.2             backports_1.4.1       </span>
-<span class="co">##  [28] Matrix_1.4-1           assertthat_0.2.1       fastmap_1.1.0         </span>
-<span class="co">##  [31] cli_3.2.0              tweenr_1.0.2           htmltools_0.5.2       </span>
-<span class="co">##  [34] tools_4.1.3            igraph_1.3.0           gtable_0.3.0          </span>
-<span class="co">##  [37] glue_1.6.2             GenomeInfoDbData_1.2.7 reshape2_1.4.4        </span>
-<span class="co">##  [40] rappdirs_0.3.3         Rcpp_1.0.8.3           cellranger_1.1.0      </span>
-<span class="co">##  [43] jquerylib_0.1.4        pkgdown_2.0.2          vctrs_0.4.0           </span>
-<span class="co">##  [46] Biostrings_2.62.0      nlme_3.1-157           crosstalk_1.2.0       </span>
-<span class="co">##  [49] ggraph_2.0.5           xfun_0.30              rvest_1.0.2           </span>
-<span class="co">##  [52] lifecycle_1.0.1        zlibbioc_1.40.0        MASS_7.3-56           </span>
-<span class="co">##  [55] scales_1.1.1           tidygraph_1.2.0        ragg_1.2.2            </span>
-<span class="co">##  [58] hms_1.1.1              parallel_4.1.3         yaml_2.3.5            </span>
-<span class="co">##  [61] memoise_2.0.1          gridExtra_2.3          pander_0.6.5          </span>
-<span class="co">##  [64] sass_0.4.1             stringi_1.7.6          RSQLite_2.2.12        </span>
-<span class="co">##  [67] highr_0.9              desc_1.4.1             checkmate_2.0.0       </span>
-<span class="co">##  [70] BiocParallel_1.28.3    GenomeInfoDb_1.30.1    rlang_1.0.2           </span>
-<span class="co">##  [73] pkgconfig_2.0.3        systemfonts_1.0.4      bitops_1.0-7          </span>
-<span class="co">##  [76] lattice_0.20-45        evaluate_0.15          labeling_0.4.2        </span>
-<span class="co">##  [79] htmlwidgets_1.5.4      bit_4.0.4              tidyselect_1.1.2      </span>
-<span class="co">##  [82] plyr_1.8.7             bookdown_0.25          R6_2.5.1              </span>
-<span class="co">##  [85] generics_0.1.2         DBI_1.1.2              mgcv_1.8-40           </span>
-<span class="co">##  [88] withr_2.5.0            pillar_1.7.0           haven_2.4.3           </span>
-<span class="co">##  [91] KEGGREST_1.34.0        RCurl_1.98-1.6         modelr_0.1.8          </span>
-<span class="co">##  [94] crayon_1.5.1           utf8_1.2.2             tzdb_0.3.0            </span>
-<span class="co">##  [97] rmarkdown_2.13         viridis_0.6.2          grid_4.1.3            </span>
-<span class="co">## [100] readxl_1.4.0           blob_1.2.2             reprex_2.0.1          </span>
-<span class="co">## [103] digest_0.6.29          textshaping_0.3.6      munsell_0.5.0         </span>
-<span class="co">## [106] viridisLite_0.4.0      bslib_0.3.1</span></code></pre>
+<span class="co">##   [1] readxl_1.4.0                backports_1.4.1            </span>
+<span class="co">##   [3] systemfonts_1.0.4           plyr_1.8.7                 </span>
+<span class="co">##   [5] igraph_1.3.1                splines_4.2.0              </span>
+<span class="co">##   [7] BiocParallel_1.29.21        crosstalk_1.2.0            </span>
+<span class="co">##   [9] GenomeInfoDb_1.31.7         digest_0.6.29              </span>
+<span class="co">##  [11] htmltools_0.5.2             viridis_0.6.2              </span>
+<span class="co">##  [13] fansi_1.0.3                 checkmate_2.0.0            </span>
+<span class="co">##  [15] memoise_2.0.1               tzdb_0.3.0                 </span>
+<span class="co">##  [17] limma_3.51.8                Biostrings_2.63.3          </span>
+<span class="co">##  [19] graphlayouts_0.8.0          modelr_0.1.8               </span>
+<span class="co">##  [21] matrixStats_0.62.0          pkgdown_2.0.2              </span>
+<span class="co">##  [23] colorspace_2.0-3            blob_1.2.3                 </span>
+<span class="co">##  [25] rvest_1.0.2                 rappdirs_0.3.3             </span>
+<span class="co">##  [27] ggrepel_0.9.1               textshaping_0.3.6          </span>
+<span class="co">##  [29] haven_2.5.0                 xfun_0.30                  </span>
+<span class="co">##  [31] crayon_1.5.1                RCurl_1.98-1.6             </span>
+<span class="co">##  [33] jsonlite_1.8.0              graph_1.73.0               </span>
+<span class="co">##  [35] glue_1.6.2                  polyclip_1.10-0            </span>
+<span class="co">##  [37] gtable_0.3.0                zlibbioc_1.41.0            </span>
+<span class="co">##  [39] XVector_0.35.0              DelayedArray_0.21.2        </span>
+<span class="co">##  [41] scales_1.2.0                DBI_1.1.2                  </span>
+<span class="co">##  [43] edgeR_3.37.1                Rcpp_1.0.8.3               </span>
+<span class="co">##  [45] viridisLite_0.4.0           bit_4.0.4                  </span>
+<span class="co">##  [47] htmlwidgets_1.5.4           httr_1.4.2                 </span>
+<span class="co">##  [49] ellipsis_0.3.2              pkgconfig_2.0.3            </span>
+<span class="co">##  [51] farver_2.1.0                sass_0.4.1                 </span>
+<span class="co">##  [53] dbplyr_2.1.1                locfit_1.5-9.5             </span>
+<span class="co">##  [55] utf8_1.2.2                  tidyselect_1.1.2           </span>
+<span class="co">##  [57] labeling_0.4.2              rlang_1.0.2                </span>
+<span class="co">##  [59] reshape2_1.4.4              munsell_0.5.0              </span>
+<span class="co">##  [61] cellranger_1.1.0            tools_4.2.0                </span>
+<span class="co">##  [63] cachem_1.0.6                cli_3.2.0                  </span>
+<span class="co">##  [65] generics_0.1.2              RSQLite_2.2.12             </span>
+<span class="co">##  [67] broom_0.8.0                 evaluate_0.15              </span>
+<span class="co">##  [69] fastmap_1.1.0               yaml_2.3.5                 </span>
+<span class="co">##  [71] ragg_1.2.2                  knitr_1.38                 </span>
+<span class="co">##  [73] bit64_4.0.5                 fs_1.5.2                   </span>
+<span class="co">##  [75] tidygraph_1.2.1             pander_0.6.5               </span>
+<span class="co">##  [77] KEGGREST_1.35.0             ggraph_2.0.5               </span>
+<span class="co">##  [79] nlme_3.1-157                xml2_1.3.3                 </span>
+<span class="co">##  [81] compiler_4.2.0              rstudioapi_0.13            </span>
+<span class="co">##  [83] png_0.1-7                   reprex_2.0.1               </span>
+<span class="co">##  [85] tweenr_1.0.2                bslib_0.3.1                </span>
+<span class="co">##  [87] stringi_1.7.6               highr_0.9                  </span>
+<span class="co">##  [89] desc_1.4.1                  lattice_0.20-45            </span>
+<span class="co">##  [91] Matrix_1.4-1                vctrs_0.4.1                </span>
+<span class="co">##  [93] pillar_1.7.0                lifecycle_1.0.1            </span>
+<span class="co">##  [95] BiocManager_1.30.16         jquerylib_0.1.4            </span>
+<span class="co">##  [97] bitops_1.0-7                GenomicRanges_1.47.6       </span>
+<span class="co">##  [99] R6_2.5.1                    bookdown_0.26              </span>
+<span class="co">## [101] gridExtra_2.3               MASS_7.3-56                </span>
+<span class="co">## [103] assertthat_0.2.1            SummarizedExperiment_1.25.3</span>
+<span class="co">## [105] rprojroot_2.0.3             withr_2.5.0                </span>
+<span class="co">## [107] GenomeInfoDbData_1.2.8      mgcv_1.8-40                </span>
+<span class="co">## [109] parallel_4.2.0              hms_1.1.1                  </span>
+<span class="co">## [111] grid_4.2.0                  rmarkdown_2.13             </span>
+<span class="co">## [113] MatrixGenerics_1.7.0        ggforce_0.3.3              </span>
+<span class="co">## [115] lubridate_1.8.0</span></code></pre>
 </div>
   </div>
 
