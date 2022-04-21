@@ -45,16 +45,16 @@ test_that("generatePermutedScores returns error when expected", {
 
 test_that(".generate_permutedFC produces the expected outcome", {
     temp <- .generate_permutedFC(y, numOfTreat = 3,
-                                 NB = 10, weight = ssFC$weight)
-    expect_equal(length(temp), 10)
+                                 NB = 2, weight = ssFC$weight)
+    expect_equal(length(temp), 2)
     expect_equal(ncol(temp[[1]]), ncol(y) - (ncol(y)/3))
 })
 
 
 test_that(".generate_permutedFC produces the expected outcome", {
     temp <- .generate_permutedFC(y, numOfTreat = 3,
-                                 NB = 10, weight = ssFC$weight)
-    expect_equal(length(temp), 10)
+                                 NB = 2, weight = ssFC$weight)
+    expect_equal(length(temp), 2)
     expect_equal(ncol(temp[[1]]), ncol(y) - (ncol(y)/3))
 })
 
@@ -102,15 +102,10 @@ test_that("permutedPertScore_RCPP produces the expected outcome", {
     expect_equal(length(ls[[1]]), ncol(y) - (ncol(y)/3))
 })
 
-test_that("generatePermutedScores produces the expected outcome", {
-    results_sub <- generatePermutedScores(y[, 1:4], numOfTreat =2, NB = 100, gsTopology = gsTopology, weight = ssFC$weight)
-    expect_equal(length(results_sub), length(gsTopology))
-    expect_equal(length(results_sub[[1]]), factorial(4)*2)
-})
 
 test_that("generatePermutedScores produces the expected outcome", {
-    results <- generatePermutedScores(y, numOfTreat = 3, NB = 10, gsTopology = gsTopology, weight = ssFC$weight)
-    expect_equal(length(results[[1]]), 10*(6-3+1))
+    results <- generatePermutedScores(y, numOfTreat = 3, NB = 3, gsTopology = gsTopology, weight = ssFC$weight)
+    expect_equal(length(results[[1]]), 3*(6-3+1))
 })
 
 test_that("normaliseByPermu produces the expected outcome",{

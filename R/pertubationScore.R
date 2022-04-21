@@ -24,10 +24,11 @@
 #' ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
 #' factor = "patient", control = "Vehicle")
 #'
+#' \donttest{
 #' # explore all databases supported by graphite
 #' graphite::pathwayDatabases()
 #' gsTopology <- retrieve_topology(database = "kegg")
-#' ssPertScore <- computePerturbationScore(ls$logFC, gsTopology)
+#' ssPertScore <- computePerturbationScore(ls$logFC, gsTopology)}
 #' @export
 computePerturbationScore <- function(weightedFC, gsTopology){
     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(gsTopology, rownames))))) == 0)

@@ -30,9 +30,10 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' # explore all databases supported by graphite
 #' graphite::pathwayDatabases()
-#' gsTopology <- retrieve_topology(database = "kegg")
+#' gsTopology <- retrieve_topology(database = "kegg")}
 #' # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
 #' gsTopology <- retrieve_topology(database = "kegg",
 #' pathwayName = c("Glycolysis / Gluconeogenesis",
