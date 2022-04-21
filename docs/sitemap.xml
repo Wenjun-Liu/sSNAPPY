@@ -31,6 +31,9 @@
     <loc>/reference/compute_perturbationScore.html</loc>
   </url>
   <url>
+    <loc>/reference/compute_perturbation_score.html</loc>
+  </url>
+  <url>
     <loc>/reference/dot-compute_ssFC.html</loc>
   </url>
   <url>
@@ -41,6 +44,9 @@
   </url>
   <url>
     <loc>/reference/generate_PermutedScore.html</loc>
+  </url>
+  <url>
+    <loc>/reference/generate_permuted_scores.html</loc>
   </url>
   <url>
     <loc>/reference/get_GSgenelist.html</loc>
@@ -70,6 +76,9 @@
     <loc>/reference/normalise_byPermu.html</loc>
   </url>
   <url>
+    <loc>/reference/normalise_by_permu.html</loc>
+  </url>
+  <url>
     <loc>/reference/perturbationScore.html</loc>
   </url>
   <url>
@@ -86,6 +95,9 @@
   </url>
   <url>
     <loc>/reference/str_replace_nth.html</loc>
+  </url>
+  <url>
+    <loc>/reference/weight_ssFC.html</loc>
   </url>
   <url>
     <loc>/reference/weight_ss_fc.html</loc>

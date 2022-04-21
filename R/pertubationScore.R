@@ -28,9 +28,9 @@
 #' # explore all databases supported by graphite
 #' graphite::pathwayDatabases()
 #' gsTopology <- retrieve_topology(database = "kegg")
-#' ssPertScore <- computePerturbationScore(ls$logFC, gsTopology)}
+#' ssPertScore <- compute_perturbation_score(ls$logFC, gsTopology)}
 #' @export
-computePerturbationScore <- function(weightedFC, gsTopology){
+compute_perturbation_score <- function(weightedFC, gsTopology){
     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(gsTopology, rownames))))) == 0)
         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
     # extract all unique pathway genes and find ones that are not expressed

@@ -91,7 +91,7 @@ It has been demonstrated previously that in RNA-seq data, lowly expressed genes 
 
 
 
-```{r lowess, fig.width=8,fig.height=4, echo=FALSE}
+```{r lowess, fig.width=8,fig.height=4}
 perSample_FC <- lapply(levels(metadata_example$patient), function(x){
     temp <- logCPM_example[seq_len(1000),str_detect(colnames(logCPM_example), x)] 
     ratio <- temp[, str_detect(colnames(temp), "Vehicle", negate = TRUE)] - temp[, str_detect(colnames(temp), "Vehicle")] 
@@ -149,7 +149,7 @@ graphite::pathwayDatabases() %>%
 
 The retrieved topology information will be a list where each element is a pathway. We recommend you to save it as a file so this step only needs to be performed once for each database.
 
-This vignette chose *KEGG* pathways as an example. 
+This vignette chose *KEGG* pathways as an example. To reduce the computation time in the following steps, only half of the randomly sampled *KEGG* pathways were kept. 
 
 ```{r retrieve_topology}
 gsTopology <- retrieve_topology(database = "kegg")
@@ -171,10 +171,10 @@ names(gsTopology_sub)
 
 # Score single sample pathway perturbation
 
-Once the expression matrix, sample metadata and pathway topologies are all ready, single sample pathway perturbation scores (PS) can be computed using function `computePerturbationScore()`, which returns a data.frame containing the test perturbation scores for each sample each pathway. 
+Once the expression matrix, sample metadata and pathway topologies are all ready, single sample pathway perturbation scores (PS) can be computed using function `compute_perturbation_score()`, which returns a data.frame containing the test perturbation scores for each sample each pathway. 
 
 ```{r ssPertScore}
-ssPertScore <- computePerturbationScore(weightedFC$logFC, gsTopology)
+ssPertScore <- compute_perturbation_score(weightedFC$logFC, gsTopology)
 head(ssPertScore)
 ```
 
@@ -182,14 +182,14 @@ head(ssPertScore)
 
 To derive the empirical p-values for each single sample PS or normalize the raw scores for comparing overall treatment effects, null distributions of scores for each pathway is generated through a sample-label permutation approach. 
 
-For each round of permutation, sample labels are randomly shuffled to derive the permuted ssLogFCs, which are then used to score pathway perturbation. We recommend to perform a minimum of 1000 rounds of permutation, which means at least 8 samples are required. The `generatePermutedScores()` function does not require sample metadata but the number of treatments in the study design, including the control treatment, need to be specified. In this example data, the number of treatment was 3.  
+For each round of permutation, sample labels are randomly shuffled to derive the permuted ssLogFCs, which are then used to score pathway perturbation. We recommend to perform a minimum of 1000 rounds of permutation, which means at least 8 samples are required. The `generate_permuted_scores()` function does not require sample metadata but the number of treatments in the study design, including the control treatment, need to be specified. In this example data, the number of treatment was 3.  
 
-Output of the `generatePermutedScores()` function is a list where each element is a vector of permuted perturbation scores for a pathway. 
+Output of the `generate_permuted_scores()` function is a list where each element is a vector of permuted perturbation scores for a pathway. 
 
 The permutation step relies on the parallel computing feature provided by `r Biocpkg("BiocParallel")`. User can choose to customize the parallel back-end or stick with the default one returned by `BiocParallel::bpparam()`. Depending on the size of the data, this step can take some time to complete. If the sample size is large, we recommend users to consider performing this step on a HPC. 
 
 ```{r permutedScore, eval=FALSE}
-permutedScore <- generatePermutedScores(
+permutedScore <- generate_permuted_scores(
   expreMatrix  = logCPM_example, 
   numOfTreat = 3, NB = 1000, 
   gsTopology = gsTopology, 
@@ -197,44 +197,24 @@ permutedScore <- generatePermutedScores(
 )
 ```
 
-```{r echo = FALSE}
-load(system.file("extdata", "permutedScore.rda", package = "sSNAPPY"))
-```
-
-Six pathways were randomly chosen and the permutation-derived empirical distribution of their perturbation scores were visualised. They should all be approximately normal distributed. 
-
-```{r NullDistribution, echo = FALSE, fig.width=8, fig.height=6, message=FALSE}
-set.seed(123)
-pl <- permutedScore %>%
-    keep(~all(.!=0)) %>%
-.[sample(seq_along(.), 6)] %>%
-    lapply(
-        function(x){
-            ggplot(mapping = aes(x)) + 
-                geom_histogram() +
-                xlab("Perturbation Score") +
-                theme_bw()
-        }
-    ) 
-plot_grid(plotlist = pl, nrow = 2)
-```
-
 # Test Significances
 
 ## Of individal score
 
-After the empirical null distributions are generated, the median and mad will be calculated for each pathway to convert the test single-sample perturbation scores derived from the `computePerturbationScore()` to robust z-scores: $$ (Score - Median)/MAD$$ Two-sided p-values associated with each robust z-scores are also computed and will be corrected for multiple-testing using a user-define approach. The default is `fdr`.
+After the empirical null distributions are generated, the median and mad will be calculated for each pathway to convert the test single-sample perturbation scores derived from the `compute_perturbation_score()` to robust z-scores: $$ (Score - Median)/MAD$$ Two-sided p-values associated with each robust z-scores are also computed and will be corrected for multiple-testing using a user-define approach. The default is `fdr`.
 
-The pathways that were significant perturbed within individual samples are:
-
+The `normalise_by_permu` function requires the test perturbation score and permuted perturbation scores as input. 
 ```{r normalisedScores, eval=FALSE}
-normalisedScores <- normaliseByPermu(permutedScore, ssPertScore)
+normalisedScores <- normalise_by_permu(permutedScore, ssPertScore)
 ```
 
-```{r echo = FALSE}
+Since the permutation step takes a long time to run and the output is too large to be included as part of the package, results of the `normalise_by_permu` step has been pre-computed and can be loaded with:
+
+```{r}
 load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
 ```
 
+The pathways that were significant perturbed within individual samples are:
 ```{r DT_indi}
 normalisedScores %>%
     dplyr::filter(adjPvalue < 0.05) %>%
@@ -263,7 +243,7 @@ normalisedScores %>%
 
 ### Visualisation
 
-We can use the `plot_gs_network` function to visualise the significantly perturbed biological pathways as networks, where edges between gene-sets reflect how much overlap those two gene-sets share. The function can take `normaliseByPermu`'s output, or a subset of it as its direct input. 
+We can use the `plot_gs_network` function to visualise the significantly perturbed biological pathways as networks, where edges between gene-sets reflect how much overlap those two gene-sets share. The function can take `normalise_by_permu`'s output, or a subset of it as its direct input. 
 
 Nodes in the network plots could be coloured by the predicted direction of perturbation (i.e.. sign of robust z-score):
 

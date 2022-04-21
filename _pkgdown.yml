@@ -12,9 +12,9 @@ reference:
   contents:
   - weight_ss_fc
   - retrieve_topology
-  - computePerturbationScore
-  - generatePermutedScores
-  - normaliseByPermu
+  - compute_perturbation_score
+  - generate_permuted_scores
+  - normalise_by_permu
   - plot_gs_network
 
 - title: Example datasets
