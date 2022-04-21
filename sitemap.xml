@@ -19,13 +19,13 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/computePerturbationScore.html</loc>
+    <loc>/reference/compute_perturbation_score.html</loc>
   </url>
   <url>
     <loc>/reference/dot-compute_ssFC.html</loc>
   </url>
   <url>
-    <loc>/reference/generatePermutedScores.html</loc>
+    <loc>/reference/generate_permuted_scores.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
@@ -37,7 +37,7 @@
     <loc>/reference/metadata_example.html</loc>
   </url>
   <url>
-    <loc>/reference/normaliseByPermu.html</loc>
+    <loc>/reference/normalise_by_permu.html</loc>
   </url>
   <url>
     <loc>/reference/plot_gs_network.html</loc>
