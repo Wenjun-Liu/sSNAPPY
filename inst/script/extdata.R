@@ -4,12 +4,6 @@
 #' @format A list
 "gsTopology"
 
-#' permutedScore: perturbation scores derived from 6 rounds of permutation
-#'
-#' Initially, 1000 rounds of permutation were performed using the `generate_permuted_scores()` function
-#' and six of them were randomly sampled and saved as an example.
-#' @format A list
-"permutedScore"
 
 #' normalisedScores: test perturbation scores noramlised through permutation
 #'
