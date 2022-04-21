@@ -188,7 +188,7 @@ Output of the `generatePermutedScores()` function is a list where each element i
 
 The permutation step relies on the parallel computing feature provided by `r Biocpkg("BiocParallel")`. User can choose to customize the parallel back-end or stick with the default one returned by `BiocParallel::bpparam()`. Depending on the size of the data, this step can take some time to complete. If the sample size is large, we recommend users to consider performing this step on a HPC. 
 
-```{r permutedScore}
+```{r permutedScore, eval=FALSE}
 permutedScore <- generatePermutedScores(
   expreMatrix  = logCPM_example, 
   numOfTreat = 3, NB = 1000, 
@@ -198,7 +198,7 @@ permutedScore <- generatePermutedScores(
 ```
 
 ```{r echo = FALSE}
-# load(system.file("extdata", "permutedScore.rda", package = "sSNAPPY"))
+load(system.file("extdata", "permutedScore.rda", package = "sSNAPPY"))
 ```
 
 Six pathways were randomly chosen and the permutation-derived empirical distribution of their perturbation scores were visualised. They should all be approximately normal distributed. 
@@ -227,12 +227,12 @@ After the empirical null distributions are generated, the median and mad will be
 
 The pathways that were significant perturbed within individual samples are:
 
-```{r normalisedScores}
+```{r normalisedScores, eval=FALSE}
 normalisedScores <- normaliseByPermu(permutedScore, ssPertScore)
 ```
 
 ```{r echo = FALSE}
-#load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
+load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
 ```
 
 ```{r DT_indi}
