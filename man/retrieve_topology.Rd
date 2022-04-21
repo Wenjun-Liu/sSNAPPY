@@ -38,16 +38,12 @@ This function only supports and can only be used to retreive human databases as 
 }
 \examples{
 # explore all databases supported by graphite
-\dontrun{
 graphite::pathwayDatabases()
-retrieve_topology(database = "kegg")
-}
+gsTopology <- retrieve_topology(database = "kegg")
 # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
-\dontrun{
-retrieve_topology(database = "kegg",
+gsTopology <- retrieve_topology(database = "kegg",
 pathwayName = c("Glycolysis / Gluconeogenesis",
 "Citrate cycle (TCA cycle)","Pentose phosphate pathway"))
-}
 
 }
 \references{

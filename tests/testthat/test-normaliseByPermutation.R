@@ -15,30 +15,30 @@ sample <- sample %>%
         patient = vapply(.$sample, function(x){
             stringr::str_split(x, "_")[[1]][1]
         }, character(1)))
-ssFC <- weight_ssFC(y, sample, "patient", "control")
+ssFC <- weight_ss_fc(y, sample, "patient", "control")
 pathwayDir <- system.file("extdata", "gsTopology.rda", package = "sSNAPPY")
 load(pathwayDir)
 # the number of pathways with at least one of those five genes in it
-interesectName <- names(gsTopology[lapply(gsTopology, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
+intersectName <- names(gsTopology[lapply(gsTopology, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
 
 y_withNA <- y
 y_withNA[2,2] <- NA
 # create logCPM matrix with gene_id as rownames (instead of entrezID required)
 y_wrongIdentifier <- y
 rownames(y_wrongIdentifier) <- c("ENSG00000000003","ENSG00000000419","ENSG00000000457","ENSG00000000460","ENSG00000000938")
-ssFC_wrongIdentifier <- weight_ssFC(y_wrongIdentifier, sample, "patient", "control")
+ssFC_wrongIdentifier <- weight_ss_fc(y_wrongIdentifier, sample, "patient", "control")
 
-test_that("generate_PermutedScore returns error when expected", {
-    expect_error(generate_PermutedScore(y_wrongIdentifier, numOfTreat =  3,
+test_that("generatePermutedScores returns error when expected", {
+    expect_error(generatePermutedScores(y_wrongIdentifier, numOfTreat =  3,
                                         NB = 1000,
                                         gsTopology = gsTopology, weight = ssFC_wrongIdentifier$weight), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
-    expect_error(generate_PermutedScore(y, numOfTreat = 3,
+    expect_error(generatePermutedScores(y, numOfTreat = 3,
                                         NB = 1000,
-                                        gsTopology = gsTopology, weight =ssFC$weight[1:10]), "Gene-wise weights do not match with the dimension of logCPM")
-    expect_error(generate_PermutedScore(y, numOfTreat = 4,
+                                        gsTopology = gsTopology, weight =ssFC$weight[1:10]), "Gene-wise weights do not match with the dimension of expreMatrix")
+    expect_error(generatePermutedScores(y, numOfTreat = 4,
                                         NB = 1000,
                                         gsTopology = gsTopology, weight =ssFC$weight), "Number of samples must be divisible by the number of treatments")
-    expect_error(generate_PermutedScore(y_withNA, numOfTreat = 3,
+    expect_error(generatePermutedScores(y_withNA, numOfTreat = 3,
                                         NB = 1000,
                                         gsTopology = gsTopology, weight = ssFC$weight), "NA values not allowed")
 })
@@ -56,6 +56,29 @@ test_that(".generate_permutedFC produces the expected outcome", {
                                  NB = 10, weight = ssFC$weight)
     expect_equal(length(temp), 10)
     expect_equal(ncol(temp[[1]]), ncol(y) - (ncol(y)/3))
+})
+
+
+test_that("Test data.frame input for generatePermutedScores", {
+    temp <- generatePermutedScores(as.data.frame(y), numOfTreat = 3,
+                                 NB = 2, weight = ssFC$weight, gsTopology = gsTopology[intersectName])
+    expect_equal(length(temp), length(intersectName))
+    expect_equal(length(temp[[1]]), (ncol(y) - (ncol(y)/3))*2)
+})
+
+test_that("Test DGEList input for generatePermutedScores", {
+    dge <- edgeR::DGEList(counts = y)
+    temp <- generatePermutedScores(dge, numOfTreat = 3,
+                                   NB = 2, weight = ssFC$weight, gsTopology = gsTopology[intersectName])
+    expect_equal(length(temp), length(intersectName))
+})
+
+
+test_that("Test SummarizedExperiment input for generatePermutedScores", {
+    dge <- SummarizedExperiment::SummarizedExperiment(assays=list(counts=y))
+    temp <- generatePermutedScores(dge, numOfTreat = 3,
+                                   NB = 2, weight = ssFC$weight, gsTopology = gsTopology[intersectName])
+    expect_equal(length(temp), length(intersectName))
 })
 
 notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(y))
@@ -79,23 +102,23 @@ test_that("permutedPertScore_RCPP produces the expected outcome", {
     expect_equal(length(ls[[1]]), ncol(y) - (ncol(y)/3))
 })
 
-test_that("generate_PermutedScore produces the expected outcome", {
-    results_sub <- generate_PermutedScore(y[, 1:4], numOfTreat =2, NB = 100, gsTopology = gsTopology, weight = ssFC$weight)
+test_that("generatePermutedScores produces the expected outcome", {
+    results_sub <- generatePermutedScores(y[, 1:4], numOfTreat =2, NB = 100, gsTopology = gsTopology, weight = ssFC$weight)
     expect_equal(length(results_sub), length(gsTopology))
     expect_equal(length(results_sub[[1]]), factorial(4)*2)
 })
 
-test_that("generate_PermutedScore produces the expected outcome", {
-    results <- generate_PermutedScore(y, numOfTreat = 3, NB = 10, gsTopology = gsTopology, weight = ssFC$weight)
+test_that("generatePermutedScores produces the expected outcome", {
+    results <- generatePermutedScores(y, numOfTreat = 3, NB = 10, gsTopology = gsTopology, weight = ssFC$weight)
     expect_equal(length(results[[1]]), 10*(6-3+1))
 })
 
-test_that("normalise_byPermu produces the expected outcome",{
+test_that("normaliseByPermu produces the expected outcome",{
     perS <- list(
         "Chemokine signaling pathway"= rnorm(40, mean = 1, sd = 0.3)
     )
-    ssPertScore <- compute_perturbationScore(ssFC$logFC, gsTopology)
-    output <- normalise_byPermu(perS, ssPertScore)
+    ssPertScore <- computePerturbationScore(ssFC$logFC, gsTopology)
+    output <- normaliseByPermu(perS, ssPertScore)
     expect_equal(unique(output$sample), c("patient1_treat1", "patient1_treat2", "patient2_treat1", "patient2_treat2"))
     expect_false(anyNA(output$robustZ))
     expect_true(length(intersect(output$MAD, 0)) == 0)

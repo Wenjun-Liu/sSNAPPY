@@ -28,21 +28,21 @@
 #' #Subset pathways significantly perturbed in sample R5020_N2_48
 #' subset <- dplyr::filter(normalisedScores, adjPvalue < 0.05, sample == "R5020_N2_48")
 #' # Color network plot nodes by robust z-score
-#' plot_gsNetwork(subset, gsTopology,
+#' plot_gs_network(subset, gsTopology,
 #' colorBy = "robustZ", layout = "dh",
 #' color_lg_title = "Robust Z-score")
 #'
 #' # Color network plot nodes by p-values
-#' plot_gsNetwork(subset, gsTopology, layout = "dh",
+#' plot_gs_network(subset, gsTopology, layout = "dh",
 #' colorBy = "pvalue", color_lg_title = "P-value")
-plot_gsNetwork <- function(normalisedScores, gsTopology, colorBy = c("robustZ", "pvalue"), foldGSname = TRUE, foldafter = 2, layout = "fr",
+plot_gs_network <- function(normalisedScores, gsTopology, colorBy = c("robustZ", "pvalue"), foldGSname = TRUE, foldafter = 2, layout = "fr",
                            edgeAlpha = 0.8,  up_col = "brown3", down_col = "steelblue3", scale_edgeWidth = 10, scale_nodeSize = 15,
                            nodeShape = 16, color_lg = TRUE, color_lg_title = NULL, lb_size = 3, lb_color = "black", plotIsolated = FALSE){
 
     name <- NULL
     ## check if input has required columns
     stopifnot(colorBy %in% c("robustZ", "pvalue"))
-    if (!all(c(colorBy, "gs_name") %in% colnames(normalisedScores))) stop(paste("Normalised Scores must include gs_name and", colorBy))
+    if (!all(c(colorBy, "gs_name") %in% colnames(normalisedScores))) stop("Normalised Scores must include gs_name and column for coloring")
 
     # Make sure the gs topologies are a named list with at least two elements
     stopifnot(length(names(gsTopology)) == length(gsTopology))

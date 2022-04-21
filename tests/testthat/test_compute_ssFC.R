@@ -67,8 +67,26 @@ test_that(".compute_ssFC returns erros when expected",{
     expect_error(.compute_ssFC(y_NA,sample, factor = "patient", control = "control"), "NA values not allowed")
 })
 
-test_that("weight_ssFC produces expected output", {
-    output <- weight_ssFC(y, sample, factor = "patient", control = "control")
+test_that("weight_ss_fc produces expected output", {
+    output <- weight_ss_fc(y, sample, factor = "patient", control = "control")
     expect_equal(output$logFC, weighted_FC)
     expect_equal(output$weight, weight)
+})
+
+test_that("weight_ss_fc returns erros when expected", {
+    expect_error(weight_ss_fc(y,  factor = "patient", control = "control"), "sample metadata must be provided")
+    expect_error(weight_ss_fc(as.data.frame(y),  factor = "patient", control = "control"), "sample metadata must be provided")
+})
+
+test_that("Test DGEList input for weight_ss_fc", {
+    dge <- edgeR::DGEList(counts = y, samples = sample)
+    output <- weight_ss_fc(dge,  factor = "patient", control = "control")
+    expect_equal(dim(output$logFC), c(5, 4))
+})
+
+test_that("Test SummarizedExperiment input for weight_ss_fc", {
+    dge <- SummarizedExperiment::SummarizedExperiment(assays=list(counts=y),
+                                                      colData = sample)
+    output <- weight_ss_fc(dge,  factor = "patient", control = "control")
+    expect_equal(dim(output$logFC), c(5, 4))
 })

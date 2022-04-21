@@ -73,21 +73,21 @@ Before single-sample logFCs (ssLogFCs) can be computed, row names of the logCPM 
 head(logCPM_example)
 ```
 
-To compute the ssLogFCs, samples must be in matching pairs. In the example, treated samples are matched to the corresponding control sample that were derived from the same patients. So the `factor` parameter of the `weight_ssFC()` functions needs to be set to be "patient". The function also requires the control treatment level to be specified, which was "Vehicle" in this case. 
+To compute the ssLogFCs, samples must be in matching pairs. In the example, treated samples are matched to the corresponding control sample that were derived from the same patients. So the `factor` parameter of the `weight_ss_fc()` functions needs to be set to be "patient". The function also requires the control treatment level to be specified, which was "Vehicle" in this case. 
 
-`weight_ssFC()` requires both the logCPM matrix and sample metadata as input. The column names of the logCPM matrix should be sample name, matching to a column called `sample` in the metadata. The metadata must also contain a treatment column, and a column corresponding to the `factor` parameter (i.e.. patient in this case).
+`weight_ss_fc()` requires both the logCPM matrix and sample metadata as input. The column names of the logCPM matrix should be sample name, matching to a column called `sample` in the metadata. The metadata must also contain a treatment column, and a column corresponding to the `factor` parameter (i.e.. patient in this case).
 
 
 ```{r ssFC}
 #compute weighted single sample logFCs
-weightedFC <- weight_ssFC(logCPM_example, metadata = metadata_example,
+weightedFC <- weight_ss_fc(logCPM_example, metadata = metadata_example,
 factor = "patient", control = "Vehicle")
 ```
 
 
-The `weight_ssFC()` function firstly computes raw ssLogFCs for each gene by subtracting logCPM values of control sample from the logCPM values of treated samples for each patient. 
+The `weight_ss_fc()` function firstly computes raw ssLogFCs for each gene by subtracting logCPM values of control sample from the logCPM values of treated samples for each patient. 
 
-It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have larger variance, which is also demonstrated by the plots below. To reduce the impact of this artefact, `weight_ssFC` also weight each ssLogFCs by estimating the relationship between the variance in ssLogFCs and mean logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
+It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have larger variance, which is also demonstrated by the plots below. To reduce the impact of this artefact, `weight_ss_fc` also weight each ssLogFCs by estimating the relationship between the variance in ssLogFCs and mean logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
 
 
 
@@ -132,7 +132,7 @@ plot_grid(p1, p2)
 
 ```
 
-The output of the `weight_ssFC()` function is a list with two element, where one is the weighted ssLogFCs matrix and the other is a vector of gene-wise weights.
+The output of the `weight_ss_fc()` function is a list with two element, where one is the weighted ssLogFCs matrix and the other is a vector of gene-wise weights.
 
 # Retrieve pathway topologies in required format
 
@@ -158,23 +158,23 @@ head(names(gsTopology))
 
 If only selected pathways are of interest, it's possible to only retrieve the topologies of those pathways by specifying the pathway names. 
 
-```{r eval = FALSE}
-gsTopology <- retrieve_topology(
+```{r gsTopology_sub}
+gsTopology_sub <- retrieve_topology(
   database = "kegg",
   pathwayName = c(
     "Glycolysis / Gluconeogenesis", 
     "Citrate cycle (TCA cycle)",
     "Pentose phosphate pathway"
     ))
-names(gsTopology)
+names(gsTopology_sub)
 ```
 
 # Score single sample pathway perturbation
 
-Once the expression matrix, sample metadata and pathway topologies are all ready, single sample pathway perturbation scores (PS) can be computed using function `compute_perturbationScore()`, which returns a data.frame containing the test perturbation scores for each sample each pathway. 
+Once the expression matrix, sample metadata and pathway topologies are all ready, single sample pathway perturbation scores (PS) can be computed using function `computePerturbationScore()`, which returns a data.frame containing the test perturbation scores for each sample each pathway. 
 
 ```{r ssPertScore}
-ssPertScore <- compute_perturbationScore(weightedFC$logFC, gsTopology)
+ssPertScore <- computePerturbationScore(weightedFC$logFC, gsTopology)
 head(ssPertScore)
 ```
 
@@ -182,15 +182,15 @@ head(ssPertScore)
 
 To derive the empirical p-values for each single sample PS or normalize the raw scores for comparing overall treatment effects, null distributions of scores for each pathway is generated through a sample-label permutation approach. 
 
-For each round of permutation, sample labels are randomly shuffled to derive the permuted ssLogFCs, which are then used to score pathway perturbation. We recommend to perform a minimum of 1000 rounds of permutation, which means at least 8 samples are required. The `generate_PermutedScore()` function does not require sample metadata but the number of treatments in the study design, including the control treatment, need to be specified. In this example data, the number of treatment was 3.  
+For each round of permutation, sample labels are randomly shuffled to derive the permuted ssLogFCs, which are then used to score pathway perturbation. We recommend to perform a minimum of 1000 rounds of permutation, which means at least 8 samples are required. The `generatePermutedScores()` function does not require sample metadata but the number of treatments in the study design, including the control treatment, need to be specified. In this example data, the number of treatment was 3.  
 
-Output of the `generate_PermutedScore()` function is a list where each element is a vector of permuted perturbation scores for a pathway. 
+Output of the `generatePermutedScores()` function is a list where each element is a vector of permuted perturbation scores for a pathway. 
 
 The permutation step relies on the parallel computing feature provided by `r Biocpkg("BiocParallel")`. User can choose to customize the parallel back-end or stick with the default one returned by `BiocParallel::bpparam()`. Depending on the size of the data, this step can take some time to complete. If the sample size is large, we recommend users to consider performing this step on a HPC. 
 
-```{r permutedScore, eval = FALSE}
-permutedScore <- generate_PermutedScore(
-  logCPM = logCPM_example, 
+```{r permutedScore}
+permutedScore <- generatePermutedScores(
+  expreMatrix  = logCPM_example, 
   numOfTreat = 3, NB = 1000, 
   gsTopology = gsTopology, 
   weight = weightedFC$weight
@@ -198,7 +198,7 @@ permutedScore <- generate_PermutedScore(
 ```
 
 ```{r echo = FALSE}
-load(system.file("extdata", "permutedScore.rda", package = "sSNAPPY"))
+# load(system.file("extdata", "permutedScore.rda", package = "sSNAPPY"))
 ```
 
 Six pathways were randomly chosen and the permutation-derived empirical distribution of their perturbation scores were visualised. They should all be approximately normal distributed. 
@@ -223,16 +223,16 @@ plot_grid(plotlist = pl, nrow = 2)
 
 ## Of individal score
 
-After the empirical null distributions are generated, the median and mad will be calculated for each pathway to convert the test single-sample perturbation scores derived from the `compute_perturbationScore()` to robust z-scores: $$ (Score - Median)/MAD$$ Two-sided p-values associated with each robust z-scores are also computed and will be corrected for multiple-testing using a user-define approach. The default is `fdr`.
+After the empirical null distributions are generated, the median and mad will be calculated for each pathway to convert the test single-sample perturbation scores derived from the `computePerturbationScore()` to robust z-scores: $$ (Score - Median)/MAD$$ Two-sided p-values associated with each robust z-scores are also computed and will be corrected for multiple-testing using a user-define approach. The default is `fdr`.
 
 The pathways that were significant perturbed within individual samples are:
 
-```{r normalisedScores, eval=FALSE}
-normalisedScores <- normalise_byPermu(permutedScore, ssPertScore)
+```{r normalisedScores}
+normalisedScores <- normaliseByPermu(permutedScore, ssPertScore)
 ```
 
 ```{r echo = FALSE}
-load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
+#load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
 ```
 
 ```{r DT_indi}
@@ -263,7 +263,7 @@ normalisedScores %>%
 
 ### Visualisation
 
-We can use the `plot_gsNetwork` function to visualise the significantly perturbed biological pathways as networks, where edges between gene-sets reflect how much overlap those two gene-sets share. The function can take `normalise_byPermu`'s output, or a subset of it as its direct input. 
+We can use the `plot_gs_network` function to visualise the significantly perturbed biological pathways as networks, where edges between gene-sets reflect how much overlap those two gene-sets share. The function can take `normaliseByPermu`'s output, or a subset of it as its direct input. 
 
 Nodes in the network plots could be coloured by the predicted direction of perturbation (i.e.. sign of robust z-score):
 
@@ -272,7 +272,7 @@ pl <- normalisedScores %>%
   dplyr::filter(adjPvalue < 0.05) %>%
   split(f = .$sample) %>%
   lapply(
-    plot_gsNetwork, 
+    plot_gs_network, 
     # layout = "dh",
     gsTopology = gsTopology, 
     colorBy = "robustZ"
@@ -294,7 +294,7 @@ pl <- normalisedScores %>%
     dplyr::filter(adjPvalue < 0.05) %>%
     split(f = .$sample) %>%
     lapply(
-        plot_gsNetwork, 
+        plot_gs_network, 
         gsTopology = gsTopology, 
         colorBy = "pvalue", 
         color_lg_title = "P-value"
@@ -307,7 +307,7 @@ pl <- normalisedScores %>%
 plot_grid(plotlist = pl, nrow = 1)
 ```
 
-The function allows you to customize the layout, colour, edge transparency and other aesthetics of the graph. More information can be found in the help page (`?plot_gsNetwork`). Output of the graph is a `ggplot` object and the theme of it can be changed just as other `ggplot` figures. 
+The function allows you to customize the layout, colour, edge transparency and other aesthetics of the graph. More information can be found in the help page (`?plot_gs_network`). Output of the graph is a `ggplot` object and the theme of it can be changed just as other `ggplot` figures. 
 
 ## Of overall treatment effect
 
@@ -368,13 +368,13 @@ Results from this analysis indicate that the estrogen signalling pathway was sig
 
 ### Visualisation
 
-Results of `lm` can also be visualised using the `plot_gsNetwork()` function. We just need to change the name of the `Estimate` column to `robustZ` to  colour the networks by the predicted directionality.
+Results of `lm` can also be visualised using the `plot_gs_network()` function. We just need to change the name of the `Estimate` column to `robustZ` to  colour the networks by the predicted directionality.
 
 ```{r fig.width=12, fig.height=8}
 treat_sig %>% 
     dplyr::filter(FDR < 0.05, Treatment == "E2+R5020") %>%
     dplyr::rename(robustZ = Estimate) %>%
-    plot_gsNetwork(
+    plot_gs_network(
        
         gsTopology = gsTopology, 
         colorBy = "robustZ"
@@ -385,7 +385,7 @@ treat_sig %>%
     )
 ```
 
-By default, `plot_gsNetwork()` function does not include nodes that are not connected to any other nodes, which could be turnt of by setting the `plotIsolated` to TURE. 
+By default, `plot_gs_network()` function does not include nodes that are not connected to any other nodes, which could be turnt of by setting the `plotIsolated` to TURE. 
 
 # References
 - Sales G, Calura E, Cavalieri D, Romualdi C (2012). “graphite - a Bioconductor package to convert pathway topology to gene network.” BMC Bioinformatics. https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-20.

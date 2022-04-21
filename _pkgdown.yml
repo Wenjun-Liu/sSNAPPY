@@ -10,12 +10,12 @@ reference:
 
 - title: All functions
   contents:
-  - weight_ssFC
+  - weight_ss_fc
   - retrieve_topology
-  - compute_perturbationScore
-  - generate_PermutedScore
-  - normalise_byPermu
-  - plot_gsNetwork
+  - computePerturbationScore
+  - generatePermutedScores
+  - normaliseByPermu
+  - plot_gs_network
 
 - title: Example datasets
   contents:

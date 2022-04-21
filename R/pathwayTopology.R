@@ -31,16 +31,12 @@
 #'
 #' @examples
 #' # explore all databases supported by graphite
-#' \dontrun{
 #' graphite::pathwayDatabases()
-#' retrieve_topology(database = "kegg")
-#' }
+#' gsTopology <- retrieve_topology(database = "kegg")
 #' # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
-#' \dontrun{
-#' retrieve_topology(database = "kegg",
+#' gsTopology <- retrieve_topology(database = "kegg",
 #' pathwayName = c("Glycolysis / Gluconeogenesis",
 #' "Citrate cycle (TCA cycle)","Pentose phosphate pathway"))
-#' }
 #'
 retrieve_topology <-  function(database, pathwayName = NULL, beta = NULL){
 
@@ -98,7 +94,7 @@ retrieve_topology <-  function(database, pathwayName = NULL, beta = NULL){
         } else stop("Pathway names provided not detected in retrieved database")
     }
     # always convert pathway nodes identifier to entrez ID
-    pys <- suppressMessages(convertIdentifiers(pys, "ENTREZID"))
+    pys <- convertIdentifiers(pys, "ENTREZID")
     # prepare the topologies for SPIA algorithm and store as a temporary file
     outputDir <- tempfile()
     prepareSPIA(pys, outputDir)

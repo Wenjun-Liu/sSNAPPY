@@ -3,7 +3,6 @@
 .RData
 .Ruserdata
 *.Rproj
-.github
 TODO.md
 /inst/doc/
 /Meta/

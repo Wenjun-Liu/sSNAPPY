@@ -1,6 +1,6 @@
 Package: sSNAPPY
 Title: Single Sample directioNAl Pathway Perturbation analYsis
-Version: 0.99.3
+Version: 0.99.4
 Authors@R: 
     person("Wenjun", "Liu", , "wenjun.liu@adelaide.edu.au", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-3069"))
@@ -8,7 +8,7 @@ Description: A single sample pathway pertrubation testing methods for RNA-seq da
              down gene-set topologies to compute single-sample directional pathway perturbation scores that reflect potentail directions
              of changes.Perturbation scores can be used to test significance of pathway perturbation at both individual-sample and 
              treatment levels.  
-License: MIT + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
@@ -42,12 +42,15 @@ Imports:
     ggraph,
     igraph,
     reshape2,
-    org.Hs.eg.db
+    org.Hs.eg.db,
+    SummarizedExperiment,
+    edgeR,
+    methods
 LinkingTo: 
     Rcpp,
     RcppArmadillo
 Depends: 
-    R (>= 4.1.0)
+    R (>= 4.2.0)
 biocViews:
     Software, GeneExpression, GeneSetEnrichment, GeneSignaling
 URL: https://wenjun-liu.github.io/sSNAPPY/

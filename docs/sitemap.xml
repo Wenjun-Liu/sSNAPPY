@@ -25,6 +25,9 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/computePerturbationScore.html</loc>
+  </url>
+  <url>
     <loc>/reference/compute_perturbationScore.html</loc>
   </url>
   <url>
@@ -32,6 +35,9 @@
   </url>
   <url>
     <loc>/reference/dot-generate_permutedFC.html</loc>
+  </url>
+  <url>
+    <loc>/reference/generatePermutedScores.html</loc>
   </url>
   <url>
     <loc>/reference/generate_PermutedScore.html</loc>
@@ -55,6 +61,9 @@
     <loc>/reference/metadata_example.html</loc>
   </url>
   <url>
+    <loc>/reference/normaliseByPermu.html</loc>
+  </url>
+  <url>
     <loc>/reference/normaliseByPermutation.html</loc>
   </url>
   <url>
@@ -67,6 +76,9 @@
     <loc>/reference/plot_gsNetwork.html</loc>
   </url>
   <url>
+    <loc>/reference/plot_gs_network.html</loc>
+  </url>
+  <url>
     <loc>/reference/retrieve_topology.html</loc>
   </url>
   <url>
@@ -76,7 +88,7 @@
     <loc>/reference/str_replace_nth.html</loc>
   </url>
   <url>
-    <loc>/reference/weight_ssFC.html</loc>
+    <loc>/reference/weight_ss_fc.html</loc>
   </url>
   <url>
     <loc>/reference/weightedAdjMatrix.html</loc>

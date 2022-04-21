@@ -5,7 +5,7 @@
 #' @details This function use the algorithm adopted from `SPIA` (see citation) to compute a single sample perturbation score per sample per
 #' pathway. The rownames of the weighted single sample logFC matrix and the pathway topology matrices must use the same type of gene identifier (ie. entrez ID).
 #'
-#' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ssFC()`
+#' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ss_fc()`
 #' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology()`
 #'
 #' @importFrom purrr set_names
@@ -21,18 +21,15 @@
 #' #compute weighted single sample logFCs
 #' data(metadata_example)
 #' data(logCPM_example)
-#' ls <- weight_ssFC(logCPM_example, metadata = metadata_example,
+#' ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
 #' factor = "patient", control = "Vehicle")
 #'
-#' # explore all species and databases supported by graphite
-#' \dontrun{
+#' # explore all databases supported by graphite
 #' graphite::pathwayDatabases()
-#' retrieve_topology(species = "hsapiens", database = "kegg")
-#' }
-#' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
-#' ssPertScore <- compute_perturbationScore(ls$logFC, gsTopology)
+#' gsTopology <- retrieve_topology(database = "kegg")
+#' ssPertScore <- computePerturbationScore(ls$logFC, gsTopology)
 #' @export
-compute_perturbationScore <- function(weightedFC, gsTopology){
+computePerturbationScore <- function(weightedFC, gsTopology){
     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(gsTopology, rownames))))) == 0)
         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
     # extract all unique pathway genes and find ones that are not expressed
@@ -48,7 +45,7 @@ compute_perturbationScore <- function(weightedFC, gsTopology){
     PF <-  ssPertScore_RCPP(gsTopology, weightedFC, rownames(weightedFC), colnames(weightedFC))
 
     # Remove list elements that are null or all zeros
-    suppressWarnings(PF <- PF[vapply(PF, any, logical(1))])
+    PF <- PF[vapply(PF, function(x){any(x != 0)}, logical(1))]
     PF <- lapply(names(PF), function(x){
         temp <- as.data.frame(PF[[x]])
         temp <- set_colnames(temp, "tA")
