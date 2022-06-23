@@ -4,8 +4,8 @@ Version: 1.0.0
 Authors@R: 
     person("Wenjun", "Liu", , "wenjun.liu@adelaide.edu.au", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-3069"))
-Description: A single sample pathway pertrubation testing methods for RNA-seq data. The method propagate changes in gene expression
-             down gene-set topologies to compute single-sample directional pathway perturbation scores that reflect potentail directions
+Description: A single sample pathway perturbation testing method for RNA-seq data. The method propagates changes in gene expression
+             down gene-set topologies to compute single-sample directional pathway perturbation scores that reflect potential directions
              of changes.Perturbation scores can be used to test significance of pathway perturbation at both individual-sample and 
              treatment levels.  
 License: GPL-3
