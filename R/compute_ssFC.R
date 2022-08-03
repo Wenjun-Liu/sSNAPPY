@@ -116,6 +116,7 @@ setMethod("weight_ss_fc",
 #' @param control The treatment level that is the control.
 #' @importFrom dplyr pull filter
 #' @importFrom rlang sym
+#' @importFrom magrittr set_colnames
 #' @return A matrix of single sample logFC
 #' @keywords internal
 .compute_ssFC <- function(logCPM, metadata, factor, control){
@@ -130,18 +131,21 @@ setMethod("weight_ss_fc",
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
-
     pairs <- unique(as.character(pull(metadata, sym(factor))))
     ls <- lapply(pairs, function(x){
-    contrSample <- dplyr::filter(metadata, metadata$treatment == control, !!sym(factor) == x)
-    contrSample <- as.character(pull(contrSample, sample))
-    treatedSample <- dplyr::filter(metadata, metadata$treatment != control, !!sym(factor) == x)
-    treatedSample <- as.character(pull(treatedSample, sample))
+        contrSample <- dplyr::filter(metadata, metadata$treatment == control, !!sym(factor) == x)
+        contrSample <- as.character(pull(contrSample, sample))
+        treatedSample <- dplyr::filter(metadata, metadata$treatment != control, !!sym(factor) == x)
+        treatedSample <- as.character(pull(treatedSample, sample))
 
-    logCPM[, treatedSample] - logCPM[, contrSample]
-    })
+        if (length(unique(metadata[,"treatment"])) == 2){
+            set_colnames(as.matrix(logCPM[, treatedSample] - logCPM[, contrSample]), x)
+        } else {
+            logCPM[, treatedSample] - logCPM[, contrSample]
+        }
+
+        })
     do.call(cbind,ls)
-
 }
 
 
