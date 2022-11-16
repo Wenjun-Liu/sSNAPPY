@@ -33,8 +33,6 @@ gsTopology <- retrieve_topology(database = "kegg")
 genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
 pathwayPertScore <- pathway_pert(ls$logFC, genePertScore)
-# rank genes by gene-wise perturbation scores within each sample to compare their contributions to pathway perturbation
-geneRank <- rank_gene_pert(ls$logFC,genePertScore,  gsTopology)
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
