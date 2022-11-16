@@ -28,10 +28,13 @@ calculated.
 \examples{
 \donttest{
 load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
-ssPertScore <- compute_perturbation_score(ls$logFC, gsTopology)
+#' # compute raw gene-wise perturbation scores
+genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
+# sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
+pathwayPertScore <- pathway_pert(ls$logFC, genePertScore)
 permutedScore <- generate_permuted_scores(logCPM, numOfTreat = 2,
  NB = 5, gsTopology = gsTopology, weight = ls$weight)
-normalisedScores <- normalise_by_permu(permutedScore, ssPertScore)
+normalisedScores <- normalise_by_permu(permutedScore, pathwayPertScore)
  }
  # Load the example output
  load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
