@@ -7,10 +7,7 @@
 #'
 #' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ss_fc()`
 #' @param genePertScore List of gene-wise raw perturbation score matrices generated using function `raw_gene_pert()`
-#'
-#' @importFrom purrr set_names
-#' @importFrom plyr compact
-#' @importFrom dplyr bind_rows mutate
+#' @importFrom dplyr mutate
 #' @importFrom tibble rownames_to_column
 #' @importFrom magrittr set_colnames
 #'
@@ -59,12 +56,8 @@ pathway_pert <- function(weightedFC, genePertScore){
 #' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ss_fc()`
 #' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology()`
 #' @param genePertScore List of gene-wise raw perturbation score matrices generated using function `raw_gene_pert()`
-#' @importFrom purrr set_names
-#' @importFrom plyr compact
-#' @importFrom dplyr bind_rows mutate
-#' @importFrom tibble rownames_to_column
+#' @importFrom tibble rownames_to_column enframe
 #' @importFrom magrittr set_colnames
-#'
 #' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
 #' Bioinformatics. 2009 Jan 1;25(1):75-82.
 #' @return A list where each element is a matrix corresponding to a pathway. Each column of an element corresponds to a sample, and each row corresponds to a pathway gene.
@@ -139,12 +132,6 @@ rank_gene_pert <- function(weightedFC, genePertScore, gsTopology){
 #'
 #' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ss_fc()`
 #' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology()`
-#'
-#' @importFrom purrr set_names
-#' @importFrom plyr compact
-#' @importFrom dplyr bind_rows mutate
-#' @importFrom tibble rownames_to_column
-#' @importFrom magrittr set_colnames
 #' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
 #' Bioinformatics. 2009 Jan 1;25(1):75-82.
 #' @return A list where each element is a matrix corresponding to a pathway. Each column of an element corresponds to a sample, and each row corresponds to a pathway gene.

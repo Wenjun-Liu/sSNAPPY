@@ -9,8 +9,10 @@
 #' @param edgeAlpha Transparency of edges
 #' @param up_col The color to label activated gene-sets. Only applicable if `colorBy` is set to be "robustZ"
 #' @param down_col The color to label inhibited gene-sets. Only applicable if `colorBy` is set to be "robustZ"
-#' @param scale_edgeWidth Parameter for scaling edge width. Defaulted to 10. Higher numbers reduce all edge width
-#' @param scale_nodeSize Parameter for scaling node size. Defaulted to 15. Higher numbers decreases all node sizes
+#' @param scale_edgeWidth A numerical vector of length 2 to be provided to `ggraph::scale_edge_width_continuous()` for specifying
+#' the minimum and maximum edge widths after transformation. Defaulted to c(0.5, 3)
+#' @param scale_nodeSize A numerical vector of length 2 to be provided to `ggplot2::scale_size()` for specifying
+#' the minimum and maximum node sizes after transformation. Defaulted to c(3,6)
 #' @param nodeShape The shape to use for nodes
 #' @param color_lg logical(1). Should color legend be shown
 #' @param color_lg_title Title for the color legend
@@ -18,7 +20,8 @@
 #' @param lb_color Color of node text labels
 #' @param plotIsolated logical(1). If nodes not connected to any other node should be plotted. Default to FALSE
 #' @importFrom ggraph ggraph geom_node_point geom_node_text geom_edge_link
-#' @importFrom ggplot2 scale_color_continuous scale_color_manual aes_ guides aes
+#' @importFrom ggplot2 scale_color_continuous scale_color_manual aes_ guides aes scale_size
+#' @importFrom ggraph scale_edge_width_continuous
 #' @return A ggplot2 object
 #' @export
 #'
@@ -36,7 +39,7 @@
 #' plot_gs_network(subset, gsTopology, layout = "dh",
 #' colorBy = "pvalue", color_lg_title = "P-value")
 plot_gs_network <- function(normalisedScores, gsTopology, colorBy = c("robustZ", "pvalue"), foldGSname = TRUE, foldafter = 2, layout = "fr",
-                           edgeAlpha = 0.8,  up_col = "brown3", down_col = "steelblue3", scale_edgeWidth = 10, scale_nodeSize = 15,
+                           edgeAlpha = 0.8,  up_col = "brown3", down_col = "steelblue3", scale_edgeWidth = c(0.5, 3), edgeLegend = FALSE, scale_nodeSize = c(3,6),
                            nodeShape = 16, color_lg = TRUE, color_lg_title = NULL, lb_size = 3, lb_color = "black", plotIsolated = FALSE){
 
     name <- NULL
@@ -52,18 +55,26 @@ plot_gs_network <- function(normalisedScores, gsTopology, colorBy = c("robustZ",
     g <- make_gsNetwork(normalisedScores, gsTopology, colorBy = colorBy, foldGSname = foldGSname,
                         foldafter = foldafter, plotIsolated = plotIsolated)
 
+    if(foldGSname){
+        g <- set_vertex_attr(g, "name", value = vapply(V(g)$name, function(x){ifelse(length(strsplit(x, " ")[[1]]) > foldafter,
+                                                                                     str_replace_nth(x, " ", "\n", foldafter),
+                                                                                     x)}, character(1))) }
+
     # plot network edges
     pl <- ggraph(g, layout = layout) +
-        geom_edge_link(alpha = edgeAlpha, aes_(width=~I(weight*scale_edgeWidth)), colour='darkgrey')
+        geom_edge_link(alpha = edgeAlpha, aes(width=weight, colour='darkgrey')) +
+        scale_edge_width_continuous(range = scale_edgeWidth, guide = "none")
+
 
     if (colorBy == "robustZ"){
-        pl <- pl + geom_node_point(aes_(color = ~I(color), size = ~I(size/scale_nodeSize)), shape = nodeShape,
-            stroke = 0.5) +
-            scale_color_manual(values = c(up_col, down_col),name = color_lg_title)
+        pl <- pl + geom_node_point(aes(color = color, size = size), shape = nodeShape,stroke = 0.5) +
+            scale_color_manual(values = c("Activated" = up_col, "Inhibited" = down_col),name = color_lg_title) +
+            scale_size(range =  scale_nodeSize, guide = "none")
     } else(
-        pl <- pl + geom_node_point(
-            aes_(color = ~color, size = ~I(size/scale_nodeSize)), shape = nodeShape, stroke = 0.5) +
-            scale_color_continuous(low="red", high="blue", name = color_lg_title))
+        pl <- pl +
+            geom_node_point(aes(color = color, size = size), shape = nodeShape,stroke = 0.5) +
+            scale_color_continuous(low="red", high="blue", name = color_lg_title) +
+            scale_size(range =  scale_nodeSize, guide = "none"))
 
     if(!color_lg){
      pl <- pl + guides(color = "none")
@@ -76,8 +87,8 @@ plot_gs_network <- function(normalisedScores, gsTopology, colorBy = c("robustZ",
 
 #' @importFrom reshape2 melt
 #' @importFrom igraph E V graph.data.frame set_edge_attr set_vertex_attr degree delete_vertices delete_edges
-make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ", "pvalue"),
-                           foldGSname = TRUE, foldafter = 2, plotIsolated ){
+make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ", "pvalue", "community"),
+                        plotIsolated ){
 
     # create dummy variable to pass R CMD CHECK
     from <- to <- E <- robustZ <- NULL
@@ -121,10 +132,7 @@ make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ",
         g <- delete_vertices(g, IsolatedNode)
     }
 
-    if(foldGSname){
-        g <- set_vertex_attr(g, "name", value = vapply(V(g)$name, function(x){ifelse(length(strsplit(x, " ")[[1]]) > foldafter,
-                                                                                     str_replace_nth(x, " ", "\n", foldafter),
-                                                                                     x)}, character(1))) }
+
     g
 }
 
