@@ -14,8 +14,9 @@ plot_gs_network(
   edgeAlpha = 0.8,
   up_col = "brown3",
   down_col = "steelblue3",
-  scale_edgeWidth = 10,
-  scale_nodeSize = 15,
+  scale_edgeWidth = c(0.5, 3),
+  edgeLegend = FALSE,
+  scale_nodeSize = c(3, 6),
   nodeShape = 16,
   color_lg = TRUE,
   color_lg_title = NULL,
@@ -43,9 +44,11 @@ plot_gs_network(
 
 \item{down_col}{The color to label inhibited gene-sets. Only applicable if \code{colorBy} is set to be "robustZ"}
 
-\item{scale_edgeWidth}{Parameter for scaling edge width. Defaulted to 10. Higher numbers reduce all edge width}
+\item{scale_edgeWidth}{A numerical vector of length 2 to be provided to \code{ggraph::scale_edge_width_continuous()} for specifying
+the minimum and maximum edge widths after transformation. Defaulted to c(0.5, 3)}
 
-\item{scale_nodeSize}{Parameter for scaling node size. Defaulted to 15. Higher numbers decreases all node sizes}
+\item{scale_nodeSize}{A numerical vector of length 2 to be provided to \code{ggplot2::scale_size()} for specifying
+the minimum and maximum node sizes after transformation. Defaulted to c(3,6)}
 
 \item{nodeShape}{The shape to use for nodes}
 
