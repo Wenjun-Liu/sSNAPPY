@@ -45,7 +45,11 @@ Imports:
     org.Hs.eg.db,
     SummarizedExperiment,
     edgeR,
-    methods
+    methods,
+    ggforce,
+    ggnewscale,
+    pheatmap,
+    utils
 LinkingTo: 
     Rcpp,
     RcppArmadillo

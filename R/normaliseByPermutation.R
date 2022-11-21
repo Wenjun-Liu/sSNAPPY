@@ -141,11 +141,15 @@ setMethod("generate_permuted_scores",
 #' @examples
 #' \donttest{
 #' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
-#' #' # compute raw gene-wise perturbation scores
+#' data(metadata_example)
+#' data(logCPM_example)
+#' ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
+#' factor = "patient", control = "Vehicle")
+#' # compute raw gene-wise perturbation scores
 #' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 #' # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
-#' pathwayPertScore <- pathway_pert(ls$logFC, genePertScore)
-#' permutedScore <- generate_permuted_scores(logCPM, numOfTreat = 2,
+#' pathwayPertScore <- pathway_pert(genePertScore)
+#' permutedScore <- generate_permuted_scores(logCPM_example, numOfTreat = 3,
 #'  NB = 5, gsTopology = gsTopology, weight = ls$weight)
 #' normalisedScores <- normalise_by_permu(permutedScore, pathwayPertScore)
 #'  }

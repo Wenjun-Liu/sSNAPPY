@@ -4,11 +4,9 @@
 \alias{pathway_pert}
 \title{Compute Single-sample Pathway-level Perturbation Score}
 \usage{
-pathway_pert(weightedFC, genePertScore)
+pathway_pert(genePertScore)
 }
 \arguments{
-\item{weightedFC}{A matrix of weighted single sample logFCs derived from function \code{weight_ss_fc()}}
-
 \item{genePertScore}{List of gene-wise raw perturbation score matrices generated using function \code{raw_gene_pert()}}
 }
 \value{
@@ -19,7 +17,7 @@ Propagate weighted single sample logFCs down the pathway topologies to compute s
 }
 \details{
 This function use the algorithm adopted from \code{SPIA} (see citation) to compute a single sample perturbation score per sample per
-pathway. The rownames of the weighted single sample logFC matrix and the pathway topology matrices must use the same type of gene identifier (ie. entrez ID).
+pathway.
 }
 \examples{
 #compute weighted single sample logFCs
@@ -32,7 +30,7 @@ gsTopology <- retrieve_topology(database = "kegg")
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
-pathwayPertScore <- pathway_pert(ls$logFC, genePertScore)
+pathwayPertScore <- pathway_pert( genePertScore)
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.

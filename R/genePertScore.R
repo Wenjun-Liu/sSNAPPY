@@ -3,9 +3,7 @@
 #' @description Propagate weighted single sample logFCs down the pathway topologies to compute single sample perturbation scores for each pathway
 #'
 #' @details This function use the algorithm adopted from `SPIA` (see citation) to compute a single sample perturbation score per sample per
-#' pathway. The rownames of the weighted single sample logFC matrix and the pathway topology matrices must use the same type of gene identifier (ie. entrez ID).
-#'
-#' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ss_fc()`
+#' pathway.
 #' @param genePertScore List of gene-wise raw perturbation score matrices generated using function `raw_gene_pert()`
 #' @importFrom dplyr mutate
 #' @importFrom tibble rownames_to_column
@@ -25,22 +23,20 @@
 #' # compute raw gene-wise perturbation scores
 #' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 #' # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
-#' pathwayPertScore <- pathway_pert(ls$logFC, genePertScore)
+#' pathwayPertScore <- pathway_pert( genePertScore)
 #' @export
-pathway_pert <- function(weightedFC, genePertScore){
-
-    # check if the dimension of weightedFC matrix match with the gene-wise perturbation scores
-    if(ncol(weightedFC) != ncol(genePertScore[[1]]))
-        stop("Dimension of the weighted FC matrix does not match with gene-wise perturbation score matrices.")
-
-    # extract sample names from the FC matrix
-    sampleName <- colnames(weightedFC)
+pathway_pert <- function(genePertScore){
+#
+#     # check if the dimension of weightedFC matrix match with the gene-wise perturbation scores
+#     if(ncol(weightedFC) != ncol(genePertScore[[1]]))
+#         stop("Dimension of the weighted FC matrix does not match with gene-wise perturbation score matrices.")
+#
 
     # sum pathway perturbation scores for each pathway
     PF <- lapply(names(genePertScore), function(x){
         temp <- as.data.frame(apply(genePertScore[[x]], 2, sum))
         temp <- set_colnames(temp, "tA")
-        temp <- mutate(temp,sample = sampleName)
+        temp <- rownames_to_column(temp, "sample")
         temp <- mutate(temp, gs_name = x)
     })
 
@@ -49,11 +45,11 @@ pathway_pert <- function(weightedFC, genePertScore){
 
 #' @title Rank genes by perturbation contributions within each sample
 #'
-#' @description Rank genes by single-sample gene-wise raw perturbation scores to compare genes' contributions to pathway perturbation.
+#' @description Rank genes by single-sample gene-wise raw perturbation scores to compare
+#' genes' contributions to pathway perturbation.
 #' @details Ranking is performed within each sample each pathway. If in a given pathway, both positive and negative gene-wise perturbation scores exist, positive
 #' and negative scores are ranked separately, where the larger a positive rank, the more the gene contributed to the pathway's activation, and the smaller a negative
 #' rank, the more the gene contributed to the pathways' inhibition. When there's a tie in two gene's perturbation score within a sample, the mean of the indices is used.
-#' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ss_fc()`
 #' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology()`
 #' @param genePertScore List of gene-wise raw perturbation score matrices generated using function `raw_gene_pert()`
 #' @importFrom tibble rownames_to_column enframe
@@ -71,21 +67,21 @@ pathway_pert <- function(weightedFC, genePertScore){
 #' gsTopology <- retrieve_topology(database = "kegg")
 #' # compute raw gene-wise perturbation scores
 #' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
-#' # rank genes by gene-wise perturbation scores within each sample to compare their contributions to pathway perturbation
-#' geneRank <- rank_gene_pert(ls$logFC,genePertScore,  gsTopology)
+#' # rank genes by gene-wise perturbation scores within each sample
+#' # to compare their contributions to pathway perturbation
+#' geneRank <- rank_gene_pert(genePertScore, gsTopology)
 #' @export
-rank_gene_pert <- function(weightedFC, genePertScore, gsTopology){
+rank_gene_pert <- function(genePertScore, gsTopology){
 
     # check if all topology infor is available for pathways in the PertScore list
     if(!all(names(genePertScore) %in% names(gsTopology)))
         stop("Pathway topology information missing for some pathways.")
 
-    # extract sample names from the FC matrix
-    sampleName <- colnames(weightedFC)
+    # # extract sample names from the FC matrix
+    # sampleName <- colnames(genePertScore[[1]])
 
     output <- lapply(names(genePertScore), function(x){
         temp <- genePertScore[[x]]
-        rownames(temp) <- colnames(gsTopology[[x]])
         # remove genes whose perturbation scores are 0 acorss all samples
         temp <- temp[apply(temp, 1,function(y){any(y != 0)}), , drop = FALSE]
 
@@ -94,9 +90,8 @@ rank_gene_pert <- function(weightedFC, genePertScore, gsTopology){
             if(any(temp > 0) & any(temp < 0)){
                 pos_rank <- apply(temp, 2, function(x){rank(x[x > 0])})
                 neg_rank  <- apply(temp, 2, function(x){-rank(abs(x[x < 0]))})
-                temp <- lapply(seq_along(pos_rank), function(y){
-                    c(pos_rank[[y]], neg_rank[[y]])})
-                names(temp) <- sampleName
+                temp <- sapply(names(pos_rank), function(y){
+                    c(pos_rank[[y]], neg_rank[[y]])}, simplify = FALSE)
                 temp <- lapply(names(temp), function(y){tibble::enframe(temp[[y]], value = y, name = "gene_id")})
                 suppressMessages(Reduce(left_join, temp))
 
@@ -104,13 +99,11 @@ rank_gene_pert <- function(weightedFC, genePertScore, gsTopology){
                 temp <-  apply(temp, 2, function(x){
                     sign(x)*rank(abs(x))
                 })
-                colnames(temp) <- sampleName
                 temp
             }
 
         } else {
             temp <- sign(temp)
-            temp <- set_colnames(temp, sampleName)
             rownames_to_column(as.data.frame(temp), "gene_id")
         }
 
@@ -164,6 +157,12 @@ raw_gene_pert <- function(weightedFC, gsTopology){
     GP <-  GenePertScore_RCPP(gsTopology, weightedFC, rownames(weightedFC), sampleName)
 
     # Remove list elements that are null or all zeros
-     GP[sapply(GP, function(x){any(x != 0)})]
+    GP <- GP[sapply(GP, function(x){any(x != 0)})]
+
+    sapply(names(GP), function(x){
+        rownames(GP[[x]]) <- rownames(gsTopology[[x]])
+        colnames(GP[[x]]) <- sampleName
+        GP[[x]]
+    }, simplify = FALSE)
 
 }
