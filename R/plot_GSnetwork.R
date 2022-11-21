@@ -1,24 +1,25 @@
-#' @title Plot gene-set network
+#' @title Plot significantly perturbed gene-sets as network
 #'
-#' @param normalisedScores A dataframe as described in the details section
-#' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology`
-#' @param colorBy Choose to color nodes either by "robustZ" or "pvalue". A column must exist in the normalisedScores for the chosen parameter
-#' @param foldGSname logical(1). Should long gene-set names be folded into two lines
+#' @param normalisedScores A dataframe derived from the `normalise_by_permu()` function
+#' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology()`
+#' @param colorBy Choose to color nodes either by *robustZ* or *pvalue* A column must exist in the normalisedScores for the chosen parameter
+#' @param foldGSname `logical`. Should long gene-set names be folded into two lines
 #' @param foldafter The number of words after which gene-set names should be folded. Defaulted to 2
-#' @param layout The layout algorithm to apply
-#' @param edgeAlpha Transparency of edges
-#' @param up_col The color to label activated gene-sets. Only applicable if `colorBy` is set to be "robustZ"
-#' @param down_col The color to label inhibited gene-sets. Only applicable if `colorBy` is set to be "robustZ"
+#' @param layout The layout algorithm to apply. Accept all layout supported by `igraph`
+#' @param edgeAlpha Transparency of edges. Default to 0.8
+#' @param up_col The color used to label activated gene-sets. Only applicable if `colorBy` is set to be "robustZ"
+#' @param down_col The color used to label inhibited gene-sets. Only applicable if `colorBy` is set to be "robustZ"
 #' @param scale_edgeWidth A numerical vector of length 2 to be provided to `ggraph::scale_edge_width_continuous()` for specifying
 #' the minimum and maximum edge widths after transformation. Defaulted to c(0.5, 3)
+#' @param edgeLegend logical` Should edge weight legend be shown
 #' @param scale_nodeSize A numerical vector of length 2 to be provided to `ggplot2::scale_size()` for specifying
 #' the minimum and maximum node sizes after transformation. Defaulted to c(3,6)
 #' @param nodeShape The shape to use for nodes
-#' @param color_lg logical(1). Should color legend be shown
+#' @param color_lg `logical` Should color legend be shown
 #' @param color_lg_title Title for the color legend
 #' @param lb_size Size of node text labels
 #' @param lb_color Color of node text labels
-#' @param plotIsolated logical(1). If nodes not connected to any other node should be plotted. Default to FALSE
+#' @param plotIsolated `logical`.Should nodes not connected to any other nodes be plotted.  Default to FALSE
 #' @importFrom ggraph ggraph geom_node_point geom_node_text geom_edge_link
 #' @importFrom ggplot2 scale_color_continuous scale_color_manual aes_ guides aes scale_size
 #' @importFrom ggraph scale_edge_width_continuous
@@ -33,7 +34,7 @@
 #' # Color network plot nodes by robust z-score
 #' plot_gs_network(subset, gsTopology,
 #' colorBy = "robustZ", layout = "dh",
-#' color_lg_title = "Robust Z-score")
+#' color_lg_title = "Direction of pathway Perturbation")
 #'
 #' # Color network plot nodes by p-values
 #' plot_gs_network(subset, gsTopology, layout = "dh",
@@ -42,7 +43,7 @@ plot_gs_network <- function(normalisedScores, gsTopology, colorBy = c("robustZ",
                            edgeAlpha = 0.8,  up_col = "brown3", down_col = "steelblue3", scale_edgeWidth = c(0.5, 3), edgeLegend = FALSE, scale_nodeSize = c(3,6),
                            nodeShape = 16, color_lg = TRUE, color_lg_title = NULL, lb_size = 3, lb_color = "black", plotIsolated = FALSE){
 
-    name <- NULL
+    name <- weight <- color <- size <- NULL
     ## check if input has required columns
     stopifnot(colorBy %in% c("robustZ", "pvalue"))
     if (!all(c(colorBy, "gs_name") %in% colnames(normalisedScores))) stop("Normalised Scores must include gs_name and column for coloring")
@@ -52,8 +53,7 @@ plot_gs_network <- function(normalisedScores, gsTopology, colorBy = c("robustZ",
     if(length(unique(normalisedScores$gs_name)) < 2) stop("At least 2 gene-sets are required for a network plot")
 
     # create igraph object
-    g <- make_gsNetwork(normalisedScores, gsTopology, colorBy = colorBy, foldGSname = foldGSname,
-                        foldafter = foldafter, plotIsolated = plotIsolated)
+    g <- make_gsNetwork(normalisedScores, gsTopology, colorBy = colorBy, plotIsolated = plotIsolated)
 
     if(foldGSname){
         g <- set_vertex_attr(g, "name", value = vapply(V(g)$name, function(x){ifelse(length(strsplit(x, " ")[[1]]) > foldafter,

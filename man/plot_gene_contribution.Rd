@@ -2,34 +2,47 @@
 % Please edit documentation in R/plot_gene_contribution.R
 \name{plot_gene_contribution}
 \alias{plot_gene_contribution}
-\title{Plot genes' contribution to pathway perturbation as heatmap}
+\title{Plot genes' contribution to a specific pathway's perturbation as heatmap}
 \usage{
 plot_gene_contribution(
-  geneRankList,
+  genePertScore,
   gsToPlot,
-  rownames,
+  mapRownameTo = NULL,
   metadata = NULL,
-  annotation_attribute = c("pathwayPertScore"),
+  annotation_attribute = "pathwayPertScore",
   pathwayPertScore = NULL,
-  colOrder
+  ...
 )
 }
 \arguments{
-\item{geneRankList}{List of gene-wise rank matrices generated using function \code{raw_gene_pert()}}
+\item{genePertScore}{List of gene-wise perturbation scores generated using function \code{raw_gene_pert()}}
 
-\item{gsToPlot}{Name of pathway to be plotted}
+\item{gsToPlot}{\code{character} Name of the pathway to be plotted}
 
-\item{metadata}{Sample metadata data frame containing information for heatmap annotation}
+\item{mapRownameTo}{\code{character} Rownames of heatmap. Default to \code{NULL}, where rownames of the gene-wise rank matrix are plotted in the heatmap.}
 
-\item{annotation_attribute}{Characteristic vector specifying attributes to draw annotation for. Default to "pathwayPertScore" (
+\item{metadata}{A \code{data.frame} containing sample metadata for heatmap annotation}
+
+\item{annotation_attribute}{\code{character} Vector specifying attributes to draw annotations for. Default to "pathwayPertScore" (
 ie. pathway-level perturbation scores)}
 
-\item{pathwayPertScore}{A dataframe. Output of function \code{pathway_pert()}}
+\item{pathwayPertScore}{A \code{data.frame} containing pathway-level perturbation scores for each pathway each treated sample. Output of function \code{pathway_pert()}}
 
-\item{colOrder}{}
+\item{...}{Used to pass various potting parameters to \code{pheatmap::pheatmap()}}
 }
 \description{
-Plot genes' contribution to pathway perturbation as heatmap
+Plot genes' contribution to a specific pathway's perturbation as heatmap
+}
+\details{
+The single-sample pathway-level perturbation score for a given pathway is derived from aggregating all the gene-wise perturbation scores of genes in that pathway.
+This function visualizes individual pathway genes' perturbation scores as a heatmap to demonstrate genes' contribution to a pathway perturbation. Plotting of the heatmap
+is done through \code{pheatmap::pheatmap()} so all plotting parameters accepted by \code{pheatmap::pheatmap()} could also be passed to this function.
+
+It is recommended to provide the pathway-level perturbation scores derived using the \code{pathway_pert()} function to visualise the directions of changes at pathway-level
+as a column annotation, which helps the identification of genes driving or antagonizing the perturbation.
+
+Additional annotation attributes could be specified through the \code{annotation_attribute} parameter and the specified attributes must be provided by columns of the sample
+metadata dataframe provided through the \code{metadata} parameter, otherwise the attributes will be ignored.
 }
 \examples{
 #compute weighted single sample logFCs
@@ -41,9 +54,28 @@ factor = "patient", control = "Vehicle")
 gsTopology <- retrieve_topology(database = "kegg")
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
-# rank genes by gene-wise perturbation scores within each sample to compare their contributions to pathway perturbation
-geneRank <- rank_gene_pert(ls$logFC,genePertScore,  gsTopology)
+# rank genes by gene-wise perturbation scores within each sample to
+# compare their contributions to pathway perturbation
+geneRank <- rank_gene_pert(genePertScore,  gsTopology)
 # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
-pathwayPertScore <- pathway_pert(ls$logFC, genePertScore)
-plot_gene_contribution(geneRankList = geneRank, gsToPlot = "Estrogen signaling pathway")
+pathwayPertScore <- pathway_pert(genePertScore)
+# Genes' contribution to the perturbation of Estrogen signaling pathway was
+# visuaulised with pathway-level perturbation scores
+# and treatments as column annotation attributes.
+plot_gene_contribution(genePertScore = genePertScore, gsToPlot =
+"Estrogen signaling pathway", metadata = metadata_example,
+annotation_attribute = c("pathwayPertScore", "treatment"),
+pathwayPertScore = pathwayPertScore)
+
+\donttest{
+# Set plotting attributes using `pheatmap::pheatmap()`'s parameters:
+plot_gene_contribution(genePertScore = genePertScore, gsToPlot =
+"Estrogen signaling pathway", metadata = metadata_example,
+annotation_attribute = c("pathwayPertScore", "treatment"),
+pathwayPertScore = pathwayPertScore, main = "Genes' contribution to Estrogen
+signaling pathway's perturbation", cluster_cols = FALSE)
+}
+}
+\references{
+Kolde R (2019). \emph{pheatmap: Pretty Heatmaps}. R package version 1.0.12, \url{https://CRAN.R-project.org/package=pheatmap}.
 }

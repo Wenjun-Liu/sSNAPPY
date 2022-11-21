@@ -55,25 +55,21 @@ test_that("raw_gene_pert produces the expected output",{
     expect_false(any(sapply(ls, function(x){any(x != 0)}) == FALSE))
 })
 
-test_that("pathway_pert returns error when expected", {
-   expect_error(pathway_pert(ssFC$logFC[,-1], ls), "Dimension of the weighted FC matrix does not match with gene-wise perturbation score matrices.")
-})
-
 test_that("pathway_pert produces the expected output", {
-    output <- pathway_pert(ssFC$logFC, ls)
-    expect_equal(colnames(output), c( "tA", "sample","gs_name"))
+    output <- pathway_pert(ls)
+    expect_true(setequal(colnames(output), c( "tA", "sample","gs_name")))
     expect_false(anyNA(output$tA))
     expect_equal(unique(output$sample), stringr::str_subset(sample$sample, "control", negate = TRUE))
     expect_true(length(setdiff(output$gs_name, interesectName)) == 0)
 })
 
 test_that("rank_gene_pert returns error when expected", {
-    expect_error(rank_gene_pert(ssFC$logFC, ls, gsTopology[[1]]), "Pathway topology information missing for some pathways.")
+    expect_error(rank_gene_pert(ls, gsTopology[[1]]), "Pathway topology information missing for some pathways.")
 })
 
 test_that("rank_gene_pert produces the expected output", {
 
-    geneRank <- rank_gene_pert(ssFC$logFC, ls, gsTopology)
+    geneRank <- rank_gene_pert(ls, gsTopology)
     expect_equal(length(geneRank), length(ls))
     expect_equal(ncol(geneRank[[1]]), ncol(ssFC$logFC))
     # since all non-zero perturbation scores of pathway Chemokine signaling pathway were positive, expect all rankings to be positives too
@@ -81,7 +77,7 @@ test_that("rank_gene_pert produces the expected output", {
 
     # if all gene-wise perturbation scores are changed to negative values, expect all rankings to be negative
     ls$`Chemokine signaling pathway` <- (-1)*ls$`Chemokine signaling pathway`
-    geneRank2 <- rank_gene_pert(ssFC$logFC, ls, gsTopology)
+    geneRank2 <- rank_gene_pert( ls, gsTopology)
     expect_false(any(geneRank2[[1]] > 0))
 
     #
@@ -90,21 +86,21 @@ test_that("rank_gene_pert produces the expected output", {
     ls$`Chemokine signaling pathway` <- ls$`Chemokine signaling pathway`[1:9,]
     # change the 9th row to all positive
     ls$`Chemokine signaling pathway`[9,] <- abs(ls$`Chemokine signaling pathway`[9,])
-    geneRank5 <- rank_gene_pert(ssFC$logFC, ls, lapply(gsTopology[c("Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:9, 1:9]))
+    geneRank5 <- rank_gene_pert(ls, lapply(gsTopology[c("Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:9, 1:9]))
     geneRank5 <- geneRank5$`Chemokine signaling pathway`[,-1]
     expect_equal(sum(apply(geneRank5, 1, function(y){all(y == 1)})), 1)
     expect_equal(sum(apply(geneRank5, 1, function(y){all(y == -1)})), 1)
 
     # extract the first 8 rows, which contains 7 rows of all zeros and one row of all negative
     ls$`Chemokine signaling pathway` <- ls$`Chemokine signaling pathway`[1:8,]
-    geneRank3 <- rank_gene_pert(ssFC$logFC, ls, lapply(gsTopology[c("Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:8, 1:8]))
+    geneRank3 <- rank_gene_pert(ls, lapply(gsTopology[c("Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:8, 1:8]))
     expect_equal(dim(geneRank3$`Chemokine signaling pathway`), c(1, ncol(ssFC$logFC) +1))
     expect_true(all(geneRank3$`Chemokine signaling pathway`[,-1] == -1))
 
     # for the only non-zero gene, if the gene-wise perturbation scores for the first and third treated sample are changed to positive,
     #expect the rank for those two samples become 1
     ls$`Chemokine signaling pathway`[8,c(1,3)] <- abs(ls$`Chemokine signaling pathway`[8,c(1,3)])
-    geneRank4 <- rank_gene_pert(ssFC$logFC, ls, lapply(gsTopology[c("Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:8, 1:8]))
+    geneRank4 <- rank_gene_pert(ls, lapply(gsTopology[c("Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:8, 1:8]))
     expect_equal(dim(geneRank4$`Chemokine signaling pathway`), c(1, ncol(ssFC$logFC) +1))
     expect_equal(unname(unlist(as.vector(geneRank4$`Chemokine signaling pathway`[1, 2:5]), TRUE)), c(1, -1, 1, -1))
 })

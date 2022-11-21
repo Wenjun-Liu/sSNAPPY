@@ -4,11 +4,9 @@
 \alias{rank_gene_pert}
 \title{Rank genes by perturbation contributions within each sample}
 \usage{
-rank_gene_pert(weightedFC, genePertScore, gsTopology)
+rank_gene_pert(genePertScore, gsTopology)
 }
 \arguments{
-\item{weightedFC}{A matrix of weighted single sample logFCs derived from function \code{weight_ss_fc()}}
-
 \item{genePertScore}{List of gene-wise raw perturbation score matrices generated using function \code{raw_gene_pert()}}
 
 \item{gsTopology}{List of pathway topology matrices generated using function \code{retrieve_topology()}}
@@ -17,7 +15,8 @@ rank_gene_pert(weightedFC, genePertScore, gsTopology)
 A list where each element is a matrix corresponding to a pathway. Each column of an element corresponds to a sample, and each row corresponds to a pathway gene.
 }
 \description{
-Rank genes by single-sample gene-wise raw perturbation scores to compare genes' contributions to pathway perturbation.
+Rank genes by single-sample gene-wise raw perturbation scores to compare
+genes' contributions to pathway perturbation.
 }
 \details{
 Ranking is performed within each sample each pathway. If in a given pathway, both positive and negative gene-wise perturbation scores exist, positive
@@ -34,8 +33,9 @@ factor = "patient", control = "Vehicle")
 gsTopology <- retrieve_topology(database = "kegg")
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
-# rank genes by gene-wise perturbation scores within each sample to compare their contributions to pathway perturbation
-geneRank <- rank_gene_pert(ls$logFC,genePertScore,  gsTopology)
+# rank genes by gene-wise perturbation scores within each sample
+# to compare their contributions to pathway perturbation
+geneRank <- rank_gene_pert(genePertScore, gsTopology)
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
