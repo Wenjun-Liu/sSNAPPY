@@ -88,20 +88,21 @@ plot_gs_network <- function(normalisedScores, gsTopology, colorBy = c("robustZ",
 #' @importFrom reshape2 melt
 #' @importFrom igraph E V graph.data.frame set_edge_attr set_vertex_attr degree delete_vertices delete_edges
 make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ", "pvalue", "community"),
-                        plotIsolated ){
+                           plotIsolated ){
 
     # create dummy variable to pass R CMD CHECK
     from <- to <- E <- robustZ <- NULL
+    gsTopology <- gsTopology[names(gsTopology) %in% normalisedScores$gs_name]
     GS2Gene <- get_GSgenelist(gsTopology)
     GS2Gene <- left_join(normalisedScores, GS2Gene, by = "gs_name")
 
-    GSlist <- split(GS2Gene[,c("gs_name", "gene_id")], f = GS2Gene$gs_name)
+    GSlist <- split(GS2Gene[,c("gs_name", "entrezid")], f = GS2Gene$gs_name)
     nGS <- length(GSlist)
     GSname <- names(GSlist)
 
     w <- lapply(seq_len(nGS-1), function(x){
         lapply((x+1):nGS, function(y){
-            data.frame(from = GSname[x], to = GSname[y], weight = jacIdex_func(GSlist[[x]]$gene_id, GSlist[[y]]$gene_id))
+            data.frame(from = GSname[x], to = GSname[y], weight = jacIdex_func(GSlist[[x]]$entrezid, GSlist[[y]]$entrezid))
         })
     })
 
@@ -140,12 +141,23 @@ make_gsNetwork <- function(normalisedScores, gsTopology,  colorBy = c("robustZ",
 
 
 #' @importFrom reshape2 melt
-get_GSgenelist <- function(gsTopology){
+get_GSgenelist <- function(gsTopology, mapEntrezID = NULL){
     GStoGene <- lapply(gsTopology, rownames)
     GStoGene <- reshape2::melt(GStoGene)
-    colnames(GStoGene) <- c("gene_id", "gs_name")
-    GStoGene
-}
+    colnames(GStoGene) <- c("entrezid", "gs_name")
+
+    if (all(c("entrezid","mapTo") %in% colnames(mapEntrezID))){
+        if (all(GStoGene$entrezid %in% mapEntrezID$entrezid)){
+            left_join(GStoGene, mapEntrezID[,c("entrezid","mapTo")], by = "entrezid")
+        } else {
+            warning("Not all entrez IDs were mapped. Entrez IDs were plotted.")
+            return(GStoGene)
+
+        }
+    } else {
+        return(GStoGene)
+    }
+    }
 
 
 jacIdex_func <- function(x, y) {
