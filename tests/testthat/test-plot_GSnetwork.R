@@ -9,6 +9,14 @@ Scores <- data.frame(
 GS <- Scores$gs_name
 g_Zscore <- make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", plotIsolated = TRUE)
 g_pvalue <- make_gsNetwork(Scores, gsTopology, colorBy = "pvalue", plotIsolated = TRUE)
+entrez2name_dir <- system.file("extdata", "entrez2name.rda", package = "sSNAPPY")
+load(entrez2name_dir)
+
+test_that("get_GSgenelist produces the expected outcome", {
+    expect_true(setequal(colnames(get_GSgenelist(gsTopology)), c("entrezid", "gs_name")))
+    expect_true(setequal(colnames(get_GSgenelist(gsTopology, mapEntrezID = "random")), c("entrezid", "gs_name")))
+    expect_true(setequal(colnames(get_GSgenelist(gsTopology[1:5], mapEntrezID = entrez2name)), c("entrezid", "gs_name", "mapTo")))
+})
 
 test_that("make_gsNetwork produces the expected outcome",{
     expect_s3_class(g_Zscore, "igraph")
