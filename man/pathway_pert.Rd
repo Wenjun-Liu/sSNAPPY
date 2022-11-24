@@ -13,11 +13,7 @@ pathway_pert(genePertScore)
 A data.frame with 3 columns: tA (single-sample pathway-level perturbation score), sample, and gs_name (gene-set name)
 }
 \description{
-Propagate weighted single sample logFCs down the pathway topologies to compute single sample perturbation scores for each pathway
-}
-\details{
-This function use the algorithm adopted from \code{SPIA} (see citation) to compute a single sample perturbation score per sample per
-pathway.
+Sum gene-wise raw perturbation scores within each sample to derive single-sample perturbation scores for each pathway
 }
 \examples{
 #compute weighted single sample logFCs

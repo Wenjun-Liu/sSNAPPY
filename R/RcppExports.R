@@ -9,7 +9,3 @@ permutedPertScore_RCPP <- function(X, pathwayG, expressedG, permutedFC, newS) {
     .Call(`_sSNAPPY_permutedPertScore_RCPP`, X, pathwayG, expressedG, permutedFC, newS)
 }
 
-ssPertScore_RCPP <- function(BminsI, weightedFC, expressedG, sample) {
-    .Call(`_sSNAPPY_ssPertScore_RCPP`, BminsI, weightedFC, expressedG, sample)
-}
-

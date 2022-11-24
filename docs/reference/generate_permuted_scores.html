@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sSNAPPY</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
       </span>
     </div>
 
@@ -56,54 +56,54 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">generate_permuted_scores</span><span class="op">(</span>
-  <span class="va">expreMatrix</span>,
-  <span class="va">numOfTreat</span>,
-  NB <span class="op">=</span> <span class="fl">1000</span>,
-  <span class="va">gsTopology</span>,
-  <span class="va">weight</span>,
-  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="co"># S4 method for matrix</span>
-<span class="fu">generate_permuted_scores</span><span class="op">(</span>
-  <span class="va">expreMatrix</span>,
-  <span class="va">numOfTreat</span>,
-  NB <span class="op">=</span> <span class="fl">1000</span>,
-  <span class="va">gsTopology</span>,
-  <span class="va">weight</span>,
-  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="co"># S4 method for data.frame</span>
-<span class="fu">generate_permuted_scores</span><span class="op">(</span>
-  <span class="va">expreMatrix</span>,
-  <span class="va">numOfTreat</span>,
-  NB <span class="op">=</span> <span class="fl">1000</span>,
-  <span class="va">gsTopology</span>,
-  <span class="va">weight</span>,
-  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="co"># S4 method for DGEList</span>
-<span class="fu">generate_permuted_scores</span><span class="op">(</span>
-  <span class="va">expreMatrix</span>,
-  <span class="va">numOfTreat</span>,
-  NB <span class="op">=</span> <span class="fl">1000</span>,
-  <span class="va">gsTopology</span>,
-  <span class="va">weight</span>,
-  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="co"># S4 method for SummarizedExperiment</span>
-<span class="fu">generate_permuted_scores</span><span class="op">(</span>
-  <span class="va">expreMatrix</span>,
-  <span class="va">numOfTreat</span>,
-  NB <span class="op">=</span> <span class="fl">1000</span>,
-  <span class="va">gsTopology</span>,
-  <span class="va">weight</span>,
-  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">generate_permuted_scores</span><span class="op">(</span></span>
+<span>  <span class="va">expreMatrix</span>,</span>
+<span>  <span class="va">numOfTreat</span>,</span>
+<span>  NB <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  <span class="va">gsTopology</span>,</span>
+<span>  <span class="va">weight</span>,</span>
+<span>  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for matrix</span></span>
+<span><span class="fu">generate_permuted_scores</span><span class="op">(</span></span>
+<span>  <span class="va">expreMatrix</span>,</span>
+<span>  <span class="va">numOfTreat</span>,</span>
+<span>  NB <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  <span class="va">gsTopology</span>,</span>
+<span>  <span class="va">weight</span>,</span>
+<span>  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for data.frame</span></span>
+<span><span class="fu">generate_permuted_scores</span><span class="op">(</span></span>
+<span>  <span class="va">expreMatrix</span>,</span>
+<span>  <span class="va">numOfTreat</span>,</span>
+<span>  NB <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  <span class="va">gsTopology</span>,</span>
+<span>  <span class="va">weight</span>,</span>
+<span>  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for DGEList</span></span>
+<span><span class="fu">generate_permuted_scores</span><span class="op">(</span></span>
+<span>  <span class="va">expreMatrix</span>,</span>
+<span>  <span class="va">numOfTreat</span>,</span>
+<span>  NB <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  <span class="va">gsTopology</span>,</span>
+<span>  <span class="va">weight</span>,</span>
+<span>  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for SummarizedExperiment</span></span>
+<span><span class="fu">generate_permuted_scores</span><span class="op">(</span></span>
+<span>  <span class="va">expreMatrix</span>,</span>
+<span>  <span class="va">numOfTreat</span>,</span>
+<span>  NB <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  <span class="va">gsTopology</span>,</span>
+<span>  <span class="va">weight</span>,</span>
+<span>  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -111,20 +111,33 @@
     <dl><dt>expreMatrix</dt>
 <dd><p>matrix and data.frame of logCPM, or DGEList/SummarizedExperiment
 storing gene expression counts. Feature names need to be gene entrez IDs</p></dd>
+
+
 <dt>numOfTreat</dt>
 <dd><p>Number of treatments (including control)</p></dd>
+
+
 <dt>NB</dt>
 <dd><p>Number of permutations</p></dd>
+
+
 <dt>gsTopology</dt>
 <dd><p>List of pathway topology matrices generated using function <code>retrieve_topology</code></p></dd>
+
+
 <dt>weight</dt>
 <dd><p>A vector of gene-wise weights derived from function <code>weight_ss_fc</code></p></dd>
+
+
 <dt>BPPARAM</dt>
 <dd><p>The parallel back-end to uses, if not specified, it is defaulted to the one returned by <code><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">BiocParallel::bpparam()</a></code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A list where each element is a vector of perturbation scores for a pathway.</p>
+    
+
+<p>A list where each element is a vector of perturbation scores for a pathway.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -144,27 +157,224 @@ possible instead.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">#compute weighted single sample logFCs</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">metadata_example</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">ls</span> <span class="op">&lt;-</span> <span class="fu"><a href="weight_ss_fc.html">weight_ss_fc</a></span><span class="op">(</span><span class="va">logCPM_example</span>, metadata <span class="op">=</span> <span class="va">metadata_example</span>,</span>
-<span class="r-in"> factor <span class="op">=</span> <span class="st">"patient"</span>, control <span class="op">=</span> <span class="st">"Vehicle"</span><span class="op">)</span></span>
-<span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gsTopology.rda"</span>, package <span class="op">=</span> <span class="st">"sSNAPPY"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>cannot open compressed file '', probable reason 'No such file or directory'</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in readChar(con, 5L, useBytes = TRUE):</span> cannot open the connection</span>
-<span class="r-in"><span class="va">permutedScore</span> <span class="op">&lt;-</span> <span class="fu">generate_permuted_scores</span><span class="op">(</span><span class="va">logCPM_example</span>, numOfTreat <span class="op">=</span> <span class="fl">3</span>,</span>
-<span class="r-in"> NB <span class="op">=</span> <span class="fl">10</span>, gsTopology <span class="op">=</span> <span class="va">gsTopology</span>, weight <span class="op">=</span> <span class="va">ls</span><span class="op">$</span><span class="va">weight</span><span class="op">)</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in lapply(gsTopology, rownames):</span> object 'gsTopology' not found</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># To see what other parallel back-end can be used:</span></span>
-<span class="r-in"> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">registered</a></span><span class="op">(</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#compute weighted single sample logFCs</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">metadata_example</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ls</span> <span class="op">&lt;-</span> <span class="fu"><a href="weight_ss_fc.html">weight_ss_fc</a></span><span class="op">(</span><span class="va">logCPM_example</span>, metadata <span class="op">=</span> <span class="va">metadata_example</span>,</span></span>
+<span class="r-in"><span> factor <span class="op">=</span> <span class="st">"patient"</span>, control <span class="op">=</span> <span class="st">"Vehicle"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gsTopology.rda"</span>, package <span class="op">=</span> <span class="st">"sSNAPPY"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">permutedScore</span> <span class="op">&lt;-</span> <span class="fu">generate_permuted_scores</span><span class="op">(</span><span class="va">logCPM_example</span>, numOfTreat <span class="op">=</span> <span class="fl">3</span>,</span></span>
+<span class="r-in"><span> NB <span class="op">=</span> <span class="fl">10</span>, gsTopology <span class="op">=</span> <span class="va">gsTopology</span>, weight <span class="op">=</span> <span class="va">ls</span><span class="op">$</span><span class="va">weight</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> warning: solve(): system is singular; attempting approx solution</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># To see what other parallel back-end can be used:</span></span></span>
+<span class="r-in"><span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">registered</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $MulticoreParam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class: MulticoreParam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bpisup: FALSE; bpnworkers: 8; bptasks: 0; bpjobname: BPJOB</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bplog: FALSE; bpthreshold: INFO; bpstopOnError: TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   bpRNGseed: ; bptimeout: 2592000; bpprogressbar: FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   bpexportglobals: TRUE; bpforceGC: TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   bpRNGseed: ; bptimeout: NA; bpprogressbar: FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   bpexportglobals: TRUE; bpexportvariables: FALSE; bpforceGC: TRUE; bpfallback: TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bplogdir: NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bpresultdir: NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   cluster type: FORK</span>
@@ -173,8 +383,8 @@ possible instead.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class: SnowParam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bpisup: FALSE; bpnworkers: 8; bptasks: 0; bpjobname: BPJOB</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bplog: FALSE; bpthreshold: INFO; bpstopOnError: TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   bpRNGseed: ; bptimeout: 2592000; bpprogressbar: FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   bpexportglobals: TRUE; bpforceGC: FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   bpRNGseed: ; bptimeout: NA; bpprogressbar: FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   bpexportglobals: TRUE; bpexportvariables: TRUE; bpforceGC: FALSE; bpfallback: TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bplogdir: NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bpresultdir: NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   cluster type: SOCK</span>
@@ -183,12 +393,12 @@ possible instead.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class: SerialParam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bpisup: FALSE; bpnworkers: 1; bptasks: 0; bpjobname: BPJOB</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bplog: FALSE; bpthreshold: INFO; bpstopOnError: TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   bpRNGseed: ; bptimeout: 2592000; bpprogressbar: FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   bpexportglobals: TRUE; bpforceGC: FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   bpRNGseed: ; bptimeout: NA; bpprogressbar: FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   bpexportglobals: FALSE; bpexportvariables: FALSE; bpforceGC: FALSE; bpfallback: FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bplogdir: NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bpresultdir: NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"> <span class="co"># }</span></span>
+<span class="r-in"><span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -199,13 +409,11 @@ possible instead.</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun
-Liu</a>.</p>
+  <p></p><p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun Liu</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

@@ -1,9 +1,6 @@
 #' @title Compute Single-sample Pathway-level Perturbation Score
 #'
-#' @description Propagate weighted single sample logFCs down the pathway topologies to compute single sample perturbation scores for each pathway
-#'
-#' @details This function use the algorithm adopted from `SPIA` (see citation) to compute a single sample perturbation score per sample per
-#' pathway.
+#' @description Sum gene-wise raw perturbation scores within each sample to derive single-sample perturbation scores for each pathway
 #' @param genePertScore List of gene-wise raw perturbation score matrices generated using function `raw_gene_pert()`
 #' @importFrom dplyr mutate
 #' @importFrom tibble rownames_to_column
@@ -43,10 +40,10 @@ pathway_pert <- function(genePertScore){
     bind_rows(PF)
 }
 
-#' @title Rank genes by perturbation contributions within each sample
+#' @title Rank genes by perturbation scores within each sample
 #'
-#' @description Rank genes by single-sample gene-wise raw perturbation scores to compare
-#' genes' contributions to pathway perturbation.
+#' @description Rank genes by gene-wise raw perturbation scores within each sample to compare
+#' genes' contributions to pathway perturbations.
 #' @details Ranking is performed within each sample each pathway. If in a given pathway, both positive and negative gene-wise perturbation scores exist, positive
 #' and negative scores are ranked separately, where the larger a positive rank, the more the gene contributed to the pathway's activation, and the smaller a negative
 #' rank, the more the gene contributed to the pathways' inhibition. When there's a tie in two gene's perturbation score within a sample, the mean of the indices is used.
@@ -54,8 +51,6 @@ pathway_pert <- function(genePertScore){
 #' @param genePertScore List of gene-wise raw perturbation score matrices generated using function `raw_gene_pert()`
 #' @importFrom tibble rownames_to_column enframe
 #' @importFrom magrittr set_colnames
-#' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
-#' Bioinformatics. 2009 Jan 1;25(1):75-82.
 #' @return A list where each element is a matrix corresponding to a pathway. Each column of an element corresponds to a sample, and each row corresponds to a pathway gene.
 #' @examples
 #' #compute weighted single sample logFCs

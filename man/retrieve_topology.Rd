@@ -22,30 +22,31 @@ Retrieve pathway topology matrices and convert to normalized weighted directed a
 }
 \details{
 This function takes the pathway topology information retrieved using \code{graphite} and convert them to normalized weighted directed adjacency
-matrices describing the gene signaling network, which can be directed used to compute pathway perturbation score through \emph{SPIA} algorithm.
-See cited document for more details.
+matrices describing the gene signaling network, which can be used to compute gene-wise and pathway-level perturbation score through the
+scoring algorithm derived from the \emph{SPIA} algorithm. See cited document for more details.
 
 The beta parameter specifies weights to be assigned to each type of gene-gene interaction. It should be a named numeric vector of length 23,
-whose names must be: c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation",
-"indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation",
-"state","activation_indirect","inhibition_ubiquination","ubiquination","expression_indirect","indirect_inhibition",
-"repression","binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation"). If unspecified, beta will be by default
-chosen as: c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0).
+whose names must be: \code{c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation", "indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation", "state","activation_indirect","inhibition_ubiquination","ubiquination","expression_indirect","indirect_inhibition", "repression","binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation")}.
 
-The converted weighted adjacent matrices will be stored in a list. We recommend users to store the returned list as a file so this step only needs to be performed once.
+If unspecified, beta will be by default chosen as: \code{c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0)}.
+
+The converted weighted adjacent matrices will be stored in a list. We recommend users to store the returned list as a file so this step only
+needs to be performed once for each database.
 
 This function only supports and can only be used to retreive human databases as this stage.
 }
 \examples{
 \donttest{
 # explore all databases supported by graphite
-graphite::pathwayDatabases()
+dplyr::filter(graphite::pathwayDatabases(), species == "hsapiens")
+
+# retrieve pathway topology matrices frmo the KEGG pathway
 gsTopology <- retrieve_topology(database = "kegg")}
+
 # if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
 gsTopology <- retrieve_topology(database = "kegg",
 pathwayName = c("Glycolysis / Gluconeogenesis",
 "Citrate cycle (TCA cycle)","Pentose phosphate pathway"))
-
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.

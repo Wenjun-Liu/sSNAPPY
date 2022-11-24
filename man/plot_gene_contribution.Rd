@@ -7,7 +7,7 @@
 plot_gene_contribution(
   genePertScore,
   gsToPlot,
-  mapRownameTo = NULL,
+  mapEntrezID = NULL,
   metadata = NULL,
   annotation_attribute = "pathwayPertScore",
   pathwayPertScore = NULL,
@@ -19,7 +19,8 @@ plot_gene_contribution(
 
 \item{gsToPlot}{\code{character} Name of the pathway to be plotted}
 
-\item{mapRownameTo}{\code{character} Rownames of heatmap. Default to \code{NULL}, where rownames of the gene-wise rank matrix are plotted in the heatmap.}
+\item{mapEntrezID}{Optional. A \code{data.frame} matching genes' entrez IDs to other identifiers, such as gene names.
+Must contain 2 columns: \code{"entrezid"} and \code{"mapTo"}}
 
 \item{metadata}{A \code{data.frame} containing sample metadata for heatmap annotation}
 
@@ -35,30 +36,33 @@ Plot genes' contribution to a specific pathway's perturbation as heatmap
 }
 \details{
 The single-sample pathway-level perturbation score for a given pathway is derived from aggregating all the gene-wise perturbation scores of genes in that pathway.
-This function visualizes individual pathway genes' perturbation scores as a heatmap to demonstrate genes' contribution to a pathway perturbation. Plotting of the heatmap
-is done through \code{pheatmap::pheatmap()} so all plotting parameters accepted by \code{pheatmap::pheatmap()} could also be passed to this function.
+This function visualises individual pathway genes' perturbation scores as a heatmap to demonstrate genes' contribution to a pathway perturbation.
+
+Plotting of the heatmap is done through \code{pheatmap::pheatmap()} so all plotting parameters accepted by \code{pheatmap::pheatmap()} could also be passed to this function.
 
 It is recommended to provide the pathway-level perturbation scores derived using the \code{pathway_pert()} function to visualise the directions of changes at pathway-level
 as a column annotation, which helps the identification of genes driving or antagonizing the perturbation.
 
 Additional annotation attributes could be specified through the \code{annotation_attribute} parameter and the specified attributes must be provided by columns of the sample
-metadata dataframe provided through the \code{metadata} parameter, otherwise the attributes will be ignored.
+metadata \code{data.frame} provided through the \code{metadata} parameter, otherwise the attributes will be ignored.
 }
 \examples{
 #compute weighted single sample logFCs
 data(metadata_example)
 data(logCPM_example)
+
+# compute single-sample logFCs for all treated samples
 ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
 factor = "patient", control = "Vehicle")
+
 # extract all the KEGG pathways
 gsTopology <- retrieve_topology(database = "kegg")
+
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
-# rank genes by gene-wise perturbation scores within each sample to
-# compare their contributions to pathway perturbation
-geneRank <- rank_gene_pert(genePertScore,  gsTopology)
 # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
 pathwayPertScore <- pathway_pert(genePertScore)
+
 # Genes' contribution to the perturbation of Estrogen signaling pathway was
 # visuaulised with pathway-level perturbation scores
 # and treatments as column annotation attributes.
@@ -66,15 +70,6 @@ plot_gene_contribution(genePertScore = genePertScore, gsToPlot =
 "Estrogen signaling pathway", metadata = metadata_example,
 annotation_attribute = c("pathwayPertScore", "treatment"),
 pathwayPertScore = pathwayPertScore)
-
-\donttest{
-# Set plotting attributes using `pheatmap::pheatmap()`'s parameters:
-plot_gene_contribution(genePertScore = genePertScore, gsToPlot =
-"Estrogen signaling pathway", metadata = metadata_example,
-annotation_attribute = c("pathwayPertScore", "treatment"),
-pathwayPertScore = pathwayPertScore, main = "Genes' contribution to Estrogen
-signaling pathway's perturbation", cluster_cols = FALSE)
-}
 }
 \references{
 Kolde R (2019). \emph{pheatmap: Pretty Heatmaps}. R package version 1.0.12, \url{https://CRAN.R-project.org/package=pheatmap}.

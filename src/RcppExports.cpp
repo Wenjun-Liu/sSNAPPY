@@ -40,25 +40,10 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ssPertScore_RCPP
-List ssPertScore_RCPP(const List& BminsI, arma::mat weightedFC, const CharacterVector& expressedG, const CharacterVector& sample);
-RcppExport SEXP _sSNAPPY_ssPertScore_RCPP(SEXP BminsISEXP, SEXP weightedFCSEXP, SEXP expressedGSEXP, SEXP sampleSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const List& >::type BminsI(BminsISEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type weightedFC(weightedFCSEXP);
-    Rcpp::traits::input_parameter< const CharacterVector& >::type expressedG(expressedGSEXP);
-    Rcpp::traits::input_parameter< const CharacterVector& >::type sample(sampleSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssPertScore_RCPP(BminsI, weightedFC, expressedG, sample));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sSNAPPY_GenePertScore_RCPP", (DL_FUNC) &_sSNAPPY_GenePertScore_RCPP, 4},
     {"_sSNAPPY_permutedPertScore_RCPP", (DL_FUNC) &_sSNAPPY_permutedPertScore_RCPP, 5},
-    {"_sSNAPPY_ssPertScore_RCPP", (DL_FUNC) &_sSNAPPY_ssPertScore_RCPP, 4},
     {NULL, NULL, 0}
 };
 

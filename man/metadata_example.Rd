@@ -3,12 +3,12 @@
 \docType{data}
 \name{metadata_example}
 \alias{metadata_example}
-\title{metadata_example: Sample metadata for malignant breast cancer tumors PDE from 5 ER+ breast cancer patients (GSE80098)}
+\title{metadata_example: Sample metadata for malignant breast cancer tumours PDE from 5 ER+ breast cancer patients (GSE80098)}
 \format{
 A \code{data.frame} with 15 rows and 4 columns
 \describe{
 \item{patient}{patient N2-3, P4-6 }
-\item{treatment}{treatment: Vehicle, E2 or E2+R5020}
+\item{treatment}{treatment: Vehicle, R5020 or E2+R5020}
 \item{PR}{progesterone receptor status}
 \item{sample}{sample name, corresponding to column names of the logCPM matrix}
 }
@@ -20,6 +20,6 @@ A \code{data.frame} with 15 rows and 4 columns
 data(metadata_example)
 }
 \description{
-metadata_example: Sample metadata for malignant breast cancer tumors PDE from 5 ER+ breast cancer patients (GSE80098)
+metadata_example: Sample metadata for malignant breast cancer tumours PDE from 5 ER+ breast cancer patients (GSE80098)
 }
 \keyword{datasets}

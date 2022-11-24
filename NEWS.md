@@ -6,3 +6,8 @@
 
 # Changes in version 1.0.2 (2022-08-03)
 - Fixed a missing column name problems in `weight_ss_fc`
+
+# Changes in version 1.0.3 (2022-11-24)
+- Replaced `compute_perturbation_score` with `raw_gene_pert`, `path_gene_per` and `rank_gene_pert`
+- Added 3 new visualisation functions: `plot_gene_contribution`, `plot_community` and `plot_gs2gene`
+- Demonstrated the use of new functions in the updated version of vignette

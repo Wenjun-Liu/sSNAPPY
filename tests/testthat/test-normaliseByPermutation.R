@@ -112,7 +112,8 @@ test_that("normalise_by_permu produces the expected outcome",{
     perS <- list(
         "Chemokine signaling pathway"= rnorm(40, mean = 1, sd = 0.3)
     )
-    ssPertScore <- compute_perturbation_score(ssFC$logFC, gsTopology)
+    genePertScore <- raw_gene_pert(ssFC$logFC, gsTopology)
+    ssPertScore <- pathway_pert( genePertScore)
     output <- normalise_by_permu(perS, ssPertScore)
     expect_equal(unique(output$sample), c("patient1_treat1", "patient1_treat2", "patient2_treat1", "patient2_treat2"))
     expect_false(anyNA(output$robustZ))

@@ -18,6 +18,7 @@ sample <- sample %>%
 ssFC <- weight_ss_fc(y, sample, "patient", "control")
 pathwayDir <- system.file("extdata", "gsTopology.rda", package = "sSNAPPY")
 load(pathwayDir)
+load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
 # the number of pathways with at least one of those five genes in it
 interesectName <- names(gsTopology[lapply(gsTopology, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
 # compute raw gene-wise perturbation scores
@@ -57,5 +58,12 @@ test_that("plot_gene_contribution returns a pheatmap object as expected", {
                                   pathwayPertScore = pathwayPertScore, metadata = sample)
     expect_equal(class(hp8), "pheatmap")
 
+    hp9 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway", annotation_attribute = c("pathwayPertScore", "treatment"),
+                                   metadata = sample)
+    expect_equal(class(hp9), "pheatmap")
+
+    hp10 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway", annotation_attribute = c("pathwayPertScore", "treatment"),
+                                  mapEntrezID = entrez2name)
+    expect_equal(class(hp10), "pheatmap")
 })
 

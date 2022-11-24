@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_community.R
 \name{plot_community}
 \alias{plot_community}
-\title{Visualize community structure in the significantly perturbed gene-set network}
+\title{Visualise the community structure in significantly perturbed gene-set network}
 \usage{
 plot_community(
   normalisedScores,
@@ -22,7 +22,6 @@ plot_community(
   edgeLegend = FALSE,
   scale_nodeSize = c(3, 6),
   nodeShape = 16,
-  color_lg = TRUE,
   color_lg_title = NULL,
   lb_size = 3,
   lb_color = "black",
@@ -35,24 +34,24 @@ plot_community(
 
 \item{gsTopology}{List of pathway topology matrices generated using function \code{retrieve_topology()}}
 
-\item{gsAnnotation}{A \code{data.frame} containing gene-sets categories used for pathway annotation. Must contain at least two columns:
+\item{gsAnnotation}{A \code{data.frame} containing gene-sets categorisations for pathway annotation. Must contain at least two columns:
 \code{c("gs_name", "category")}, where \code{gs_name} denotes gene-sets names that are matched to names of pathway topology matrices, and
-\code{category} records the categorization of the given pathway. If customized annotation is not provided, it's assumed that the pathways
-investigated were from KEGG database and the inbuilt KEGG pathway annotation information will be used,}
+\code{category} records the categorization of each pathway. If customized annotation is not provided, it's assumed that the pathways
+investigated were from the KEGG database and the inbuilt KEGG pathway annotation information will be used}
 
-\item{colorBy}{Choose to color nodes either by \emph{"community}, \emph{robustZ} or \emph{pvalue}. To color by \emph{robustZ} or \emph{pvalue}, a
-column must exist in the normalisedScores for the chosen parameter}
+\item{colorBy}{Choose to color nodes either by \emph{community}, \emph{robustZ} or \emph{pvalue}. To color by \emph{robustZ} or \emph{pvalue}, a
+column must exist in the \code{normalisedScores} \code{data.frame} for the chosen parameter}
 
-\item{communityMethod}{A community Detection method supported by \code{igraph}. See details for all methods available.}
+\item{communityMethod}{A community detection method supported by \code{igraph}. See details for all methods available.}
 
 \item{foldGSname}{\code{logical}. Should long gene-set names be folded into two lines}
 
 \item{foldafter}{The number of words after which gene-set names should be folded. Defaulted to 2}
 
-\item{layout}{The layout algorithm to apply. Accept all layout supported by \code{igraph}. See details for all layout options available.}
+\item{layout}{The layout algorithm to apply. Accepted layouts are \verb{"fr", "dh", "gem", "graphopt", "kk", "lgl", "mds" and "sugiyama"}}
 
-\item{markCommunity}{\code{character} A \emph{geom_mark_} method supported by \code{ggforce} to annotate sets of nodes belonging to the same community.
-Either \emph{NULL}, \emph{ellipse}, \emph{circle}, \emph{hull}, \emph{rect}}
+\item{markCommunity}{\code{character} A \verb{geom_mark_*} method supported by \code{ggforce} to annotate sets of nodes belonging to the same community.
+Either \verb{*NULL*, *ellipse*, *circle*, *hull*, *rect*}}
 
 \item{markAlpha}{Transparency of annotation areas. Default to 0.2}
 
@@ -65,14 +64,12 @@ Either \emph{NULL}, \emph{ellipse}, \emph{circle}, \emph{hull}, \emph{rect}}
 \item{scale_edgeWidth}{A numerical vector of length 2 to be provided to \code{ggraph::scale_edge_width_continuous()} for specifying
 the minimum and maximum edge widths after transformation. Defaulted to c(0.5, 3)}
 
-\item{edgeLegend}{logical` Should edge weight legend be shown}
+\item{edgeLegend}{\code{logical} Should edge weight legend be shown}
 
 \item{scale_nodeSize}{A numerical vector of length 2 to be provided to \code{ggplot2::scale_size()} for specifying
 the minimum and maximum node sizes after transformation. Defaulted to c(3,6)}
 
 \item{nodeShape}{The shape to use for nodes}
-
-\item{color_lg}{\code{logical} Should color legend be shown}
 
 \item{color_lg_title}{Title for the color legend}
 
@@ -88,7 +85,20 @@ the minimum and maximum node sizes after transformation. Defaulted to c(3,6)}
 A ggplot2 object
 }
 \description{
-Visualize community structure in the significantly perturbed gene-set network
+Visualise the community structure in significantly perturbed gene-set network
+}
+\details{
+A community detection strategy specified by \code{communityMethod} will be applied to the pathway-pathway network,
+and communities will be annotated with the pathway category that had the highest number of occurrence, denoting the
+main biological processes perturbed in that community.
+
+At the moment, only categorisations of KEGG pathway were built into the package, so if the provided \code{normalisedScores} contains perturbation
+scores of pathways derived from other databases, annotation of communities will not be performed unless pathway information is provided through
+the \code{gsAnnotation} parameter. The categorisation information needs to be stored in a \code{data.frame} containing \code{gs_name} (gene-set names) and
+\code{category} (categorisation of the given pathways).
+
+Plotting parameters accepted by \verb{geom_mark_*} could be passed to the function to adjust the annotation area or the annotation
+label. See \verb{?ggforce::geom_mark_*} for more details.
 }
 \examples{
 load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
@@ -103,19 +113,12 @@ color_lg_title = "Community")
 # Color network plot nodes by pathways' directions of changes and mark nodes belonging
 # to the same community by ellipses
 plot_community(subset, gsTopology, colorBy = "robustZ",layout = "kk",
-color_lg_title = "Direction of pathway Perturbation")
-
-# Plotting parameters accepted by `geom_mark_*` could be passed to the function
-# to adjust the annotation area or the annotation label. See
-# `?ggforce::geom_mark_*` for more details. For example, to change the linetype
-# of the connector:
-plot_community(subset, gsTopology, colorBy = "robustZ",layout = "kk",
-color_lg_title = "Direction of pathway Perturbation", con.linetype = "dashed")
+color_lg_title = "Direction of pathway perturbation")
 
 # To change the colour and fill of `geom_mark_*` annotation, use any
 # `scale_fill_*` and/or `scale_color_*`
 # functions supported by `ggplot2`. For example:
 p <- plot_community(subset, gsTopology, colorBy = "robustZ",layout = "kk",
-markCommunity = "rect",color_lg_title = "Direction of pathway Perturbation")
+markCommunity = "rect",color_lg_title = "Direction of pathway perturbation")
 p + ggplot2::scale_color_ordinal() + ggplot2::scale_fill_ordinal()
 }

@@ -10,3 +10,4 @@ data/..rda
 .o
 .so
 src/*.o
+docs
