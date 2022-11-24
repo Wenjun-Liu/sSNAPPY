@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sSNAPPY</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
       </span>
     </div>
 
@@ -50,7 +50,7 @@
     </div>
 
     <table class="ref-index"><colgroup><col class="alias"><col class="title"></colgroup><tbody><tr><th colspan="2">
-          <h2 id="all-functions">All functions <a href="#all-functions" class="anchor" aria-hidden="true"></a></h2>
+          <h2 id="functions-for-deriving-single-sample-pathway-perturbation-scores">Functions for deriving single-sample pathway perturbation scores <a href="#functions-for-deriving-single-sample-pathway-perturbation-scores" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
@@ -62,9 +62,17 @@
         </td>
         <td><p>Retrieve pathway topology as weighted adjacent matrix</p></td>
       </tr><tr><td>
-          <p><code><a href="compute_perturbation_score.html">compute_perturbation_score()</a></code> </p>
+          <p><code><a href="raw_gene_pert.html">raw_gene_pert()</a></code> </p>
         </td>
-        <td><p>Compute Single Sample Perturbation Score</p></td>
+        <td><p>Compute Gene-wise Perturbation Score</p></td>
+      </tr><tr><td>
+          <p><code><a href="pathway_pert.html">pathway_pert()</a></code> </p>
+        </td>
+        <td><p>Compute Single-sample Pathway-level Perturbation Score</p></td>
+      </tr><tr><td>
+          <p><code><a href="rank_gene_pert.html">rank_gene_pert()</a></code> </p>
+        </td>
+        <td><p>Rank genes by perturbation contributions within each sample</p></td>
       </tr><tr><td>
           <p><code><a href="generate_permuted_scores.html">generate_permuted_scores()</a></code> </p>
         </td>
@@ -73,12 +81,28 @@
           <p><code><a href="normalise_by_permu.html">normalise_by_permu()</a></code> </p>
         </td>
         <td><p>Normalise test perturbation scores by permutation</p></td>
-      </tr><tr><td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="visualisation-functions">Visualisation Functions <a href="#visualisation-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
           <p><code><a href="plot_gs_network.html">plot_gs_network()</a></code> </p>
         </td>
-        <td><p>Plot gene-set network</p></td>
+        <td><p>Plot significantly perturbed gene-sets as a network</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_gene_contribution.html">plot_gene_contribution()</a></code> </p>
+        </td>
+        <td><p>Plot genes' contribution to a specific pathway's perturbation as heatmap</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_community.html">plot_community()</a></code> </p>
+        </td>
+        <td><p>Visualise the community structure in significantly perturbed gene-set network</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_gs2gene.html">plot_gs2gene()</a></code> </p>
+        </td>
+        <td><p>Plot pathways and genes contained in them as a network</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="example-datasets">Example datasets <a href="#example-datasets" class="anchor" aria-hidden="true"></a></h2>
+          <h2 id="data-objects">Data Objects <a href="#data-objects" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
@@ -88,7 +112,11 @@
       </tr><tr><td>
           <p><code><a href="metadata_example.html">metadata_example</a></code> </p>
         </td>
-        <td><p>metadata_example: Sample metadata for malignant breast cancer tumors PDE from 5 ER+ breast cancer patients (GSE80098)</p></td>
+        <td><p>metadata_example: Sample metadata for malignant breast cancer tumours PDE from 5 ER+ breast cancer patients (GSE80098)</p></td>
+      </tr><tr><td>
+          <p><code><a href="gsAnnotation_df.html">gsAnnotation_df</a></code> </p>
+        </td>
+        <td><p>gsAnnotation_df: Categorization of KEGG pathways used for community annotation</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="package">Package <a href="#package" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
@@ -106,13 +134,11 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun
-Liu</a>.</p>
+  <p></p><p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun Liu</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

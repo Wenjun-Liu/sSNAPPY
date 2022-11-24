@@ -54,12 +54,12 @@ generate_permuted_scores(
 )
 }
 \arguments{
-\item{expreMatrix}{matrix and data.frame of logCPM, or DGEList/SummarizedExperiment
-storing gene expression counts. Feature names need to be gene entrez IDs}
+\item{expreMatrix}{\code{matrix} and \code{data.frame} of logCPM, or \code{DGEList}/\code{SummarizedExperiment}
+storing gene expression counts. Feature names need to be in entrez IDs}
 
 \item{numOfTreat}{Number of treatments (including control)}
 
-\item{NB}{Number of permutations}
+\item{NB}{Number of permutations to perform}
 
 \item{gsTopology}{List of pathway topology matrices generated using function \code{retrieve_topology}}
 
@@ -75,18 +75,19 @@ Simulate null distributions of perturbation scores for each pathway through samp
 }
 \details{
 This \code{generate_permuted_scores} function is a generic function that can deal with
-multiple types of inputs. It firstly randomly permute sample labels NB times to generate
+multiple types of inputs. It firstly randomly permute sample labels \code{NB} times to generate
 permuted logFCs, which are then used to compute permuted perturbation scores for each pathway.
+
 The function outputs a list that is of the same length as the list storing pathway topology
 matrices. Each element of the output list is for a pathway and contains a vector of permuted
-perturbation score of length NB. It's assumed that the permuted perturbation scores can be
-used to estimate the null distributions of perturbation scores.
+perturbation score of length. The permuted perturbation scores will be used to estimate the
+null distributions of perturbation scores.
 
 If the input is S4 object of \code{DGEList or SummarizedExperiment}, gene expression matrix will
-be extracted and converted to logCPM matrix.
+be extracted and converted to a logCPM matrix.
 
-The default number of permutation (NB) is set to 1000. If the requested NB is larger than the
-maximum number of permutations possible, NB will be set to the largest number of permutations
+The default number of permutation (\code{NB}) is set to 1000. If the requested \code{NB} is larger than the
+maximum number of permutations possible, \code{NB} will be set to the largest number of permutations
 possible instead.
 }
 \examples{
@@ -95,8 +96,10 @@ data(metadata_example)
 data(logCPM_example)
 ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
  factor = "patient", control = "Vehicle")
-\donttest{
+\dontrun{
 load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
+
+# simulate the null distribution of scores through sample permutation
 permutedScore <- generate_permuted_scores(logCPM_example, numOfTreat = 3,
  NB = 10, gsTopology = gsTopology, weight = ls$weight)
 

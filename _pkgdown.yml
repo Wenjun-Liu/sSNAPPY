@@ -1,31 +1,33 @@
+url: https://wenjun-liu.github.io/sSNAPPY/
 template:
   params:
     bootswatch: simplex
-
 authors:
   Wenjun Liu:
     href: https://github.com/Wenjun-Liu
-
 reference:
-
-- title: All functions
+- title: Functions for deriving single-sample pathway perturbation scores
   contents:
   - weight_ss_fc
   - retrieve_topology
-  - compute_perturbation_score
+  - raw_gene_pert
+  - pathway_pert
+  - rank_gene_pert
   - generate_permuted_scores
   - normalise_by_permu
+- title: Visualisation Functions
+  contents:
   - plot_gs_network
-
-- title: Example datasets
+  - plot_gene_contribution
+  - plot_community
+  - plot_gs2gene
+- title: Data Objects
   contents:
   - logCPM_example
   - metadata_example
-
+  - gsAnnotation_df
 - title: Package
-  contents:
-  - sSNAPPY
-
+  contents: sSNAPPY
 navbar:
   type: default
   left:
@@ -38,3 +40,4 @@ navbar:
   right:
   - icon: fa-github fa-lg
     href: https://github.com/Wenjun-Liu/sSNAPPY
+

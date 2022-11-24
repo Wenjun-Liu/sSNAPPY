@@ -31,13 +31,11 @@ test_that("plot_community returns error when expected", {
     expect_error(plot_community(Scores, gsTopology_noName, colorBy = "robustZ"))
     expect_error(plot_community(Scores[1, ], gsTopology, colorBy = "robustZ"), "At least 2 gene-sets are required for a network plot")
     expect_error(plot_community(Scores[, -2], gsTopology, colorBy = "robustZ"), "Normalised Scores must include gs_name and column for coloring")
-    expect_error(plot_community(Scores, gsTopology,  colorBy = "community", gsAnnotation = data.frame(gs_name = c(1:5), category = letters[1:5])), "Gene-set annotation does not match with topology provided")
+    expect_warning(plot_community(Scores, gsTopology,  colorBy = "community", gsAnnotation = data.frame(gs_name = c(1:5), category = letters[1:5])), "Gene-set annotation does not match with topology provided. Communities won't be annotated")
 })
 
 test_that("plot_community produces the expected outcome", {
     expect_s3_class(plot_community(Scores, gsTopology, colorBy = "community"), "ggraph")
     expect_s3_class(plot_community(Scores, gsTopology, colorBy = "pvalue"), "ggraph")
     expect_s3_class(plot_community(Scores, gsTopology, colorBy = "robustZ"), "ggraph")
-    g_noLegend <- plot_gs_network(Scores, gsTopology, colorBy = "robustZ", color_lg = FALSE)
-    expect_null(cowplot::get_legend(g_noLegend))
 })
