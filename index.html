@@ -12,8 +12,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Single Sample directioNAl Pathway Perturbation analYsis">
-<meta property="og:description" content="A single sample pathway pertrubation testing methods for RNA-seq data. The method propagate changes in gene expression
-             down gene-set topologies to compute single-sample directional pathway perturbation scores that reflect potentail directions
+<meta property="og:description" content="A single sample pathway perturbation testing method for RNA-seq data. The method propagates changes in gene expression
+             down gene-set topologies to compute single-sample directional pathway perturbation scores that reflect potential directions
              of changes.Perturbation scores can be used to test significance of pathway perturbation at both individual-sample and 
              treatment levels.  ">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">sSNAPPY</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
       </span>
     </div>
 
@@ -73,22 +73,18 @@
   <div class="contents col-md-9">
 
 <div class="section level1">
-<div class="page-header"><h1 id="ssnappy-single-sample-directional-pathway-perturbation-analysis">sSNAPPY: Single Sample directioNAl Pathway Perturbation
-analYsis<a class="anchor" aria-label="anchor" href="#ssnappy-single-sample-directional-pathway-perturbation-analysis"></a>
+<div class="page-header"><h1 id="ssnappy-single-sample-directional-pathway-perturbation-analysis">sSNAPPY: Single Sample directioNAl Pathway Perturbation analYsis<a class="anchor" aria-label="anchor" href="#ssnappy-single-sample-directional-pathway-perturbation-analysis"></a>
 </h1></div>
-<p><code>sSNAPPY</code> is a package for computing directional pathway
-perturbation scores from logCPM in RNA-seq data. The final output can be
-used to test the significance of pathway perturbation at both
-individual-sample and overall treatment levels.</p>
+<p><code>sSNAPPY</code> is a package for computing directional pathway perturbation scores from logCPM in RNA-seq data. The final output can be used to test the significance of pathway perturbation at both individual-sample and overall treatment levels.</p>
 </div>
 <div class="section level1">
 <h1 id="installation-instructions">Installation Instructions<a class="anchor" aria-label="anchor" href="#installation-instructions"></a>
 </h1>
 <p>To install this package, please use BiocManager.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
-    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span>
-<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"sSNAPPY"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"sSNAPPY"</span><span class="op">)</span></span></code></pre></div>
 </div>
 
   </div>
@@ -97,6 +93,7 @@ individual-sample and overall treatment levels.</p>
     <div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li><a href="https://www.bioconductor.org/packages/sSNAPPY" class="external-link">View on Bioconductor</a></li>
 <li><a href="https://github.com/Wenjun-Liu/sSNAPPY/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/Wenjun-Liu/sSNAPPY/issues" class="external-link">Report a bug</a></li>
 </ul>
@@ -133,14 +130,12 @@ individual-sample and overall treatment levels.</p>
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun
-Liu</a>.</p>
+<p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun Liu</a>.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>

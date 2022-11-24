@@ -1,54 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/404.html</loc>
   </url>
   <url>
-    <loc>/articles/index.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/articles/index.html</loc>
   </url>
   <url>
-    <loc>/articles/sSNAPPY.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/articles/sSNAPPY.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/authors.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/index.html</loc>
   </url>
   <url>
-    <loc>/news/index.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/compute_perturbation_score.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/dot-compute_ssFC.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-compute_ssFC.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/generate_permuted_scores.html</loc>
   </url>
   <url>
-    <loc>/reference/generate_permuted_scores.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/gsAnnotation_df.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/logCPM_example.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/logCPM_example.html</loc>
   </url>
   <url>
-    <loc>/reference/metadata_example.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/metadata_example.html</loc>
   </url>
   <url>
-    <loc>/reference/normalise_by_permu.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/normalise_by_permu.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_gs_network.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/pathway_pert.html</loc>
   </url>
   <url>
-    <loc>/reference/retrieve_topology.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/plot_community.html</loc>
   </url>
   <url>
-    <loc>/reference/sSNAPPY.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/plot_gene_contribution.html</loc>
   </url>
   <url>
-    <loc>/reference/weight_ss_fc.html</loc>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/plot_gs2gene.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/plot_gs_network.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/rank_gene_pert.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/raw_gene_pert.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/retrieve_topology.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/sSNAPPY.html</loc>
+  </url>
+  <url>
+    <loc>https://wenjun-liu.github.io/sSNAPPY/reference/weight_ss_fc.html</loc>
   </url>
 </urlset>

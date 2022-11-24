@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sSNAPPY</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
       </span>
     </div>
 
@@ -56,35 +56,40 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">retrieve_topology</span><span class="op">(</span><span class="va">database</span>, pathwayName <span class="op">=</span> <span class="cn">NULL</span>, beta <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">retrieve_topology</span><span class="op">(</span><span class="va">database</span>, pathwayName <span class="op">=</span> <span class="cn">NULL</span>, beta <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>database</dt>
 <dd><p>See example for supported databases.</p></dd>
+
+
 <dt>pathwayName</dt>
 <dd><p>Optional. Subset of pathway names as a vector.</p></dd>
+
+
 <dt>beta</dt>
 <dd><p>Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type.
 See details for more information.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A list where each element is a matrix corresponding to a pathway</p>
+    
+
+<p>A list where each element is a matrix corresponding to a pathway</p>
     </div>
     <div id="details">
     <h2>Details</h2>
     <p>This function takes the pathway topology information retrieved using <code>graphite</code> and convert them to normalized weighted directed adjacency
-matrices describing the gene signaling network, which can be directed used to compute pathway perturbation score through <em>SPIA</em> algorithm.
-See cited document for more details.</p>
+matrices describing the gene signaling network, which can be used to compute gene-wise and pathway-level perturbation score through the
+scoring algorithm derived from the <em>SPIA</em> algorithm. See cited document for more details.</p>
 <p>The beta parameter specifies weights to be assigned to each type of gene-gene interaction. It should be a named numeric vector of length 23,
-whose names must be: c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation",
-"indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation",
-"state","activation_indirect","inhibition_ubiquination","ubiquination","expression_indirect","indirect_inhibition",
-"repression","binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation"). If unspecified, beta will be by default
-chosen as: c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0).</p>
-<p>The converted weighted adjacent matrices will be stored in a list. We recommend users to store the returned list as a file so this step only needs to be performed once.</p>
+whose names must be: <code>c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation", "indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation", "state","activation_indirect","inhibition_ubiquination","ubiquination","expression_indirect","indirect_inhibition", "repression","binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation")</code>.</p>
+<p>If unspecified, beta will be by default chosen as: <code>c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0)</code>.</p>
+<p>The converted weighted adjacent matrices will be stored in a list. We recommend users to store the returned list as a file so this step only
+needs to be performed once for each database.</p>
 <p>This function only supports and can only be used to retreive human databases as this stage.</p>
     </div>
     <div id="references">
@@ -97,66 +102,25 @@ BMC Bioinformatics 13, 20 (2012).</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="co"># explore all databases supported by graphite</span></span>
-<span class="r-in"><span class="fu">graphite</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/graphite/man/pathwayDatabases.html" class="external-link">pathwayDatabases</a></span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          species     database</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      athaliana         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      athaliana     pathbank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      athaliana wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        btaurus         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5        btaurus     pathbank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6        btaurus     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7        btaurus wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8       celegans         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9       celegans     pathbank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10      celegans     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11      celegans wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12   cfamiliaris         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13   cfamiliaris     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14   cfamiliaris wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15 dmelanogaster         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16 dmelanogaster     pathbank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 dmelanogaster     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18 dmelanogaster wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19        drerio         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20        drerio     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21        drerio wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22         ecoli         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23         ecoli     pathbank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24         ecoli wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25       ggallus         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26       ggallus     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27       ggallus wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28      hsapiens         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29      hsapiens      panther</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30      hsapiens     pathbank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31      hsapiens     pharmgkb</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32      hsapiens     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33      hsapiens        smpdb</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34      hsapiens wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35     mmusculus         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36     mmusculus     pathbank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37     mmusculus     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38     mmusculus wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 39   rnorvegicus         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 40   rnorvegicus     pathbank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 41   rnorvegicus     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 42   rnorvegicus wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43   scerevisiae         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 44   scerevisiae     pathbank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 45   scerevisiae     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 46   scerevisiae wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 47       sscrofa         kegg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 48       sscrofa     reactome</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 49       sscrofa wikipathways</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 50       xlaevis         kegg</span>
-<span class="r-in"><span class="va">gsTopology</span> <span class="op">&lt;-</span> <span class="fu">retrieve_topology</span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span><span class="op">)</span><span class="co"># }</span></span>
-<span class="r-in"><span class="co"># if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter</span></span>
-<span class="r-in"><span class="va">gsTopology</span> <span class="op">&lt;-</span> <span class="fu">retrieve_topology</span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span>,</span>
-<span class="r-in">pathwayName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Glycolysis / Gluconeogenesis"</span>,</span>
-<span class="r-in"><span class="st">"Citrate cycle (TCA cycle)"</span>,<span class="st">"Pentose phosphate pathway"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># explore all databases supported by graphite</span></span></span>
+<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu">graphite</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/graphite/man/pathwayDatabases.html" class="external-link">pathwayDatabases</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">species</span> <span class="op">==</span> <span class="st">"hsapiens"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    species     database</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 hsapiens         kegg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 hsapiens      panther</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 hsapiens     pathbank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 hsapiens     pharmgkb</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 hsapiens     reactome</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 hsapiens        smpdb</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 hsapiens wikipathways</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># retrieve pathway topology matrices frmo the KEGG pathway</span></span></span>
+<span class="r-in"><span><span class="va">gsTopology</span> <span class="op">&lt;-</span> <span class="fu">retrieve_topology</span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span><span class="op">)</span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter</span></span></span>
+<span class="r-in"><span><span class="va">gsTopology</span> <span class="op">&lt;-</span> <span class="fu">retrieve_topology</span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span>,</span></span>
+<span class="r-in"><span>pathwayName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Glycolysis / Gluconeogenesis"</span>,</span></span>
+<span class="r-in"><span><span class="st">"Citrate cycle (TCA cycle)"</span>,<span class="st">"Pentose phosphate pathway"</span><span class="op">)</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -167,13 +131,11 @@ BMC Bioinformatics 13, 20 (2012).</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun
-Liu</a>.</p>
+  <p></p><p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun Liu</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
