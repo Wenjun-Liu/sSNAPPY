@@ -66,7 +66,7 @@ plot_gs_network <- function(normalisedScores, gsTopology, colorBy = c("robustZ",
 
     # plot network edges
     pl <- ggraph(g, layout = layout) +
-        geom_edge_link(alpha = edgeAlpha, aes(width=weight, colour='darkgrey')) +
+        geom_edge_link(alpha = edgeAlpha, aes(width=weight), colour='darkgrey') +
         scale_edge_width_continuous(range = scale_edgeWidth, guide = "none")
 
 

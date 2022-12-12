@@ -49,7 +49,7 @@
 #' pathwayPertScore = pathwayPertScore)
 #' @export
 plot_gene_contribution <- function(genePertScore, gsToPlot, mapEntrezID = NULL, metadata = NULL, annotation_attribute = "pathwayPertScore",  pathwayPertScore = NULL,
-                                     ...){
+                                ...){
     gs_name <- tA <- weight <- entrezid <- NULL
     if (!gsToPlot %in% names(genePertScore)  )
         stop("Gene-wise perturbation scores not provided for the chosen pathway.")
@@ -122,8 +122,6 @@ plot_gene_contribution <- function(genePertScore, gsToPlot, mapEntrezID = NULL, 
             # tibble::column_to_rownames(geneRank$`Estrogen signaling pathway`[,colOrder], "gene_id"),
             rankMatrix,
             annotation_col = anno_col_df,
-            annotation_colors = list(`Pathway-level Perturbation` = c("Inhibited" = "blue", "Activated" = "red")),
-
             ...
         )
     }
