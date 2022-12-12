@@ -143,7 +143,7 @@ plot_community <- function(normalisedScores, gsTopology, gsAnnotation = NULL, co
 
     # plot network edges
     pl <- ggraph(g, layout = "manual", x = xy[,1], y = xy[,2]) +
-        geom_edge_link(alpha = edgeAlpha, aes(width=weight, colour='darkgrey')) +
+        geom_edge_link(alpha = edgeAlpha, aes(width=weight), colour='darkgrey') +
         scale_edge_width_continuous(range = scale_edgeWidth, guide = "none")
 
     # plot node points
