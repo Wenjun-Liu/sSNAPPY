@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sSNAPPY</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.3</span>
       </span>
     </div>
 
@@ -86,10 +86,15 @@ Bioinformatics. 2009 Jan 1;25(1):75-82.</p>
 <span class="r-in"><span>factor <span class="op">=</span> <span class="st">"patient"</span>, control <span class="op">=</span> <span class="st">"Vehicle"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># extract all the KEGG pathways</span></span></span>
 <span class="r-in"><span><span class="va">gsTopology</span> <span class="op">&lt;-</span> <span class="fu"><a href="retrieve_topology.html">retrieve_topology</a></span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error in curl::curl_fetch_disk(url, x$path, handle = handle) : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Timeout was reached: [graphiteweb.bio.unipd.it] Resolving timed out after 10000 milliseconds</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in fetchRemote(name, path):</span> cannot download pathway data: are you offline?</span>
 <span class="r-in"><span><span class="co"># compute raw gene-wise perturbation scores</span></span></span>
 <span class="r-in"><span><span class="va">genePertScore</span> <span class="op">&lt;-</span> <span class="fu"><a href="raw_gene_pert.html">raw_gene_pert</a></span><span class="op">(</span><span class="va">ls</span><span class="op">$</span><span class="va">logFC</span>, <span class="va">gsTopology</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in lapply(gsTopology, rownames):</span> object 'gsTopology' not found</span>
 <span class="r-in"><span><span class="co"># sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores</span></span></span>
 <span class="r-in"><span><span class="va">pathwayPertScore</span> <span class="op">&lt;-</span> <span class="fu">pathway_pert</span><span class="op">(</span> <span class="va">genePertScore</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in lapply(names(genePertScore), function(x) {    temp &lt;- as.data.frame(apply(genePertScore[[x]], 2, sum))    temp &lt;- set_colnames(temp, "tA")    temp &lt;- rownames_to_column(temp, "sample")    temp &lt;- mutate(temp, gs_name = x)}):</span> object 'genePertScore' not found</span>
 </code></pre></div>
     </div>
   </div>
@@ -104,7 +109,7 @@ Bioinformatics. 2009 Jan 1;25(1):75-82.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>
