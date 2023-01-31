@@ -165,8 +165,9 @@ setMethod("generate_permuted_scores",
 normalise_by_permu <- function(permutedScore, testScore, pAdj_method = "fdr"){
     pvalue <- NULL
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
-    summaryScore <- as.data.frame(t(vapply(permutedScore, summary_func, c("MAD" = 0, "MEDIAN" = 0))))
-    summaryScore <- rownames_to_column(summaryScore,"gs_name")
+    summaryScore <- t(sapply(permutedScore, summary_func))
+    gs_name <- rownames(summaryScore)
+    summaryScore <- mutate(as.data.frame(summaryScore), gs_name = gs_name)
     summaryScore <- filter(summaryScore, summaryScore$MAD != 0)
     summaryScore <- left_join(summaryScore, testScore, by = "gs_name")
     summaryScore <- mutate(summaryScore,robustZ = (summaryScore$tA - summaryScore$MEDIAN)/summaryScore$MAD)
