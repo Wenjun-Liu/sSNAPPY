@@ -11,7 +11,7 @@ Description: A single sample pathway perturbation testing method for RNA-seq dat
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Suggests: 
     BiocManager,
     BiocStyle,
@@ -29,7 +29,7 @@ Config/testthat/edition: 3
 SystemRequirements: C++11
 LazyData: false
 Imports: 
-    dplyr,
+    dplyr (>= 1.1),
     magrittr,
     rlang,
     stats,
@@ -38,7 +38,6 @@ Imports:
     graphite,
     Rcpp,
     tibble,
-    ggplot2,
     ggraph,
     igraph,
     reshape2,
@@ -49,12 +48,14 @@ Imports:
     ggforce,
     ggnewscale,
     pheatmap,
-    utils
+    utils,
+    stringr
 LinkingTo: 
     Rcpp,
     RcppArmadillo
 Depends: 
-    R (>= 4.2.0)
+    R (>= 4.2.0),
+    ggplot2
 biocViews:
     Software, GeneExpression, GeneSetEnrichment, GeneSignaling
 URL: https://wenjun-liu.github.io/sSNAPPY/
