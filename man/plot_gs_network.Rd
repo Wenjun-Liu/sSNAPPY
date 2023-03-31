@@ -7,13 +7,11 @@
 plot_gs_network(
   normalisedScores,
   gsTopology,
-  colorBy = c("robustZ", "pvalue"),
+  colorBy = NULL,
   foldGSname = TRUE,
   foldafter = 2,
   layout = "fr",
   edgeAlpha = 0.8,
-  up_col = "brown3",
-  down_col = "steelblue3",
   scale_edgeWidth = c(0.5, 3),
   edgeLegend = FALSE,
   scale_nodeSize = c(3, 6),
@@ -22,48 +20,60 @@ plot_gs_network(
   color_lg_title = NULL,
   lb_size = 3,
   lb_color = "black",
-  plotIsolated = FALSE
+  plotIsolated = FALSE,
+  max_overlaps = 10,
+  ...
 )
 }
 \arguments{
-\item{normalisedScores}{A \code{data.frame} of pathway perturbation scores derived from the \code{normalise_by_permu()} function}
+\item{normalisedScores}{A \code{data.frame} of pathway perturbation scores derived
+from the \code{normalise_by_permu()} function}
 
-\item{gsTopology}{List of pathway topology matrices generated using function \code{retrieve_topology()}}
+\item{gsTopology}{List of pathway topology matrices generated using function
+\code{retrieve_topology()}}
 
-\item{colorBy}{Choose to color nodes either by \emph{robustZ} or \emph{pvalue}. A column must exist in the \code{normalisedScores}
-\code{data.frame} for the chosen parameter}
+\item{colorBy}{Choose to color nodes either by \emph{robustZ} or \emph{pvalue}. A
+column must exist in the \code{normalisedScores} \code{data.frame} for the chosen
+parameter}
 
-\item{foldGSname}{\code{logical} Should long gene-set names be folded into two lines}
+\item{foldGSname}{logical(1) Should long gene-set names fold across multiple
+lines}
 
-\item{foldafter}{The number of words after which gene-set names should be folded. Defaulted to 2}
+\item{foldafter}{The number of words after which gene-set names should be
+folded. Defaults to 2}
 
-\item{layout}{The layout algorithm to apply. Accept all layout supported by \code{igraph}}
+\item{layout}{The layout algorithm to apply. Accept all layout supported by
+\code{igraph}}
 
-\item{edgeAlpha}{\code{numerical} Transparency of edges. Default to 0.8}
+\item{edgeAlpha}{numeric(1) Transparency of edges. Default to 0.8}
 
-\item{up_col}{The color used to label activated gene-sets. Only applicable if \code{colorBy} is set to be "robustZ"}
+\item{scale_edgeWidth}{A numerical vector of length 2 to be provided to
+\code{ggraph::scale_edge_width_continuous()} for specifying
+the minimum and maximum edge widths after transformation. Defaults to
+\code{c(0.5, 3)}}
 
-\item{down_col}{The color used to label inhibited gene-sets. Only applicable if \code{colorBy} is set to be "robustZ"}
+\item{edgeLegend}{logical(1) Should edge weight legend be shown}
 
-\item{scale_edgeWidth}{A numerical vector of length 2 to be provided to \code{ggraph::scale_edge_width_continuous()} for specifying
-the minimum and maximum edge widths after transformation. Defaulted to \code{c(0.5, 3)}}
-
-\item{edgeLegend}{logical` Should edge weight legend be shown}
-
-\item{scale_nodeSize}{A numerical vector of length 2 to be provided to \code{ggplot2::scale_size()} for specifying
-the minimum and maximum node sizes after transformation. Defaulted to \code{c(3,6)}}
+\item{scale_nodeSize}{A numeric vector of length 2 to be provided to
+\code{ggplot2::scale_size()} for specifying the minimum and maximum node sizes
+after transformation. Defaulted to \code{c(3,6)}}
 
 \item{nodeShape}{Shape of nodes}
 
-\item{color_lg}{\code{logical} Should color legend be shown}
+\item{color_lg}{logical(1) Should color legend be shown}
 
-\item{color_lg_title}{Optional. Title for the color legend}
+\item{color_lg_title}{Optional title for the color legend}
 
 \item{lb_size}{Size of node text labels}
 
 \item{lb_color}{Color of node text labels}
 
-\item{plotIsolated}{\code{logical} Should nodes not connected to any other nodes be plotted.  Default to FALSE}
+\item{plotIsolated}{logical(1) Should nodes not connected to any other nodes
+be plotted.  Defaults to FALSE}
+
+\item{max_overlaps}{passed to \link[ggraph]{geom_node_text}}
+
+\item{...}{Not used}
 }
 \value{
 A ggplot2 object
@@ -75,15 +85,20 @@ Plot significantly perturbed gene-sets as a network
 load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
 
-#Subset pathways significantly perturbed in sample R5020_N2_48
-subset <- dplyr::filter(normalisedScores, adjPvalue < 0.05, sample == "R5020_N2_48")
+# Subset pathways significantly perturbed in sample R5020_N2_48
+subset <- dplyr::filter(
+  normalisedScores, adjPvalue < 0.05, sample == "R5020_N2_48"
+)
+subset[["status"]] <- ifelse(subset[["robustZ"]]> 0, "Activated", "Inhibited")
 
-# Color network plot nodes by robust z-score
+
+# Color network plot nodes by status
 plot_gs_network(subset, gsTopology,
-colorBy = "robustZ", layout = "dh",
+colorBy = "status", layout = "dh",
 color_lg_title = "Direction of pathway Perturbation")
 
 # Color network plot nodes by p-values
 plot_gs_network(subset, gsTopology, layout = "dh",
 colorBy = "pvalue", color_lg_title = "P-value")
+
 }
