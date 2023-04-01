@@ -5,12 +5,12 @@
 #' with the pathway category that had the highest number of occurrence, 
 #' denoting the main biological processes perturbed in that community.
 #'
-#' At the moment, only categorisations of KEGG pathway were built into the 
+#' At the moment, only KEGG pathway categories are provided with the 
 #' package, so if the provided `normalisedScores` contains perturbation 
 #' scores of pathways derived from other databases, annotation of communities 
 #' will not be performed unless pathway information is provided through
-#' the `gsAnnotation` parameter. The categorisation information needs to be 
-#' stored in a `data.frame` containing `gs_name` (gene-set names) and
+#' the `gsAnnotation` object. The category information needs to be 
+#' provided in a `data.frame` containing `gs_name` (gene-set names) and
 #' `category` (categorisation of the given pathways).
 #'
 #' Plotting parameters accepted by `geom_mark_*` could be passed to the 
@@ -27,26 +27,34 @@
 #' higher level category for each pathway. If customized annotation is not 
 #' provided, it will be assumed that the pathways were obtained from the KEGG 
 #' database and inbuilt KEGG pathway annotation information will be used
-#' @param colorBy  Can be any column withy *community*, *robustZ* or *pvalue*. To color by *robustZ* or *pvalue*, a
-#' column must exist in the `normalisedScores` `data.frame` for the chosen parameter
-#' @param communityMethod A community detection method supported by `igraph`. See details for all methods available.
-#' @param foldGSname `logical`. Should long gene-set names be folded into two lines
-#' @param foldafter The number of words after which gene-set names should be folded. Defaulted to 2
-#' @param layout The layout algorithm to apply. Accepted layouts are `"fr", "dh", "gem", "graphopt", "kk", "lgl", "mds" and "sugiyama"`
-#' @param markCommunity `character` A `geom_mark_*` method supported by `ggforce` to annotate sets of nodes belonging to the same community.
+#' @param colorBy  Can be any column with in the `normalisedScores` object, or 
+#' the additional value "community".
+#' @param communityMethod A community detection method supported by `igraph`. 
+#' See details for all methods available.
+#' @param foldGSname `logical`. Should long gene-set names be folded into two 
+#' lines
+#' @param foldafter The number of words after which gene-set names should be 
+#' folded. Defaults to 2
+#' @param layout The layout algorithm to apply. Accepted layouts are 
+#' `"fr", "dh", "gem", "graphopt", "kk", "lgl", "mds" and "sugiyama"`
+#' @param markCommunity `character` A `geom_mark_*` method supported by 
+#' `ggforce` to annotate sets of nodes belonging to the same community.
 #' Either `*NULL*, *ellipse*, *circle*, *hull*, *rect*`
-#' @param markAlpha Transparency of annotation areas. Default to 0.2
-#' @param edgeAlpha Transparency of edges. Default to 0.8
-#' @param scale_edgeWidth A numerical vector of length 2 to be provided to `ggraph::scale_edge_width_continuous()` for specifying
-#' the minimum and maximum edge widths after transformation. Defaulted to c(0.5, 3)
-#' @param scale_nodeSize A numerical vector of length 2 to be provided to `ggplot2::scale_size()` for specifying
-#' the minimum and maximum node sizes after transformation. Defaulted to c(3,6)
+#' @param markAlpha Transparency of annotation areas.
+#' @param edgeAlpha Transparency of edges.
+#' @param scale_edgeWidth A numerical vector of length 2 to be provided to 
+#' `ggraph::scale_edge_width_continuous()` for specifying the minimum and 
+#' maximum edge widths after transformation. 
+#' @param scale_nodeSize A numerical vector of length 2 to be provided to 
+#' `ggplot2::scale_size()` for specifying
+#' the minimum and maximum node sizes after transformation.
 #' @param nodeShape The shape to use for nodes
 #' @param color_lg_title Title for the color legend
 #' @param edgeLegend `logical` Should edge weight legend be shown
 #' @param lb_size Size of node text labels
 #' @param lb_color Color of node text labels
-#' @param plotIsolated `logical`.Should nodes not connected to any other nodes be plotted.  Default to FALSE
+#' @param plotIsolated `logical(1)` Should nodes not connected to any other 
+#' nodes be plotted. Defaults to FALSE
 #' @param ... Used to pass various potting parameters to `ggforce::geom_mark_*()`
 #' 
 #' @return A ggplot2 object
@@ -55,20 +63,21 @@
 #' load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
 #' #Subset the first 10 rows of the normalisedScores data.frame as an example
 #' subset <- normalisedScores[1:15,]
-#' # Color network plot nodes by the community they were assigned to and mark nodes belonging
-#' # to the same community by ellipses
+#' subset$status <- ifelse(subset$robustZ > 0, "Activated", "Inhibited")
+#' # Color network plot nodes by the community they were assigned to and mark 
+#' # nodes belonging to the same community by ellipses
 #' plot_community(subset, gsTopology, colorBy = "community",layout = "kk",
 #' color_lg_title = "Community")
 #'
-#' # Color network plot nodes by pathways' directions of changes and mark nodes belonging
-#' # to the same community by ellipses
-#' plot_community(subset, gsTopology, colorBy = "robustZ",layout = "kk",
+#' # Color network plot nodes by pathways' directions of changes and mark nodes 
+#' # belonging to the same community by ellipses
+#' plot_community(subset, gsTopology, colorBy = "status",layout = "kk",
 #' color_lg_title = "Direction of pathway perturbation")
 #'
 #' # To change the colour and fill of `geom_mark_*` annotation, use any
 #' # `scale_fill_*` and/or `scale_color_*`
 #' # functions supported by `ggplot2`. For example:
-#' p <- plot_community(subset, gsTopology, colorBy = "robustZ",layout = "kk",
+#' p <- plot_community(subset, gsTopology, colorBy = "status",layout = "kk",
 #' markCommunity = "rect",color_lg_title = "Direction of pathway perturbation")
 #' p + ggplot2::scale_color_ordinal() + ggplot2::scale_fill_ordinal()
 #' 
@@ -90,8 +99,8 @@ plot_community <- function(
         layout = c(
             "fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"
         ),
-        markCommunity = "ellipse", markAlpha = 0.2, edgeAlpha = 0.8, 
-        scale_edgeWidth = c(0.5, 3), edgeLegend = FALSE, 
+        markCommunity = "ellipse", markAlpha = 0.2, color_lg_title = NULL,
+        edgeAlpha = 0.8, scale_edgeWidth = c(0.5, 3), edgeLegend = FALSE, 
         scale_nodeSize = c(3,6), nodeShape = 16,  lb_size = 3,
         lb_color = "black", plotIsolated = FALSE, ...
 ){
@@ -116,7 +125,8 @@ plot_community <- function(
     if (is.null(gsAnnotation)){
         ## if gene-set annotation info is not provided, use built-in KEGG 
         ## pathway annotations
-        data(gsAnnotation_df, package = "sSNAPPY")
+        gsAnnotation_df <- c()
+        data("gsAnnotation_df", envir = environment())
         gsAnnotation <- gsAnnotation_df
     } else {
         ## if user provided gene-set annotation, gs_name and category column 
@@ -144,7 +154,7 @@ plot_community <- function(
         gs_name = comm_result$names, community = comm_result$membership
     )
     
-    if (length(intersect(names(gsTopology), gsAnnotation_df$gs_name)) == 0){
+    if (length(intersect(names(gsTopology), gsAnnotation$gs_name)) == 0){
         warning(
             "Gene-set annotation does not match with topology provided. ",
             "Communities won't be annotated"
@@ -213,7 +223,7 @@ plot_community <- function(
                 stroke = 0.5
             ) +
             scale_size(range =  scale_nodeSize, guide = "none")  +
-            labs(colour = colorBy)
+            labs(colour = color_lg_title)
     } else {
         pl <- pl +
             geom_node_point(aes(size = size), shape = nodeShape,stroke = 0.5) +

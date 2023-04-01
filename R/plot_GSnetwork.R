@@ -92,8 +92,13 @@ plot_gs_network <- function(
     }
     
     # plot network edges
+    ## Given the deprecation of width from line parameters in ggplot2 3.4.0,
+    ## this raises an error which needs to be resolved. Hoping for resolution
+    ## but ggraph has not been updated since Sep-2022
     pl <- ggraph(g, layout = layout) +
-        geom_edge_link(alpha = edgeAlpha, aes(width=weight), colour='darkgrey') +
+        geom_edge_link(
+            aes(edge_width = weight), alpha = edgeAlpha, colour = 'darkgrey'
+        ) +
         scale_edge_width_continuous(range = scale_edgeWidth, guide = "none")
     
     
@@ -190,7 +195,8 @@ get_GSgenelist <- function(gsTopology, mapEntrezID = NULL){
     if (all(c("entrezid","mapTo") %in% colnames(mapEntrezID))){
         if (any(GStoGene$entrezid %in% mapEntrezID$entrezid)){
             left_join(
-                GStoGene, mapEntrezID[,c("entrezid","mapTo")], by = "entrezid"
+                GStoGene, mapEntrezID[,c("entrezid","mapTo")], by = "entrezid",
+                multiple = "all"
             )
         } else {
             warning("None of the Entrez IDs in mapEntrezID mapped to gsTopology.")
@@ -214,9 +220,9 @@ jacIdex_func <- function(x, y) {
 #' @keywords internal
 str_replace_nth <- function(x, pattern, replacement, n) {
     x_list <- str_split(x, pattern = pattern)
-    l <- vapply(x_list, length, integer(1))
-    x_list[l > n] <- lapply(
-        x_list[l > n],
+    fold <- vapply(x_list, length, integer(1)) > n
+    x_list[fold] <- lapply(
+        x_list[fold],
         function(x){
             index <- seq(n, length(x), by = n)
             x[index] <- paste(x[index], replacement, sep = "")
@@ -225,6 +231,6 @@ str_replace_nth <- function(x, pattern, replacement, n) {
             x <- paste(x, collapse = "")
         }
     )
-    x_list[l <= n] <- lapply(x_list[l <= n], paste, collapse = pattern)
+    x_list[!fold] <- lapply(x_list[!fold], paste, collapse = pattern)
     unlist(x_list)
 }
