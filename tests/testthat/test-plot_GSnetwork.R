@@ -7,15 +7,15 @@ Scores <- data.frame(
     pvalue = runif(5))
 Scores <- dplyr::mutate(Scores, color_Z = ifelse(robustZ < 0, "Inhibited", "Activated"))
 GS <- Scores$gs_name
-g_Zscore <- make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", plotIsolated = TRUE)
-g_pvalue <- make_gsNetwork(Scores, gsTopology, colorBy = "pvalue", plotIsolated = TRUE)
+g_Zscore <- .make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", plotIsolated = TRUE)
+g_pvalue <- .make_gsNetwork(Scores, gsTopology, colorBy = "pvalue", plotIsolated = TRUE)
 entrez2name_dir <- system.file("extdata", "entrez2name.rda", package = "sSNAPPY")
 load(entrez2name_dir)
 
 test_that("get_GSgenelist produces the expected outcome", {
-    expect_true(setequal(colnames(get_GSgenelist(gsTopology)), c("entrezid", "gs_name")))
-    expect_true(setequal(colnames(get_GSgenelist(gsTopology, mapEntrezID = "random")), c("entrezid", "gs_name")))
-    expect_true(setequal(colnames(get_GSgenelist(gsTopology[1:5], mapEntrezID = entrez2name)), c("entrezid", "gs_name", "mapTo")))
+    expect_true(setequal(colnames(.get_GSgenelist(gsTopology)), c("entrezid", "gs_name")))
+    expect_true(setequal(colnames(.get_GSgenelist(gsTopology, mapEntrezID = "random")), c("entrezid", "gs_name")))
+    expect_true(setequal(colnames(.get_GSgenelist(gsTopology[1:5], mapEntrezID = entrez2name)), c("entrezid", "gs_name", "mapTo")))
 })
 
 test_that("make_gsNetwork produces the expected outcome",{
@@ -26,7 +26,7 @@ test_that("make_gsNetwork produces the expected outcome",{
     expect_true(is.numeric(igraph::V(g_pvalue)$color))
     # expect_equal(stringr::str_subset(V(g_Zscore)$name, "Histidine"), "Histidine metabolism")
     # expect_equal(stringr::str_subset(V(g_Zscore)$name, "Ascorbate"), "Ascorbate and\naldarate metabolism")
-    g_Zscore_n3 <- make_gsNetwork(Scores, gsTopology, colorBy = "robustZ",  plotIsolated = TRUE)
+    g_Zscore_n3 <- .make_gsNetwork(Scores, gsTopology, colorBy = "robustZ",  plotIsolated = TRUE)
     # expect_equal(stringr::str_subset(V(g_Zscore_n3)$name, "Ascorbate"), "Ascorbate and aldarate metabolism")
 })
 
@@ -42,6 +42,6 @@ test_that("plot_gs_network returns error when expected", {
 test_that("plot_gs_network produces the expected outcome", {
     expect_s3_class(plot_gs_network(Scores, gsTopology, colorBy = "robustZ"), "ggraph")
     expect_s3_class(plot_gs_network(Scores, gsTopology, colorBy = "pvalue"), "ggraph")
-    g_noLegend <- plot_gs_network(Scores, gsTopology, colorBy = "robustZ", color_lg = FALSE)
+    g_noLegend <- plot_gs_network(Scores, gsTopology, colorBy = "robustZ", showLegend = FALSE)
     expect_null(cowplot::get_legend(g_noLegend))
 })

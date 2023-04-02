@@ -11,7 +11,7 @@
 #' will not be performed unless pathway information is provided through
 #' the `gsAnnotation` object. The category information needs to be 
 #' provided in a `data.frame` containing `gs_name` (gene-set names) and
-#' `category` (categorisation of the given pathways).
+#' `category` (categorising the given pathways).
 #'
 #' Plotting parameters accepted by `geom_mark_*` could be passed to the 
 #' function to adjust the annotation area or the annotation label. See 
@@ -136,12 +136,12 @@ plot_community <- function(
     }
     # create igraph object
     if (colorBy != "community") {
-        g <- make_gsNetwork(
+        g <- .make_gsNetwork(
             normalisedScores, gsTopology, colorBy = colorBy,  
             plotIsolated = plotIsolated
         )
     } else {
-        g <- make_gsNetwork(
+        g <- .make_gsNetwork(
             normalisedScores, gsTopology, colorBy = NULL,  
             plotIsolated = plotIsolated
         )
@@ -196,7 +196,7 @@ plot_community <- function(
     }
     
     if(foldGSname){
-        nm <-  str_replace_nth(
+        nm <-  .str_replace_nth(
             V(g)$name, pattern = " ", replacement = "\n", n = foldafter
         )
         g <- set_vertex_attr(g, "name", value = as.character(nm) )

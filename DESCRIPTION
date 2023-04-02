@@ -1,9 +1,13 @@
 Package: sSNAPPY
 Title: Single Sample directioNAl Pathway Perturbation analYsis
-Version: 1.3.4
-Authors@R: 
-    person("Wenjun", "Liu", , "wenjun.liu@adelaide.edu.au", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-8185-3069"))
+Version: 1.3.3
+Authors@R: c(
+    person(
+        "Wenjun", "Liu", , "wenjun.liu@adelaide.edu.au", role = c("aut", "cre"),
+        comment = c(ORCID = "0000-0002-8185-3069")),
+    person(
+        "Stephen", "Pederson", email = "stephen.pederson.au@gmail.com", 
+        role = "aut", comment = c(ORCID = "0000-0001-8197-3303")))
 Description: A single sample pathway perturbation testing method for RNA-seq 
     data. The method propagates changes in gene expression down gene-set 
     topologies to compute single-sample directional pathway perturbation scores 
@@ -34,7 +38,6 @@ Imports:
     magrittr,
     rlang,
     stats,
-    purrr,
     BiocParallel,
     graphite,
     Rcpp,
@@ -47,7 +50,6 @@ Imports:
     edgeR,
     methods,
     ggforce,
-    ggnewscale,
     pheatmap,
     utils,
     stringr
