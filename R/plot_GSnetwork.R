@@ -14,22 +14,22 @@
 #' @param layout The layout algorithm to apply. Accept all layout supported by 
 #' `igraph`
 #' @param edgeAlpha numeric(1) Transparency of edges. Default to 0.8
-#' @param scale_edgeWidth A numerical vector of length 2 to be provided to 
+#' @param edgeWidthScale A numerical vector of length 2 to be provided to 
 #' `ggraph::scale_edge_width_continuous()` for specifying
 #' the minimum and maximum edge widths after transformation. Defaults to 
 #' `c(0.5, 3)`
 #' @param edgeLegend logical(1) Should edge weight legend be shown
-#' @param scale_nodeSize A numeric vector of length 2 to be provided to 
+#' @param nodeSizeScale A numeric vector of length 2 to be provided to 
 #' `ggplot2::scale_size()` for specifying the minimum and maximum node sizes 
 #' after transformation. Defaulted to `c(3,6)`
 #' @param nodeShape Shape of nodes
-#' @param color_lg logical(1) Should color legend be shown
-#' @param color_lg_title Optional title for the color legend
-#' @param lb_size Size of node text labels
-#' @param lb_color Color of node text labels
+#' @param showLegend logical(1) Should color legend be shown
+#' @param gsLegTitle Optional title for the color legend
+#' @param gsNameSize Size of node text labels
+#' @param gsNameColor Color of node text labels
 #' @param plotIsolated logical(1) Should nodes not connected to any other nodes 
 #' be plotted.  Defaults to FALSE
-#' @param max_overlaps passed to \link[ggraph]{geom_node_text}
+#' @param maxOverlaps passed to \link[ggraph]{geom_node_text}
 #' @param ... Not used
 #' 
 #' @return A ggplot2 object
@@ -48,29 +48,33 @@
 #' # Color network plot nodes by status
 #' plot_gs_network(subset, gsTopology,
 #' colorBy = "status", layout = "dh",
-#' color_lg_title = "Direction of pathway Perturbation")
+#' gsLegTitle = "Direction of pathway Perturbation")
 #'
 #' # Color network plot nodes by p-values
 #' plot_gs_network(subset, gsTopology, layout = "dh",
-#' colorBy = "pvalue", color_lg_title = "P-value")
+#' colorBy = "pvalue", gsLegTitle = "P-value")
 #' 
 #' @importFrom ggraph ggraph geom_node_point geom_node_text geom_edge_link
 #' @import ggplot2 
 #' @export
 plot_gs_network <- function(
         normalisedScores, gsTopology, colorBy = NULL, 
-        foldGSname = TRUE, foldafter = 2, layout = "fr", edgeAlpha = 0.8,  
-        scale_edgeWidth = c(0.5, 3), edgeLegend = FALSE, scale_nodeSize = c(3,6),
-        nodeShape = 16, color_lg = TRUE, color_lg_title = NULL, lb_size = 3, 
-        lb_color = "black", plotIsolated = FALSE, max_overlaps = 10, ...
+        foldGSname = TRUE, foldafter = 2, 
+        layout = c(
+            "fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"
+        ),
+        edgeAlpha = 0.8,  edgeWidthScale = c(0.5, 3), edgeLegend = FALSE, 
+        nodeSizeScale = c(3,6), nodeShape = 16, showLegend = TRUE, 
+        gsLegTitle = NULL, gsNameSize = 3, gsNameColor = "black", 
+        plotIsolated = FALSE, maxOverlaps = 10, ...
 ){
     
     name <- weight <- color <- size <- NULL
     ## check if input has required columns
     cols <- colnames(normalisedScores)
     if (!is.null(colorBy)) colorBy <- match.arg(colorBy, cols)
-    
     if (!"gs_name" %in% cols) stop("Normalised Scores must include gs_name")
+    layout <- match.arg(layout)
     
     # Make sure the gs topologies are a named list with at least two elements
     stopifnot(length(names(gsTopology)) == length(gsTopology))
@@ -79,13 +83,13 @@ plot_gs_network <- function(
     gsTopology <- gsTopology[names(gsTopology) %in% normalisedScores$gs_name]
     
     # create igraph object
-    g <- make_gsNetwork(
+    g <- .make_gsNetwork(
         normalisedScores, gsTopology, colorBy = colorBy, 
         plotIsolated = plotIsolated
     )
     
     if (foldGSname){
-        nm <-  str_replace_nth(
+        nm <-  .str_replace_nth(
             V(g)$name, pattern = " ", replacement = "\n", n = foldafter
         )
         g <- set_vertex_attr(g, "name", value = nm)
@@ -99,7 +103,7 @@ plot_gs_network <- function(
         geom_edge_link(
             aes(edge_width = weight), alpha = edgeAlpha, colour = 'darkgrey'
         ) +
-        scale_edge_width_continuous(range = scale_edgeWidth, guide = "none")
+        scale_edge_width_continuous(range = edgeWidthScale, guide = "none")
     
     
     if (!is.null(colorBy)) {
@@ -107,19 +111,19 @@ plot_gs_network <- function(
             geom_node_point(
                 aes(color = color, size = size), shape = nodeShape, stroke = 0.5
             ) +
-            scale_size(range =  scale_nodeSize, guide = "none") +
-            labs(colour = color_lg_title)
-        if(!color_lg) pl <- pl + guides(color = "none")
+            scale_size(range =  nodeSizeScale, guide = "none") +
+            labs(colour = gsLegTitle)
+        if(!showLegend) pl <- pl + guides(color = "none")
     } else {
         pl <- pl +
             geom_node_point(aes(size = size), shape = nodeShape,stroke = 0.5) +
-            scale_size(range =  scale_nodeSize, guide = "none")
+            scale_size(range =  nodeSizeScale, guide = "none")
     }
     
     pl + 
         geom_node_text(
-            aes(label = name), size = lb_size, repel = TRUE, colour = lb_color,
-            max.overlaps = max_overlaps
+            aes(label = name), size = gsNameSize, repel = TRUE, colour = gsNameColor,
+            max.overlaps = maxOverlaps
         ) 
     
 }
@@ -129,13 +133,13 @@ plot_gs_network <- function(
 #' @importFrom dplyr bind_rows
 #' @import igraph 
 #' @keywords internal
-make_gsNetwork <- function(
+.make_gsNetwork <- function(
         normalisedScores, gsTopology, colorBy = NULL, plotIsolated
 ){
     
     # create dummy variable to pass R CMD CHECK
     from <- to <- NULL
-    GS2Gene <- get_GSgenelist(gsTopology)
+    GS2Gene <- .get_GSgenelist(gsTopology)
     GS2Gene <- left_join(
         normalisedScores, GS2Gene, by = "gs_name", multiple = "all"
         ## Setting multiple = "all" requires dplyr > 1.1.0
@@ -151,7 +155,7 @@ make_gsNetwork <- function(
             lapply(
                 seq(x + 1, nGS, by = 1),
                 function(y) {
-                    w <- jacIdex_func(GSlist[[x]]$entrezid, GSlist[[y]]$entrezid)
+                    w <- .jaccard(GSlist[[x]]$entrezid, GSlist[[y]]$entrezid)
                     data.frame(from = GSname[x], to = GSname[y], weight = w)
                 }
             )
@@ -187,7 +191,7 @@ make_gsNetwork <- function(
 
 #' @importFrom reshape2 melt
 #' @keywords internal
-get_GSgenelist <- function(gsTopology, mapEntrezID = NULL){
+.get_GSgenelist <- function(gsTopology, mapEntrezID = NULL){
     GStoGene <- lapply(gsTopology, rownames)
     GStoGene <- reshape2::melt(GStoGene)
     colnames(GStoGene) <- c("entrezid", "gs_name")
@@ -208,7 +212,7 @@ get_GSgenelist <- function(gsTopology, mapEntrezID = NULL){
 }
 
 #' @keywords internal
-jacIdex_func <- function(x, y) {
+.jaccard <- function(x, y) {
     x <- unlist(x)
     y <- unlist(y)
     cmn <- intersect(x, y)
@@ -218,7 +222,7 @@ jacIdex_func <- function(x, y) {
 
 #' @importFrom stringr str_split
 #' @keywords internal
-str_replace_nth <- function(x, pattern, replacement, n) {
+.str_replace_nth <- function(x, pattern, replacement, n) {
     x_list <- str_split(x, pattern = pattern)
     fold <- vapply(x_list, length, integer(1)) > n
     x_list[fold] <- lapply(
@@ -227,10 +231,12 @@ str_replace_nth <- function(x, pattern, replacement, n) {
             index <- seq(n, length(x), by = n)
             x[index] <- paste(x[index], replacement, sep = "")
             not_index <- setdiff(seq_along(x), index)
-            x[not_index] <- paste(x[not_index], pattern, sep = "")
+            x[not_index] <- paste(x[not_index], " ", sep = "")
             x <- paste(x, collapse = "")
         }
     )
-    x_list[!fold] <- lapply(x_list[!fold], paste, collapse = pattern)
-    unlist(x_list)
+    x_list[!fold] <- lapply(x_list[!fold], paste, collapse = " ")
+    x_list <- unlist(x_list)
+    trails <- paste0(replacement, "$")
+    gsub(trails, "", x_list) # Remove any trailing line breaks
 }

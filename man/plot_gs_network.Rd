@@ -10,18 +10,18 @@ plot_gs_network(
   colorBy = NULL,
   foldGSname = TRUE,
   foldafter = 2,
-  layout = "fr",
+  layout = c("fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"),
   edgeAlpha = 0.8,
-  scale_edgeWidth = c(0.5, 3),
+  edgeWidthScale = c(0.5, 3),
   edgeLegend = FALSE,
-  scale_nodeSize = c(3, 6),
+  nodeSizeScale = c(3, 6),
   nodeShape = 16,
-  color_lg = TRUE,
-  color_lg_title = NULL,
-  lb_size = 3,
-  lb_color = "black",
+  showLegend = TRUE,
+  gsLegTitle = NULL,
+  gsNameSize = 3,
+  gsNameColor = "black",
   plotIsolated = FALSE,
-  max_overlaps = 10,
+  maxOverlaps = 10,
   ...
 )
 }
@@ -47,31 +47,31 @@ folded. Defaults to 2}
 
 \item{edgeAlpha}{numeric(1) Transparency of edges. Default to 0.8}
 
-\item{scale_edgeWidth}{A numerical vector of length 2 to be provided to
+\item{edgeWidthScale}{A numerical vector of length 2 to be provided to
 \code{ggraph::scale_edge_width_continuous()} for specifying
 the minimum and maximum edge widths after transformation. Defaults to
 \code{c(0.5, 3)}}
 
 \item{edgeLegend}{logical(1) Should edge weight legend be shown}
 
-\item{scale_nodeSize}{A numeric vector of length 2 to be provided to
+\item{nodeSizeScale}{A numeric vector of length 2 to be provided to
 \code{ggplot2::scale_size()} for specifying the minimum and maximum node sizes
 after transformation. Defaulted to \code{c(3,6)}}
 
 \item{nodeShape}{Shape of nodes}
 
-\item{color_lg}{logical(1) Should color legend be shown}
+\item{showLegend}{logical(1) Should color legend be shown}
 
-\item{color_lg_title}{Optional title for the color legend}
+\item{gsLegTitle}{Optional title for the color legend}
 
-\item{lb_size}{Size of node text labels}
+\item{gsNameSize}{Size of node text labels}
 
-\item{lb_color}{Color of node text labels}
+\item{gsNameColor}{Color of node text labels}
 
 \item{plotIsolated}{logical(1) Should nodes not connected to any other nodes
 be plotted.  Defaults to FALSE}
 
-\item{max_overlaps}{passed to \link[ggraph]{geom_node_text}}
+\item{maxOverlaps}{passed to \link[ggraph]{geom_node_text}}
 
 \item{...}{Not used}
 }
@@ -95,10 +95,10 @@ subset[["status"]] <- ifelse(subset[["robustZ"]]> 0, "Activated", "Inhibited")
 # Color network plot nodes by status
 plot_gs_network(subset, gsTopology,
 colorBy = "status", layout = "dh",
-color_lg_title = "Direction of pathway Perturbation")
+gsLegTitle = "Direction of pathway Perturbation")
 
 # Color network plot nodes by p-values
 plot_gs_network(subset, gsTopology, layout = "dh",
-colorBy = "pvalue", color_lg_title = "P-value")
+colorBy = "pvalue", gsLegTitle = "P-value")
 
 }

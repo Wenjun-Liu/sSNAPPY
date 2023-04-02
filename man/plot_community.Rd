@@ -106,7 +106,7 @@ scores of pathways derived from other databases, annotation of communities
 will not be performed unless pathway information is provided through
 the \code{gsAnnotation} object. The category information needs to be
 provided in a \code{data.frame} containing \code{gs_name} (gene-set names) and
-\code{category} (categorisation of the given pathways).
+\code{category} (categorising the given pathways).
 
 Plotting parameters accepted by \verb{geom_mark_*} could be passed to the
 function to adjust the annotation area or the annotation label. See
