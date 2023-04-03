@@ -4,7 +4,7 @@
 # Changes in version 1.1.0 (2022-06-27)
 - Fixed a few typos
 
-# Changes in version 1.1.1 (2022-08-03)
+# Changes in version 1.0.2 (2022-08-03)
 - Fixed a missing column name problems in `weight_ss_fc`
 
 # Changes in version 1.0.3 (2022-11-24)
