@@ -67,11 +67,8 @@ setMethod("weight_ss_fc",
           function(expreMatrix, metadata = NULL, factor, control){
               if (is.null(metadata)) stop("sample metadata must be provided")
               ssFC <- .compute_ssFC(expreMatrix, metadata, factor, control)
-              varFC <- apply(ssFC, 1, var)
+              varFC <- apply(expreMatrix, 1, var)
               meanCPM <- apply(expreMatrix, 1, mean)
-
-              # make sure varFC & meanCPM are in correct order
-              meanCPM <- meanCPM[match(names(meanCPM),names(varFC))]
               l <- lowess(meanCPM, varFC)
               f <- approxfun(l, rule = 2, ties = list("ordered", mean))
               weight <- 1/f(meanCPM)
@@ -134,6 +131,7 @@ setMethod("weight_ss_fc",
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
+
     pairs <- unique(as.character(pull(metadata, sym(factor))))
     ls <- lapply(pairs, function(x){
         contrSample <- dplyr::filter(metadata, metadata$treatment == control, !!sym(factor) == x)
@@ -141,8 +139,8 @@ setMethod("weight_ss_fc",
         treatedSample <- dplyr::filter(metadata, metadata$treatment != control, !!sym(factor) == x)
         treatedSample <- as.character(pull(treatedSample, sample))
 
-        if (length(unique(metadata[,"treatment"])) == 2){
-            set_colnames(as.matrix(logCPM[, treatedSample] - logCPM[, contrSample]), x)
+        if (length(treatedSample) == 1){
+            set_colnames(as.matrix(logCPM[, treatedSample] - logCPM[, contrSample]), treatedSample)
         } else {
             logCPM[, treatedSample] - logCPM[, contrSample]
         }
