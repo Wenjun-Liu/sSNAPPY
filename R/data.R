@@ -11,7 +11,7 @@
 #'
 #' To reduce computing time, we randomly sampled half of the genes after filtration and used their logCPM value as the example data.
 #'
-#' @format A matrix with 7672 rows and 15 columns
+#' @format A `data.frame` with 7672 rows and 15 columns
 #' @source \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE80098}
 #' @usage data(logCPM_example)
 "logCPM_example"

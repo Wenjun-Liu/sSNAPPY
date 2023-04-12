@@ -4,14 +4,22 @@
 \alias{normalise_by_permu}
 \title{Normalise test perturbation scores by permutation results}
 \usage{
-normalise_by_permu(permutedScore, testScore, pAdj_method = "fdr")
+normalise_by_permu(
+  permutedScore,
+  testScore,
+  pAdj_method = "fdr",
+  sortBy = c("gs_name", "sample", "pvalue")
+)
 }
 \arguments{
 \item{permutedScore}{A list. Output of \code{generate_permuted_scores}}
 
-\item{testScore}{A matrix. Output of \code{weight_ss_fc}}
+\item{testScore}{A \code{data.frame}. Output of `pathwayPertScore``}
 
-\item{pAdj_method}{Method for adjusting p-values for multiple comparisons. See \code{?p.adjust} for methods available. Default to FDR.}
+\item{pAdj_method}{Method for adjusting p-values for multiple comparisons.
+See \code{?p.adjust} for methods available. Default to FDR.}
+
+\item{sortBy}{Sort the output by p-value, gene-set name or sample names.}
 }
 \value{
 A \code{data.frame}
@@ -30,13 +38,16 @@ calculated.
 load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 data(metadata_example)
 data(logCPM_example)
+metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+   treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-factor = "patient", control = "Vehicle")
+groupBy = "patient", sampleColumn = "sample", treatColumn = "treatment")
 
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 
-# sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
+# sum gene-wise perturbation scores to derive the pathway-level
+# single-sample perturbation scores
 pathwayPertScore <- pathway_pert(genePertScore)
 
 # simulate the null distribution of scores through sample permutation
@@ -44,6 +55,7 @@ permutedScore <- generate_permuted_scores(logCPM_example, numOfTreat = 3,
  NB = 5, gsTopology = gsTopology, weight = ls$weight)
 
 # normlise the test perturbation scores using the permutation results
-normalisedScores <- normalise_by_permu(permutedScore, pathwayPertScore)
+normalisedScores <- normalise_by_permu(permutedScore, pathwayPertScore,
+sortBy = "pvalue")
  }
 }

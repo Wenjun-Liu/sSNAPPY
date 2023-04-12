@@ -1,182 +1,257 @@
 #' Visualise the community structure in significantly perturbed gene-set network
 #'
-#' @details A community detection strategy specified by `communityMethod` will be applied to the pathway-pathway network,
-#' and communities will be annotated with the pathway category that had the highest number of occurrence, denoting the
-#' main biological processes perturbed in that community.
+#' @details A community detection strategy specified by `communityMethod` will 
+#' be applied to the pathway-pathway network, and communities will be annotated 
+#' with the pathway category that had the highest number of occurrence, 
+#' denoting the main biological processes perturbed in that community.
 #'
-#' At the moment, only categorisations of KEGG pathway were built into the package, so if the provided `normalisedScores` contains perturbation
-#' scores of pathways derived from other databases, annotation of communities will not be performed unless pathway information is provided through
-#' the `gsAnnotation` parameter. The categorisation information needs to be stored in a `data.frame` containing `gs_name` (gene-set names) and
-#' `category` (categorisation of the given pathways).
+#' At the moment, only KEGG pathway categories are provided with the 
+#' package, so if the provided `normalisedScores` contains perturbation 
+#' scores of pathways derived from other databases, annotation of communities 
+#' will not be performed unless pathway information is provided through
+#' the `gsAnnotation` object. The category information needs to be 
+#' provided in a `data.frame` containing `gs_name` (gene-set names) and
+#' `category` (categorising the given pathways).
 #'
-#' Plotting parameters accepted by `geom_mark_*` could be passed to the function to adjust the annotation area or the annotation
-#' label. See `?ggforce::geom_mark_*` for more details.
+#' Plotting parameters accepted by `geom_mark_*` could be passed to the 
+#' function to adjust the annotation area or the annotation label. See 
+#' \link[ggforce]{geom_mark_ellipse} for more details.
 #'
-#' @param normalisedScores A `data.frame` derived from the `normalise_by_permu()` function
-#' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology()`
-#' @param gsAnnotation  A `data.frame` containing gene-sets categorisations for pathway annotation. Must contain at least two columns:
-#' `c("gs_name", "category")`, where `gs_name` denotes gene-sets names that are matched to names of pathway topology matrices, and
-#' `category` records the categorization of each pathway. If customized annotation is not provided, it's assumed that the pathways
-#' investigated were from the KEGG database and the inbuilt KEGG pathway annotation information will be used
-#' @param colorBy  Choose to color nodes either by *community*, *robustZ* or *pvalue*. To color by *robustZ* or *pvalue*, a
-#' column must exist in the `normalisedScores` `data.frame` for the chosen parameter
-#' @param communityMethod A community detection method supported by `igraph`. See details for all methods available.
-#' @param foldGSname `logical`. Should long gene-set names be folded into two lines
-#' @param foldafter The number of words after which gene-set names should be folded. Defaulted to 2
-#' @param layout The layout algorithm to apply. Accepted layouts are `"fr", "dh", "gem", "graphopt", "kk", "lgl", "mds" and "sugiyama"`
-#' @param markCommunity `character` A `geom_mark_*` method supported by `ggforce` to annotate sets of nodes belonging to the same community.
+#' @param normalisedScores A `data.frame` derived from \link{normalise_by_permu}
+#' @param gsTopology List of pathway topology matrices generated using 
+#' \link{retrieve_topology}
+#' @param gsAnnotation  A `data.frame` containing gene-sets categories for 
+#' pathway annotation. Must contain the two columns:
+#' `c("gs_name", "category")`, where `gs_name` denotes gene-sets names that are 
+#' matched to names of pathway topology matrices, and `category` records a 
+#' higher level category for each pathway. If customized annotation is not 
+#' provided, it will be assumed that the pathways were obtained from the KEGG 
+#' database and inbuilt KEGG pathway annotation information will be used
+#' @param colorBy  Can be any column with in the `normalisedScores` object, or 
+#' the additional value "community".
+#' @param communityMethod A community detection method supported by `igraph`. 
+#' See details for all methods available.
+#' @param foldGSname `logical`. Should long gene-set names be folded into two 
+#' lines
+#' @param foldafter The number of words after which gene-set names should be 
+#' folded. Defaults to 2
+#' @param layout The layout algorithm to apply. Accepted layouts are 
+#' `"fr", "dh", "gem", "graphopt", "kk", "lgl", "mds" and "sugiyama"`
+#' @param markCommunity `character` A `geom_mark_*` method supported by 
+#' `ggforce` to annotate sets of nodes belonging to the same community.
 #' Either `*NULL*, *ellipse*, *circle*, *hull*, *rect*`
-#' @param markAlpha Transparency of annotation areas. Default to 0.2
-#' @param edgeAlpha Transparency of edges. Default to 0.8
-#' @param up_col The color used to label activated gene-sets. Only applicable if `colorBy` is set to be "robustZ"
-#' @param down_col The color used to label inhibited gene-sets. Only applicable if `colorBy` is set to be "robustZ"
-#' @param scale_edgeWidth A numerical vector of length 2 to be provided to `ggraph::scale_edge_width_continuous()` for specifying
-#' the minimum and maximum edge widths after transformation. Defaulted to c(0.5, 3)
-#' @param scale_nodeSize A numerical vector of length 2 to be provided to `ggplot2::scale_size()` for specifying
-#' the minimum and maximum node sizes after transformation. Defaulted to c(3,6)
+#' @param markAlpha Transparency of annotation areas.
+#' @param edgeAlpha Transparency of edges.
+#' @param scale_edgeWidth A numerical vector of length 2 to be provided to 
+#' `ggraph::scale_edge_width_continuous()` for specifying the minimum and 
+#' maximum edge widths after transformation. 
+#' @param scale_nodeSize A numerical vector of length 2 to be provided to 
+#' `ggplot2::scale_size()` for specifying
+#' the minimum and maximum node sizes after transformation.
 #' @param nodeShape The shape to use for nodes
 #' @param color_lg_title Title for the color legend
 #' @param edgeLegend `logical` Should edge weight legend be shown
 #' @param lb_size Size of node text labels
 #' @param lb_color Color of node text labels
-#' @param plotIsolated `logical`.Should nodes not connected to any other nodes be plotted.  Default to FALSE
+#' @param plotIsolated `logical(1)` Should nodes not connected to any other 
+#' nodes be plotted. Defaults to FALSE
 #' @param ... Used to pass various potting parameters to `ggforce::geom_mark_*()`
-#' @import igraph
-#' @import ggforce
-#' @importFrom ggnewscale new_scale_color
-#' @importFrom utils data
+#' 
 #' @return A ggplot2 object
 #' @examples
 #' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 #' load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
 #' #Subset the first 10 rows of the normalisedScores data.frame as an example
 #' subset <- normalisedScores[1:15,]
-#' # Color network plot nodes by the community they were assigned to and mark nodes belonging
-#' # to the same community by ellipses
+#' subset$status <- ifelse(subset$robustZ > 0, "Activated", "Inhibited")
+#' # Color network plot nodes by the community they were assigned to and mark 
+#' # nodes belonging to the same community by ellipses
 #' plot_community(subset, gsTopology, colorBy = "community",layout = "kk",
 #' color_lg_title = "Community")
 #'
-#' # Color network plot nodes by pathways' directions of changes and mark nodes belonging
-#' # to the same community by ellipses
-#' plot_community(subset, gsTopology, colorBy = "robustZ",layout = "kk",
+#' # Color network plot nodes by pathways' directions of changes and mark nodes 
+#' # belonging to the same community by ellipses
+#' plot_community(subset, gsTopology, colorBy = "status",layout = "kk",
 #' color_lg_title = "Direction of pathway perturbation")
 #'
 #' # To change the colour and fill of `geom_mark_*` annotation, use any
 #' # `scale_fill_*` and/or `scale_color_*`
 #' # functions supported by `ggplot2`. For example:
-#' p <- plot_community(subset, gsTopology, colorBy = "robustZ",layout = "kk",
+#' p <- plot_community(subset, gsTopology, colorBy = "status",layout = "kk",
 #' markCommunity = "rect",color_lg_title = "Direction of pathway perturbation")
 #' p + ggplot2::scale_color_ordinal() + ggplot2::scale_fill_ordinal()
+#' 
+#' @import igraph
+#' @import ggforce
+#' @import ggplot2
+#' @import ggraph
+#' @importFrom utils data
+#' @importFrom dplyr left_join group_by summarise mutate ungroup distinct
+#' 
 #' @export
-plot_community <- function(normalisedScores, gsTopology, gsAnnotation = NULL, colorBy = c("robustZ", "pvalue", "community"), communityMethod = "cluster_louvain",
-                           foldGSname = TRUE, foldafter = 2, layout = "fr", markCommunity = "ellipse", markAlpha = 0.2, edgeAlpha = 0.8,
-                           up_col = "brown3", down_col = "steelblue3", scale_edgeWidth = c(0.5, 3), edgeLegend = FALSE, scale_nodeSize = c(3,6),
-                            nodeShape = 16,  color_lg_title = NULL, lb_size = 3, lb_color = "black", plotIsolated = FALSE, ...){
-
+plot_community <- function(
+        normalisedScores, gsTopology, gsAnnotation = NULL, colorBy = "community", 
+        communityMethod = c(
+            "louvain", "walktrap", "spinglass", "leading_eigen", 
+            "edge_betweenness", "fast_greedy", "label_prop", "leiden"
+        ),
+        foldGSname = TRUE, foldafter = 2, 
+        layout = c(
+            "fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"
+        ),
+        markCommunity = "ellipse", markAlpha = 0.2, color_lg_title = NULL,
+        edgeAlpha = 0.8, scale_edgeWidth = c(0.5, 3), edgeLegend = FALSE, 
+        scale_nodeSize = c(3,6), nodeShape = 16,  lb_size = 3,
+        lb_color = "black", plotIsolated = FALSE, ...
+){
+    
     name <- data <- community <- category <- category_n <- weight <- color <-
         size <- Community <- x <- y <- NULL
-    if (!communityMethod %in% c("cluster_walktrap", "cluster_spinglass", "cluster_leading_eigen",
-                                "cluster_edge_betweenness", "cluster_fast_greedy", "cluster_label_prop",
-                                "cluster_leiden", "cluster_louvain"))
-        stop("CommunityMethod must be a community detection algorithm specified in the description")
-
+    communityMethod <- match.arg(communityMethod)
+    communityMethod <- paste0("cluster_", communityMethod)
+    layout <- match.arg(layout)
+    
     ## check if input has required columns
-    stopifnot(colorBy %in% c("robustZ", "pvalue", "community") | length(colorBy) != 1)
-    if (colorBy != "community" & !all(c(colorBy, "gs_name") %in% colnames(normalisedScores)))
-        stop("Normalised Scores must include gs_name and column for coloring")
-
+    cols <- colnames(normalisedScores)
+    colorBy <- match.arg(colorBy, c(cols, "community"))
+    stopifnot("gs_name" %in% cols)
+    
     # Make sure the gs topologies are a named list with at least two elements
     stopifnot(length(names(gsTopology)) == length(gsTopology))
-    if(length(unique(normalisedScores$gs_name)) < 2) stop("At least 2 gene-sets are required for a network plot")
+    if(length(unique(normalisedScores$gs_name)) < 2) 
+        stop("At least 2 gene-sets are required for a network plot")
     gsTopology <- gsTopology[names(gsTopology) %in% normalisedScores$gs_name]
-
+    
     if (is.null(gsAnnotation)){
-        # if gene-set annotation info is not provided, use built-in KEGG pathways' annotations
-       data(gsAnnotation_df, package = "sSNAPPY")
-        } else {
-            # if user provided gene-set annotation, gs_name and category column must be in the df
-            if (!all(c("gs_name", "category") %in% colnames(gsAnnotation)))
-                stop("gsAnnotation dataframe must include gs_name and category columns") else{
-                    gsAnnotation_df = gsAnnotation
-                }
-        }
+        ## if gene-set annotation info is not provided, use built-in KEGG 
+        ## pathway annotations
+        gsAnnotation_df <- c()
+        data("gsAnnotation_df", envir = environment())
+        gsAnnotation <- gsAnnotation_df
+    } else {
+        ## if user provided gene-set annotation, gs_name and category column 
+        ## must be in the df
+        if (!all(c("gs_name", "category") %in% colnames(gsAnnotation)))
+            stop("gsAnnotation must include gs_name and category columns") 
+    }
     # create igraph object
-    g <- make_gsNetwork(normalisedScores, gsTopology, colorBy = colorBy,  plotIsolated = plotIsolated)
-
+    if (colorBy != "community") {
+        g <- .make_gsNetwork(
+            normalisedScores, gsTopology, colorBy = colorBy,  
+            plotIsolated = plotIsolated
+        )
+    } else {
+        g <- .make_gsNetwork(
+            normalisedScores, gsTopology, colorBy = NULL,  
+            plotIsolated = plotIsolated
+        )
+    }
+    
     # perform community detection
-    commuDec_method <- get(communityMethod, envir = rlang::ns_env("igraph"))
-    commuDec_result <- commuDec_method(g)
-    commuDec_df <- data.frame(
-        gs_name = commuDec_result$name,
-        community = commuDec_result$membership
+    comm_method <- get(communityMethod, envir = rlang::ns_env("igraph"))
+    comm_result <- comm_method(g)
+    comm_df <- data.frame(
+        gs_name = comm_result$names, community = comm_result$membership
     )
-
-    if (length(intersect(names(gsTopology), gsAnnotation_df$gs_name)) == 0){
-        warning("Gene-set annotation does not match with topology provided. Communities won't be annotated")
-        g <- set_vertex_attr(g, "Community", index = commuDec_df$gs_name, value = as.character(commuDec_df$community))
+    
+    if (length(intersect(names(gsTopology), gsAnnotation$gs_name)) == 0){
+        warning(
+            "Gene-set annotation does not match with topology provided. ",
+            "Communities won't be annotated"
+        )
+        g <- set_vertex_attr(
+            g, "Community", index = comm_df$gs_name, 
+            value = as.character(comm_df$community)
+        )
         silent_commu <- TRUE
     } else {
-        # left_join community detection results to pathway annotation
-        commuDec_df <- left_join(commuDec_df, gsAnnotation_df, by = "gs_name")
-
-        # Find the category with highest occurrence for each community
-        commuDec_summary <- dplyr::group_by(commuDec_df, community, category)
-        commuDec_summary <- dplyr::summarise(commuDec_summary,category_n = dplyr::n())
-        commuDec_summary <- dplyr::group_by(commuDec_summary, community)
-        commuDec_summary <- dplyr::filter(commuDec_summary, category_n == max(category_n))
-
-        # if there's a tie between two categories for a given community, category names are pasted together
-        commuDec_summary <- mutate(commuDec_summary, category = paste(category, collapse  = " &\n"))
-        commuDec_summary <- left_join(commuDec_df[, c("gs_name", "community")], commuDec_summary, by = "community")
-        g <- set_vertex_attr(g, "Community", index = commuDec_summary$gs_name, value = commuDec_summary$category)
+        ## left_join community detection results to pathway annotation
+        comm_df <- left_join(comm_df, gsAnnotation, by = "gs_name")
+        
+        ## Find the category with highest occurrence for each community
+        comm_summary <- group_by(comm_df, community, category)
+        comm_summary <- summarise(
+            comm_summary, category_n = dplyr::n(), .groups = "keep"
+        )
+        comm_summary <- group_by(comm_summary, community)
+        comm_summary <- dplyr::filter(
+            comm_summary, category_n == max(category_n)
+        )
+        
+        ## if there's a tie between two categories for a given community, 
+        ## category names are pasted together
+        comm_summary <- mutate(
+            comm_summary, category = paste(category, collapse  = " &\n")
+        )
+        comm_summary <- ungroup(comm_summary)
+        comm_summary <- distinct(comm_summary, community, category)
+        comm_summary <- left_join(
+            comm_df[, c("gs_name", "community")], comm_summary, by = "community"
+        )
+        g <- set_vertex_attr(
+            g, "Community", index = comm_summary$gs_name, 
+            value = comm_summary$category
+        )
         silent_commu <- FALSE
     }
-
+    
     if(foldGSname){
-        g <- set_vertex_attr(g, "name", value = vapply(V(g)$name, function(x){ifelse(length(strsplit(x, " ")[[1]]) > foldafter,
-                                                                                     str_replace_nth(x, " ", "\n", foldafter),
-                                                                                     x)}, character(1))) }
-
+        nm <-  .str_replace_nth(
+            V(g)$name, pattern = " ", replacement = "\n", n = foldafter
+        )
+        g <- set_vertex_attr(g, "name", value = as.character(nm) )
+    }
+    
     # Find xy coordinators of nodes based on the layout chosen
-    layout_method <- get(paste("layout_with_", layout, sep = ""), envir = rlang::ns_env("igraph"))
+    layout_method <- get(
+        paste("layout_with_", layout, sep = ""), 
+        envir = rlang::ns_env("igraph")
+    )
     xy <- layout_method(g)
-
+    
     # plot network edges
     pl <- ggraph(g, layout = "manual", x = xy[,1], y = xy[,2]) +
         geom_edge_link(alpha = edgeAlpha, aes(width=weight), colour='darkgrey') +
         scale_edge_width_continuous(range = scale_edgeWidth, guide = "none")
-
+    
     # plot node points
-    if (colorBy == "robustZ"){
-        pl <- pl + geom_node_point(aes(color = color, size = size), shape = nodeShape,stroke = 0.5) +
-            scale_color_manual(values = c("Activated" = up_col, "Inhibited" = down_col), name = color_lg_title) +
-            scale_size(range =  scale_nodeSize, guide = "none")
-    } else if (colorBy == "pvalue"){
-        pl <- pl +
-            geom_node_point(aes(color = color, size = size), shape = nodeShape,stroke = 0.5) +
-            scale_color_continuous(low="red", high="blue", name = color_lg_title) +
-            scale_size(range =  scale_nodeSize, guide = "none")
+    if (!is.null(colorBy)){
+        color <- ifelse(colorBy == "community", "Community", "color")
+        pl <- pl + 
+            geom_node_point(
+                aes(color = !!sym(color), size = size), shape = nodeShape, 
+                stroke = 0.5
+            ) +
+            scale_size(range =  scale_nodeSize, guide = "none")  +
+            labs(colour = color_lg_title)
     } else {
         pl <- pl +
-            geom_node_point(aes(color = Community, size = size), shape = nodeShape,stroke = 0.5) +
+            geom_node_point(aes(size = size), shape = nodeShape,stroke = 0.5) +
             scale_size(range =  scale_nodeSize, guide = "none")
     }
-
+    
     if (!is.null(markCommunity)){
-        mark_method <- get(paste("geom_mark_", markCommunity, sep = ""), envir = rlang::ns_env("ggforce"))
+        mark_method <- get(
+            paste("geom_mark_", markCommunity, sep = ""), 
+            envir = rlang::ns_env("ggforce")
+        )
         if (silent_commu) {
             pl <- pl +
-                ggnewscale::new_scale_color() +
-                mark_method(aes(x = x, y = y, fill = Community, color = Community),
-                            alpha = markAlpha, ...)
+                mark_method(
+                    aes(x = x, y = y, fill = Community), alpha = markAlpha, ...
+                )
         } else {
             pl <- pl +
-                ggnewscale::new_scale_color() +
-                mark_method(aes(x = x, y = y, fill = Community, color = Community, label = Community),
-                            alpha = markAlpha, ...)
+                mark_method(
+                    aes(x = x, y = y, fill = Community, label = Community), 
+                    color = NA, alpha = markAlpha, ...
+                )
         }
     }
-
-    pl + geom_node_text(aes(label = name), size = lb_size, repel = TRUE, colour = lb_color)
-
+    
+    pl +
+        geom_node_text(
+            aes(label = name), size = lb_size, repel = TRUE, colour = lb_color
+        ) 
+    
 }

@@ -4,53 +4,75 @@
 \alias{retrieve_topology}
 \title{Retrieve pathway topology as weighted adjacent matrix}
 \usage{
-retrieve_topology(database, pathwayName = NULL, beta = NULL)
+retrieve_topology(
+  database = c("kegg", "pathbank", "wikipathways", "reactome", "panther", "pharmgkb",
+    "smpdb"),
+  species = c("athaliana", "btaurus", "celegans", "cfamiliaris", "dmelanogaster",
+    "drerio", "ecoli", "ggallus", "hsapiens", "mmusculus", "rnorvegicus", "scerevisiae",
+    "sscrofa", "xlaevis"),
+  keyword = NULL,
+  beta = NULL
+)
 }
 \arguments{
-\item{database}{See example for supported databases.}
+\item{database}{A character vector of supported databases.}
 
-\item{pathwayName}{Optional. Subset of pathway names as a vector.}
+\item{species}{One of the supported species,}
 
-\item{beta}{Optional. A named numeric vector of weights to be assigned to each type of gene/protein relation type.
-See details for more information.}
+\item{keyword}{Optional. Areas of interests as a character vector.}
+
+\item{beta}{Optional. A named numeric vector of weights to be assigned to
+each type of gene/protein relation type.See details for more information.}
 }
 \value{
 A list where each element is a matrix corresponding to a pathway
 }
 \description{
-Retrieve pathway topology matrices and convert to normalized weighted directed adjacency matrices describing gene signaling networks.
+Retrieve pathway topology matrices and convert them to normalized
+weighted directed adjacency matrices describing gene signaling networks.
 }
 \details{
-This function takes the pathway topology information retrieved using \code{graphite} and convert them to normalized weighted directed adjacency
-matrices describing the gene signaling network, which can be used to compute gene-wise and pathway-level perturbation score through the
-scoring algorithm derived from the \emph{SPIA} algorithm. See cited document for more details.
+This function takes the pathway topology information retrieved using \code{graphite}
+and convert them to normalized weighted directed adjacency matrices describing
+the gene signaling network, which can be used to compute gene-wise and
+pathway-level perturbation score through the scoring algorithm derived from
+the \emph{SPIA} algorithm. See cited document for more details.
 
-The beta parameter specifies weights to be assigned to each type of gene-gene interaction. It should be a named numeric vector of length 23,
-whose names must be: \code{c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation", "indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation", "state","activation_indirect","inhibition_ubiquination","ubiquination","expression_indirect","indirect_inhibition", "repression","binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation")}.
+The \code{databse} parameter could be a vector containing multiple databases but
+only one species name could be provided to the \code{species} parameter.
 
-If unspecified, beta will be by default chosen as: \code{c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0)}.
+Users can provide areas of interests as keywords, which will be matched to
+pathway names from chosen databases to filter for pathways. Cases will be
+ignored in string matchings.
 
-The converted weighted adjacent matrices will be stored in a list. We recommend users to store the returned list as a file so this step only
+The beta parameter specifies weights to be assigned to each type of gene-gene
+interaction. It should be a named numeric vector of length 23,
+whose names must be: \code{c("activation","compound","binding/association", "expression","inhibition","activation_phosphorylation","phosphorylation", "indirect","inhibition_phosphorylation","dephosphorylation_inhibition", "dissociation","dephosphorylation","activation_dephosphorylation", "state","activation_indirect","inhibition_ubiquination","ubiquination", "expression_indirect","indirect_inhibition","repression", "binding/association_phosphorylation","dissociation_phosphorylation", "indirect_phosphorylation")}.
+
+If unspecified, beta will be by default chosen as: \code{c(1,0,0,1,-1,1,0,0,-1,-1, 0,0,1,0,1,-1,0,1,-1,-1,0,0,0)}.
+
+The converted weighted adjacent matrices will be stored in a list. We
+recommend users to store the returned list as a file so this step only
 needs to be performed once for each database.
-
-This function only supports and can only be used to retreive human databases as this stage.
 }
 \examples{
 \donttest{
-# explore all databases supported by graphite
-dplyr::filter(graphite::pathwayDatabases(), species == "hsapiens")
+# retrieve pathway topology matrices of all KEGG pathway
+gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 
-# retrieve pathway topology matrices frmo the KEGG pathway
-gsTopology <- retrieve_topology(database = "kegg")}
+# retrieve pathway topology matrices from multiple databases
+gsTopology <- retrieve_topology(database = c("kegg","reactome"),
+species = "hsapiens")}
 
-# if only interested in selected pathways, specify the pathway names in the `pathwayName` parameter
+# If only interested in selected pathways, specify the areas of interest as
+# keywords
 gsTopology <- retrieve_topology(database = "kegg",
-pathwayName = c("Glycolysis / Gluconeogenesis",
-"Citrate cycle (TCA cycle)","Pentose phosphate pathway"))
+keyword = c("metabolism", "signaling"), species = "hsapiens")
 }
 \references{
-Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
+Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS,
+Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
 Bioinformatics. 2009 Jan 1;25(1):75-82.
-Sales, G., Calura, E., Cavalieri, D. et al. graphite - a Bioconductor package to convert pathway topology to gene network.
-BMC Bioinformatics 13, 20 (2012).
+Sales, G., Calura, E., Cavalieri, D. et al. graphite - a Bioconductor package
+to convert pathway topology to gene network. BMC Bioinformatics 13, 20 (2012).
 }

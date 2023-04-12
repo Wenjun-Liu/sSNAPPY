@@ -12,6 +12,7 @@ generate_permuted_scores(
   expreMatrix,
   numOfTreat,
   NB = 1000,
+  testScore = NULL,
   gsTopology,
   weight,
   BPPARAM = BiocParallel::bpparam()
@@ -21,6 +22,7 @@ generate_permuted_scores(
   expreMatrix,
   numOfTreat,
   NB = 1000,
+  testScore = NULL,
   gsTopology,
   weight,
   BPPARAM = BiocParallel::bpparam()
@@ -30,6 +32,7 @@ generate_permuted_scores(
   expreMatrix,
   numOfTreat,
   NB = 1000,
+  testScore = NULL,
   gsTopology,
   weight,
   BPPARAM = BiocParallel::bpparam()
@@ -39,6 +42,7 @@ generate_permuted_scores(
   expreMatrix,
   numOfTreat,
   NB = 1000,
+  testScore = NULL,
   gsTopology,
   weight,
   BPPARAM = BiocParallel::bpparam()
@@ -48,6 +52,7 @@ generate_permuted_scores(
   expreMatrix,
   numOfTreat,
   NB = 1000,
+  testScore = NULL,
   gsTopology,
   weight,
   BPPARAM = BiocParallel::bpparam()
@@ -60,6 +65,10 @@ storing gene expression counts. Feature names need to be in entrez IDs}
 \item{numOfTreat}{Number of treatments (including control)}
 
 \item{NB}{Number of permutations to perform}
+
+\item{testScore}{Optional. Users can provide the test perturbation score
+\code{data.frame} (ie. output of \code{pathwayPertScore}) to restrict the permutatio
+step only to pathways with non-zero test scores in at least one sample.}
 
 \item{gsTopology}{List of pathway topology matrices generated using function \code{retrieve_topology}}
 
@@ -94,8 +103,10 @@ possible instead.
 #compute weighted single sample logFCs
 data(metadata_example)
 data(logCPM_example)
+metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+   treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
- factor = "patient", control = "Vehicle")
+ groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 \dontrun{
 load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 
