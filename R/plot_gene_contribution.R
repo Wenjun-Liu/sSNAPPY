@@ -1,38 +1,41 @@
 #' Plot genes' contribution to a specific pathway's perturbation as heatmap
-#' @param genePertScore List of gene-wise perturbation scores generated using function `raw_gene_pert()`
-#' @param gsToPlot `character` Name of the pathway to be plotted
-#' @param mapEntrezID Optional. A `data.frame` matching genes' entrez IDs to other identifiers, such as gene names.
-#' Must contain 2 columns: `"entrezid"` and `"mapTo"`
-#' @param metadata  A `data.frame` containing sample metadata for heatmap annotation
-#' @param annotation_attribute `character` Vector specifying attributes to draw annotations for. Default to "pathwayPertScore" (
-#' ie. pathway-level perturbation scores)
-#' @param pathwayPertScore A `data.frame` containing pathway-level perturbation scores for each pathway each treated sample. Output of function `pathway_pert()`
+#' @param genePertMatr A matrix of gene-wise perturbation scores corresponding
+#' to a pathway. An element of the output generated using function `raw_gene_pert()`
+#' @param mapEntrezID Optional. A `data.frame` matching genes' entrez IDs to
+#' another identifier with preferred labels. Must contain the columns:
+#' `"entrezid"` and `"mapTo"`
+#' @param topGene Numeric(1). The number of top genes to plot
+#' @param filterBy Filter top genes by the mean or the variance of gene-wise
+#' perturbation scores
+#' @param annotation_df  A `data.frame` for annotating heatmap columns. Must
+#' contain a "sample" column with sample names matching to the column names of
+#' the `genePertMatr`
 #' @param ... Used to pass various potting parameters to `pheatmap::pheatmap()`
-#' @details The single-sample pathway-level perturbation score for a given pathway is derived from aggregating all the gene-wise perturbation scores of genes in that pathway.
-#' This function visualises individual pathway genes' perturbation scores as a heatmap to demonstrate genes' contribution to a pathway perturbation.
+#' @details The single-sample pathway-level perturbation score for a given pathway
+#' is derived from aggregating all the gene-wise perturbation scores of genes in that pathway.
+#' This function visualises individual pathway genes' perturbation scores as a
+#' heatmap to demonstrate pathway genes' contribution to a pathway perturbation.
 #'
-#' Plotting of the heatmap is done through `pheatmap::pheatmap()` so all plotting parameters accepted by `pheatmap::pheatmap()` could also be passed to this function.
+#' Plotting of the heatmap is done through `pheatmap::pheatmap()` so all plotting
+#' parameters accepted by `pheatmap::pheatmap()` could also be passed to this function.
 #'
-#' It is recommended to provide the pathway-level perturbation scores derived using the `pathway_pert()` function to visualise the directions of changes at pathway-level
-#' as a column annotation, which helps the identification of genes driving or antagonizing the perturbation.
-#'
-#' Additional annotation attributes could be specified through the `annotation_attribute` parameter and the specified attributes must be provided by columns of the sample
-#' metadata `data.frame` provided through the `metadata` parameter, otherwise the attributes will be ignored.
 #' @importFrom tibble column_to_rownames
 #' @importFrom dplyr filter mutate
 #' @importFrom pheatmap pheatmap
-#' @references Kolde R (2019). _pheatmap: Pretty Heatmaps_. R package version 1.0.12, <https://CRAN.R-project.org/package=pheatmap>.
+#' @references Kolde R (2019). _pheatmap: Pretty Heatmaps_. R package version
+#' 1.0.12, <https://CRAN.R-project.org/package=pheatmap>.
 #' @examples
 #' #compute weighted single sample logFCs
 #' data(metadata_example)
 #' data(logCPM_example)
-#'
+#' metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+#'    treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 #' # compute single-sample logFCs for all treated samples
 #' ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-#' factor = "patient", control = "Vehicle")
+#' groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 #'
 #' # extract all the KEGG pathways
-#' gsTopology <- retrieve_topology(database = "kegg")
+#' gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 #'
 #' # compute raw gene-wise perturbation scores
 #' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
@@ -40,90 +43,89 @@
 #' # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
 #' pathwayPertScore <- pathway_pert(genePertScore)
 #'
-#' # Genes' contribution to the perturbation of Estrogen signaling pathway was
-#' # visuaulised with pathway-level perturbation scores
-#' # and treatments as column annotation attributes.
-#' plot_gene_contribution(genePertScore = genePertScore, gsToPlot =
-#' "Estrogen signaling pathway", metadata = metadata_example,
-#' annotation_attribute = c("pathwayPertScore", "treatment"),
-#' pathwayPertScore = pathwayPertScore)
+#' # Genes with top 10 mean absolute gene-wise perturbation scores in the
+#' # Estrogen signaling pathway was visuaulised.
+#' plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+#' filterBy = "mean", topGene = 10)
+#'
+#' # Columns of the heatmap could be annotated by the pathway-level perturbation
+#' # and treatments. Firstly, create a `data.frame` with the two annotation
+#' # attributes and sample names matching the column names of the perturbation
+#' # score matrix.
+#' annotation_df <- dplyr::select(metadata_example, sample, treatment)
+#' pathwayLevel <- dplyr::filter(pathwayPertScore,
+#' gs_name == "kegg.Estrogen signaling pathway")
+#' pathwayLevel$`pathway-level` <- ifelse(
+#' pathwayLevel$score > 0, "Activated", "Inhibited")
+#' annotation_df <- dplyr::left_join(
+#' dplyr::select(pathwayLevel, sample, `pathway-level`),
+#' annotation_df, unmatched = "drop")
+#' # To make the gene labels more informative, also map genes' entrez id
+#' # to chosen identifiers.
+#' load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
+#' plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+#' topGene = 10, filterBy = "mean", annotation_df = annotation_df,
+#' mapEntrezID = entrez2name)
+#'
+#' # Plotting parameters accepted by `pheatmap::pheatmap()` could be passed to
+#' # this function to customise the plot. For example, changin the color of annotations
+#' plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+#' topGene = 10, filterBy = "mean", annotation_df = annotation_df,
+#' mapEntrezID = entrez2name, annotation_colors = list(
+#' treatment = c(R5020 = "black", `E2+R5020` = "white"),
+#' `pathway-level` = c(Activated = "darkred", Inhibited = "lightskyblue")))
 #' @export
-plot_gene_contribution <- function(genePertScore, gsToPlot, mapEntrezID = NULL, metadata = NULL, annotation_attribute = "pathwayPertScore",  pathwayPertScore = NULL,
-                                ...){
-    gs_name <- tA <- weight <- entrezid <- NULL
-    if (!gsToPlot %in% names(genePertScore)  )
-        stop("Gene-wise perturbation scores not provided for the chosen pathway.")
 
-    rankMatrix <- genePertScore[[gsToPlot]]
+plot_gene_contribution <- function(genePertMatr, mapEntrezID = NULL,
+                                   topGene = 10, filterBy = c("mean", "variance"),
+                                   annotation_df = NULL, ...){
+    entrezid <- NULL
+    filterBy <- match.arg(filterBy)
+    if (!is.numeric(topGene)|topGene > nrow(genePertMatr))
+        stop("TopGene must be a numeric value smaller than the number of genes
+             contained in the pathway")
 
-    if (is.null(annotation_attribute)){
+    # filter genePertMatrx
+    topRanked <- rank(1/abs(apply(genePertMatr, 1, filterBy)))[1:topGene]
+    genePertMatr <- genePertMatr[rownames(genePertMatr) %in% names(topRanked),]
+
+    # match Entrez ID to other gene identifiers
+    if (all(c("entrezid","mapTo") %in% colnames(mapEntrezID))){
+        if (any(rownames(genePertMatr) %in% mapEntrezID$entrezid)){
+            mapEntrezID <- dplyr::filter(mapEntrezID, entrezid %in% rownames(genePertMatr))
+            genePertMatr <- genePertMatr[rownames(genePertMatr) %in% mapEntrezID$entrezid,]
+            mapEntrezID <- mapEntrezID[match(rownames(genePertMatr), mapEntrezID$entrezid), ]
+            rownames(genePertMatr) <- mapEntrezID$mapTo
+        } else {
+            warning("None of the Entrez IDs in mapEntrezID mapped to gsTopology.\n
+                        Still using entrez IDs as rownames.")
+
+        }
+    }
+
+    if (is.null(annotation_df)){
         pheatmap::pheatmap(
-            rankMatrix,
+            genePertMatr,
             ...
         )
     } else{
-        if (!identical(annotation_attribute, "pathwayPertScore")){
-            other_attr <- setdiff(annotation_attribute, "pathwayPertScore")
 
-            if (any(other_attr %in% colnames(metadata))){
-                    anno_col_df <- dplyr::filter(metadata, sample %in% colnames(rankMatrix))
-                    anno_col_df <- column_to_rownames(anno_col_df, "sample")
-                    anno_col_df <- anno_col_df[,setdiff(annotation_attribute, "pathwayPertScore"), drop = FALSE]
-            }
-
-            if ("pathwayPertScore" %in% annotation_attribute){
-                if (is.null(pathwayPertScore)){
-                    warning("To use pathway-level perturbation as annotation, pathway-level annotation scores much be provided. Parameter ignored.")
-                    if (exists("anno_col_df")){anno_col_df <- anno_col_df} else {anno_col_df <- NULL}
-                } else {
-                    if (exists("anno_col_df")) {
-                        anno_col_df2 <- dplyr::filter(pathwayPertScore, gs_name == gsToPlot)
-                        anno_col_df2 <- mutate(anno_col_df2, `Pathway-level Perturbation` = ifelse(tA < 0, "Inhibited", "Activated"))
-                        anno_col_df2 <- tibble::column_to_rownames(anno_col_df2[,c("sample", "Pathway-level Perturbation")], "sample")
-                        anno_col_df <- cbind(anno_col_df, anno_col_df2)
-                    } else {
-                        anno_col_df <- dplyr::filter(pathwayPertScore, gs_name == gsToPlot)
-                        anno_col_df <- mutate(anno_col_df, `Pathway-level Perturbation` = ifelse(tA < 0, "Inhibited", "Activated"))
-                        anno_col_df <- tibble::column_to_rownames(anno_col_df[,c("sample", "Pathway-level Perturbation")], "sample")
-                    }
-                }
-            }
-
+        if (!"sample" %in% colnames(annotation_df) |
+            any(!colnames(genePertMatr) %in% annotation_df$sample)){
+            message(
+                "Column names of the perturbation score matrix must match
+                the sample column of the annotation_df. Annotation df ignored."
+            )
         } else {
-            if (is.null(pathwayPertScore) | !gsToPlot %in% pathwayPertScore$gs_name){
-                warning("To use pathway-level perturbation as annotation, pathway-level annotation scores much be provided. Parameter ignored.")
-                anno_col_df <- NULL
-            } else {
-                anno_col_df <- dplyr::filter(pathwayPertScore, gs_name == gsToPlot)
-                anno_col_df <- mutate(anno_col_df, `Pathway-level Perturbation` = ifelse(tA < 0, "Inhibited", "Activated"))
-                anno_col_df <- tibble::column_to_rownames(anno_col_df[,c("sample", "Pathway-level Perturbation")], "sample")
-            }
-
+            annotation_df <- column_to_rownames(annotation_df, "sample")
+            pheatmap::pheatmap(
+                genePertMatr,
+                annotation_col = annotation_df,
+                ...
+            )
         }
 
-        # if (!is.null(colOrder)){
-        #     rankMatrix <- rankMatrix[,colOrder, drop = FALSE]
-        # }
 
-        if (all(c("entrezid","mapTo") %in% colnames(mapEntrezID))){
-            if (any(rownames(rankMatrix) %in% mapEntrezID$entrezid)){
-                mapEntrezID <- dplyr::filter(mapEntrezID, entrezid %in% rownames(rankMatrix))
-                rankMatrix <- rankMatrix[rownames(rankMatrix) %in% mapEntrezID$entrezid,]
-                mapEntrezID <- mapEntrezID[match(rownames(rankMatrix), mapEntrezID$entrezid), ]
-                rownames(rankMatrix) <- mapEntrezID$mapTo
-            } else {
-                warning("None of the Entrez IDs in mapEntrezID mapped to gsTopology.\n
-                        Still using entrez IDs as rownames.")
-
-            }
-        }
-
-        pheatmap::pheatmap(
-            # tibble::column_to_rownames(geneRank$`Estrogen signaling pathway`[,colOrder], "gene_id"),
-            rankMatrix,
-            annotation_col = anno_col_df,
-            ...
-        )
     }
 
 

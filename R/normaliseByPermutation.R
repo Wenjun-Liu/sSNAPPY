@@ -23,6 +23,9 @@
 #' storing gene expression counts. Feature names need to be in entrez IDs
 #' @param numOfTreat Number of treatments (including control)
 #' @param NB Number of permutations to perform
+#' @param testScore Optional. Users can provide the test perturbation score
+#' `data.frame` (ie. output of `pathwayPertScore`) to restrict the permutatio
+#' step only to pathways with non-zero test scores in at least one sample.
 #' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology`
 #' @param weight A vector of gene-wise weights derived from function `weight_ss_fc`
 #' @param BPPARAM The parallel back-end to uses, if not specified, it is defaulted to the one returned by \code{BiocParallel::bpparam()}.
@@ -33,8 +36,10 @@
 #' #compute weighted single sample logFCs
 #' data(metadata_example)
 #' data(logCPM_example)
+#' metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+#'    treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 #' ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-#'  factor = "patient", control = "Vehicle")
+#'  groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 #' \dontrun{
 #' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 #'
@@ -47,30 +52,47 @@
 #'  }
 #' @export
 setGeneric("generate_permuted_scores",
-           function(expreMatrix, numOfTreat,NB = 1000,
+           function(expreMatrix, numOfTreat,NB = 1000, testScore = NULL,
                     gsTopology, weight, BPPARAM = BiocParallel:: bpparam())
                standardGeneric("generate_permuted_scores"))
 
 #' @rdname generate_permuted_scores
 setMethod("generate_permuted_scores",
           signature = signature(expreMatrix = "matrix"),
-          function(expreMatrix, numOfTreat, NB = 1000,
+          function(expreMatrix, numOfTreat, NB = 1000, testScore = NULL,
                    gsTopology, weight, BPPARAM = BiocParallel:: bpparam()){
               # checks
+
               m <- min(expreMatrix)
               if (is.na(m)) stop("NA values not allowed")
 
-              if ( ncol(expreMatrix) %% numOfTreat != 0 )
-                  stop ("Number of samples must be divisible by the number of treatments")
               if (nrow(expreMatrix) != length(weight))
                   stop("Gene-wise weights do not match with the dimension of expreMatrix")
 
               rownames(expreMatrix) <- paste("ENTREZID:", rownames(expreMatrix), sep = "")
-              if (length(intersect(rownames(expreMatrix), unlist(unname(lapply(gsTopology, rownames))))) == 0)
+
+              if (!is.null(testScore) && "gs_name" %in% colnames(testScore)){
+                  gsTopology <- gsTopology[
+                      names(gsTopology) %in% unique(testScore$gs_name)]
+              }
+
+              if (length(gsTopology) == 0) stop(
+                  "None of the pathways had non-zero test perturbation scores"
+              )
+
+              if (
+                  length(
+                      intersect(rownames(expreMatrix),
+                                unlist(unname(lapply(gsTopology, rownames)))
+                                )) == 0)
                   stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
 
               # test if the required number of permutations is bigger than the maximum number of permutations possible
               NB <- min(NB, factorial(ncol(expreMatrix)))
+
+              # if test scores are provided, filter out pathways whose test scores
+              # were all zeros across all samples
+
 
               # set expression values and weights of unexpressed pathway genes to 0
               notExpressed <- setdiff(
@@ -90,6 +112,7 @@ setMethod("generate_permuted_scores",
               allG <- rownames(expreMatrix)
               newS <-  ncol(permutedFC[[1]])
 
+
               BiocParallel::bplapply(gsTopology, function(x){
                   temp <- permutedPertScore_RCPP(X = x, pathwayG = rownames(x), allG,
                                                  permutedFC = permutedFC, newS)
@@ -100,30 +123,33 @@ setMethod("generate_permuted_scores",
 #' @rdname generate_permuted_scores
 setMethod("generate_permuted_scores",
           signature = signature(expreMatrix = "data.frame"),
-          function(expreMatrix, numOfTreat,NB = 1000,
+          function(expreMatrix, numOfTreat,NB = 1000, testScore = NULL,
                    gsTopology, weight, BPPARAM = BiocParallel:: bpparam()){
               generate_permuted_scores(as.matrix(expreMatrix), numOfTreat,NB,
-                                     gsTopology, weight, BPPARAM = BiocParallel:: bpparam())
+                                      testScore, gsTopology, weight,
+                                      BPPARAM = BiocParallel:: bpparam())
           })
 
 #' @rdname generate_permuted_scores
 setMethod("generate_permuted_scores",
           signature = signature(expreMatrix = "DGEList"),
-          function(expreMatrix, numOfTreat,NB = 1000,
+          function(expreMatrix, numOfTreat,NB = 1000, testScore = NULL,
                    gsTopology, weight, BPPARAM = BiocParallel:: bpparam()){
               expreMatrix <- cpm(expreMatrix$counts, log = TRUE)
               generate_permuted_scores(expreMatrix, numOfTreat,NB,
-                                     gsTopology, weight, BPPARAM = BiocParallel:: bpparam())
+                                       testScore, gsTopology, weight,
+                                       BPPARAM = BiocParallel:: bpparam())
           })
 
 #' @rdname generate_permuted_scores
 setMethod("generate_permuted_scores",
           signature = signature(expreMatrix = "SummarizedExperiment"),
-          function(expreMatrix, numOfTreat,NB = 1000,
+          function(expreMatrix, numOfTreat,NB = 1000, testScore = NULL,
                    gsTopology, weight, BPPARAM = BiocParallel:: bpparam()){
               expreMatrix <- cpm(SummarizedExperiment::assay(expreMatrix), log = TRUE)
               generate_permuted_scores(expreMatrix, numOfTreat,NB,
-                                     gsTopology, weight, BPPARAM = BiocParallel:: bpparam())
+                                       testScore, gsTopology, weight,
+                                       BPPARAM = BiocParallel:: bpparam())
           })
 
 #' @title Normalise test perturbation scores by permutation results
@@ -133,26 +159,30 @@ setMethod("generate_permuted_scores",
 #' derived from the permuted perturbation scores. The test perturbation scores are then converted to robust z-scores using MADs and medians
 #' calculated.
 #' @param permutedScore A list. Output of `generate_permuted_scores`
-#' @param testScore A matrix. Output of `weight_ss_fc`
-#' @param pAdj_method Method for adjusting p-values for multiple comparisons. See `?p.adjust` for methods available. Default to FDR.
+#' @param testScore A `data.frame`. Output of `pathwayPertScore``
+#' @param pAdj_method Method for adjusting p-values for multiple comparisons.
+#' See `?p.adjust` for methods available. Default to FDR.
+#' @param sortBy Sort the output by p-value, gene-set name or sample names.
 #'
-#' @importFrom stats mad median p.adjust pnorm
+#' @importFrom stats mad median p.adjust pnorm p.adjust.methods
 #' @importFrom dplyr left_join mutate
 #' @return A `data.frame`
 #' @export
-#'
 #' @examples
 #' \dontrun{
 #' load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 #' data(metadata_example)
 #' data(logCPM_example)
+#' metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+#'    treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 #' ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-#' factor = "patient", control = "Vehicle")
+#' groupBy = "patient", sampleColumn = "sample", treatColumn = "treatment")
 #'
 #' # compute raw gene-wise perturbation scores
 #' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 #'
-#' # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
+#' # sum gene-wise perturbation scores to derive the pathway-level
+#' # single-sample perturbation scores
 #' pathwayPertScore <- pathway_pert(genePertScore)
 #'
 #' # simulate the null distribution of scores through sample permutation
@@ -160,21 +190,37 @@ setMethod("generate_permuted_scores",
 #'  NB = 5, gsTopology = gsTopology, weight = ls$weight)
 #'
 #' # normlise the test perturbation scores using the permutation results
-#' normalisedScores <- normalise_by_permu(permutedScore, pathwayPertScore)
+#' normalisedScores <- normalise_by_permu(permutedScore, pathwayPertScore,
+#' sortBy = "pvalue")
 #'  }
-normalise_by_permu <- function(permutedScore, testScore, pAdj_method = "fdr"){
+normalise_by_permu <- function(permutedScore, testScore,
+                               pAdj_method = "fdr",
+                               sortBy = c("gs_name", "sample", "pvalue")){
     pvalue <- NULL
+    pAdj_method <- match.arg(pAdj_method, p.adjust.methods)
+    sortBy <- match.arg(sortBy)
+
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
     summaryScore <- t(sapply(permutedScore, summary_func))
     gs_name <- rownames(summaryScore)
     summaryScore <- mutate(as.data.frame(summaryScore), gs_name = gs_name)
     summaryScore <- filter(summaryScore, summaryScore$MAD != 0)
-    summaryScore <- left_join(summaryScore, testScore, by = "gs_name")
-    summaryScore <- mutate(summaryScore,robustZ = (summaryScore$tA - summaryScore$MEDIAN)/summaryScore$MAD)
-    summaryScore <- mutate(summaryScore, pvalue = 2*pnorm(-abs(summaryScore$robustZ)))
+    summaryScore <- left_join(summaryScore, testScore, by = "gs_name",
+                              multiple = "all")
+    summaryScore <- mutate(
+        summaryScore, robustZ =
+            (summaryScore$score - summaryScore$MEDIAN)/summaryScore$MAD)
+    summaryScore <- mutate(
+        summaryScore, pvalue = 2*pnorm(-abs(summaryScore$robustZ)))
     summaryScore <- split(summaryScore, f = summaryScore$sample)
-    summaryScore <-lapply(summaryScore, mutate, adjPvalue = p.adjust(pvalue, pAdj_method))
-    bind_rows(summaryScore)
+    summaryScore <- lapply(summaryScore, mutate,
+                           adjPvalue = p.adjust(pvalue, pAdj_method))
+    summaryScore <-bind_rows(summaryScore)
+    summaryScore <- dplyr::mutate_at(
+        summaryScore, vars(c("gs_name", "sample")), as.factor
+    )
+    summaryScore[
+        order(pull(summaryScore, sym(sortBy)), decreasing = FALSE),]
 
 }
 
@@ -183,15 +229,35 @@ normalise_by_permu <- function(permutedScore, testScore, pAdj_method = "fdr"){
                                  NB, weight){
     nSample <- ncol(expreMatrix)
     index <- seq(1, nSample, by = numOfTreat)
-    lapply(seq_len(NB), function(x){
-        # permute sample labels to get permuted expreMatrix
-        expreMatrix <- expreMatrix[,sample(seq_len(nSample), nSample)]
-        temp <- lapply(seq_along(index), function(y){
-      (expreMatrix[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)] - expreMatrix[,index[[y]]]) * weight
-        })
-        do.call(cbind, temp)
-    })
 
+    # check if equal numbers of samples exist in all pairs
+    if ( ncol(expreMatrix) %% numOfTreat != 0 ){
+        # in permutation, always assume the last patient had less than
+        # numOfTreat number of samples
+        lapply(seq_len(NB), function(x){
+            # permute sample labels to get permuted expreMatrix
+            expreMatrix <- expreMatrix[,sample(seq_len(nSample), nSample)]
+            temp1 <- lapply(1:(length(index) - 1), function(y){
+                (expreMatrix[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)]
+                 - expreMatrix[,index[[y]]]) * weight
+            })
+            final_index <- index[length(index)]
+            temp2 <- (expreMatrix[,seq(final_index+1, nSample)]
+                      - expreMatrix[,final_index]) * weight
+            cbind(do.call(cbind, temp1), temp2)
+        })
+    } else {
+        lapply(seq_len(NB), function(x){
+            # permute sample labels to get permuted expreMatrix
+            expreMatrix <- expreMatrix[,sample(seq_len(nSample), nSample)]
+            temp <- lapply(seq_along(index), function(y){
+
+                (expreMatrix[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)] -
+                     expreMatrix[,index[[y]]]) * weight
+            })
+            do.call(cbind, temp)
+        })
+    }
 
 
 }

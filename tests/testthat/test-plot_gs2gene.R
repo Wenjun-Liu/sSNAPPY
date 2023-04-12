@@ -6,13 +6,14 @@ Scores <- data.frame(
     robustZ = runif(5, -1, 1),
     pvalue = runif(5)) %>%
     mutate(color_Z = ifelse(robustZ < 0, "Inhibited", "Activated"))
+Scores <- dplyr::mutate(Scores, gs_name = paste("kegg.", gs_name, sep = ""))
 GS <- Scores$gs_name
 load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
 
 test_that("make_gs2gene_network returns warning message when expected",{
     expect_message(
         .make_gs2gene_network(
-            Scores, gsTopology[names(gsTopology) %in% Scores$gs_name], 
+            Scores, gsTopology[names(gsTopology) %in% Scores$gs_name],
             colorGsBy = "robustZ", mapEntrezID = entrez2name, geneFC = c(1:5)
         ),
         "Gene fold-changes were not provided as a named vector. All genes will be colored identically."
@@ -49,9 +50,18 @@ test_that("plot_gs2gene returns error when expected", {
 
 test_that("plot_gs2gene produces the expected outcome", {
     expect_s3_class(plot_gs2gene(Scores, gsTopology, colorGsBy = "pvalue"), "ggraph")
+    expect_s3_class(plot_gs2gene(Scores, gsTopology, colorGsBy = NULL), "ggraph")
     expect_s3_class(plot_gs2gene(Scores, gsTopology, colorGsBy = "robustZ"), "ggraph")
-    p_1gene <- plot_gs2gene(Scores, gsTopology, colorGsBy = "pvalue", geneFC = c("ENTREZID:4128" = 0.1))
+    p_1gene <- plot_gs2gene(Scores, gsTopology, colorGsBy = "pvalue",
+                            geneFC = c("ENTREZID:4128" = 0.1), filterGeneBy = 0)
     expect_true(nrow(dplyr::filter(p_1gene$data, type == "GENE")) == 1)
-    p_geneName <- plot_gs2gene(Scores, gsTopology, colorGsBy = "pvalue", mapEntrezID =entrez2name, geneFC = c("ENTREZID:4128" = 0.1))
+    p_NOgene <- plot_gs2gene(Scores, gsTopology, colorGsBy = "pvalue",
+                            geneFC = c("ENTREZID:4128" = 0.1), filterGeneBy = 2)
+    expect_true(nrow(dplyr::filter(p_NOgene$data, type == "GENE")) == 0)
+    p_geneName <- plot_gs2gene(Scores, gsTopology, colorGsBy = "pvalue",
+                               mapEntrezID =entrez2name,
+                               geneFC = c("ENTREZID:4128" = 0.1),
+                               filterGeneBy = 0)
     expect_true(dplyr::filter(p_geneName$data, type == "GENE")$name == dplyr::filter(entrez2name, entrezid == "ENTREZID:4128")$mapTo)
 })
+

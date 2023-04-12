@@ -12,6 +12,7 @@ plot_gs2gene(
   colorGsBy = NULL,
   foldGSname = TRUE,
   foldafter = 2,
+  filterGeneBy = 2,
   layout = c("fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"),
   edgeColor = "darkgrey",
   edgeAlpha = 0.8,
@@ -55,6 +56,9 @@ lines}
 
 \item{foldafter}{The number of words after which gene-set names should be
 folded.}
+
+\item{filterGeneBy}{Filtration cut-off applied to genes' connectivity (ie.
+how many pathways was a gene involved in).}
 
 \item{layout}{The layout algorithm to apply. Accepts all layout supported by
 \code{igraph}.}
@@ -141,19 +145,23 @@ plot_gs2gene(
 # To color genes by their direction of change, firstly compute single-sample logFC
 data(logCPM_example)
 data(metadata_example)
+metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+   treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 ls <- weight_ss_fc(
-  logCPM_example, metadata = metadata_example, 
-  factor = "patient", control = "Vehicle"
+  logCPM_example, metadata = metadata_example,
+  groupBy = "patient", treatColumn = "treatment",
+  sampleColumn = "sample"
 )
 # Provide fold-changes of sample R5020_N2_48 as a named vector
 plot_gs2gene(
-  subset, gsTopology, geneFC = ls$logFC[,"R5020_N2_48"], 
+  subset, gsTopology, geneFC = ls$logFC[,"R5020_N2_48"],
   colorGsBy = "response", labelGene = FALSE
 ) + scale_colour_gradient2()
 
-# There are still a large number of genes, making the plot cumbersome. 
-# Instead, only include fold-changes of genes within the top 500 absolute 
-# values for fold-change
+# By default, the function only include genes involved in at least 2 pathways,
+# which can be overwritten by the `filterGeneBy` parameter. But there are still
+# a large number of genes, making the plot cumbersome. Instead, only include
+# fold-changes of genes within the top 500 absolute values for fold-change
 top500 <- rank(1/abs(ls$logFC[,"R5020_N2_48"])) <= 500
 fcByDir <- ifelse(ls$logFC[top500,"R5020_N2_48"] > 0, "Up-Regulated", "Down-Regulated")
 plot_gs2gene(subset, gsTopology, geneFC = fcByDir, colorGsBy = "response") +
@@ -163,7 +171,7 @@ plot_gs2gene(subset, gsTopology, geneFC = fcByDir, colorGsBy = "response") +
 # To make the gene labels more informative, map genes' entrez id to chosen identifiers.
 load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
 plot_gs2gene(
-  subset, gsTopology, geneFC = fcByDir, mapEntrezID = entrez2name, 
+  subset, gsTopology, geneFC = fcByDir, mapEntrezID = entrez2name,
   colorGsBy = "response", gsNodeSize = 4
 ) +
   scale_fill_manual(values = c("darkred", "lightskyblue"), name = "Pathway") +

@@ -5,29 +5,30 @@
 \title{Plot genes' contribution to a specific pathway's perturbation as heatmap}
 \usage{
 plot_gene_contribution(
-  genePertScore,
-  gsToPlot,
+  genePertMatr,
   mapEntrezID = NULL,
-  metadata = NULL,
-  annotation_attribute = "pathwayPertScore",
-  pathwayPertScore = NULL,
+  topGene = 10,
+  filterBy = c("mean", "variance"),
+  annotation_df = NULL,
   ...
 )
 }
 \arguments{
-\item{genePertScore}{List of gene-wise perturbation scores generated using function \code{raw_gene_pert()}}
+\item{genePertMatr}{A matrix of gene-wise perturbation scores corresponding
+to a pathway. An element of the output generated using function \code{raw_gene_pert()}}
 
-\item{gsToPlot}{\code{character} Name of the pathway to be plotted}
+\item{mapEntrezID}{Optional. A \code{data.frame} matching genes' entrez IDs to
+another identifier with preferred labels. Must contain the columns:
+\code{"entrezid"} and \code{"mapTo"}}
 
-\item{mapEntrezID}{Optional. A \code{data.frame} matching genes' entrez IDs to other identifiers, such as gene names.
-Must contain 2 columns: \code{"entrezid"} and \code{"mapTo"}}
+\item{topGene}{Numeric(1). The number of top genes to plot}
 
-\item{metadata}{A \code{data.frame} containing sample metadata for heatmap annotation}
+\item{filterBy}{Filter top genes by the mean or the variance of gene-wise
+perturbation scores}
 
-\item{annotation_attribute}{\code{character} Vector specifying attributes to draw annotations for. Default to "pathwayPertScore" (
-ie. pathway-level perturbation scores)}
-
-\item{pathwayPertScore}{A \code{data.frame} containing pathway-level perturbation scores for each pathway each treated sample. Output of function \code{pathway_pert()}}
+\item{annotation_df}{A \code{data.frame} for annotating heatmap columns. Must
+contain a "sample" column with sample names matching to the column names of
+the \code{genePertMatr}}
 
 \item{...}{Used to pass various potting parameters to \code{pheatmap::pheatmap()}}
 }
@@ -35,42 +36,65 @@ ie. pathway-level perturbation scores)}
 Plot genes' contribution to a specific pathway's perturbation as heatmap
 }
 \details{
-The single-sample pathway-level perturbation score for a given pathway is derived from aggregating all the gene-wise perturbation scores of genes in that pathway.
-This function visualises individual pathway genes' perturbation scores as a heatmap to demonstrate genes' contribution to a pathway perturbation.
+The single-sample pathway-level perturbation score for a given pathway
+is derived from aggregating all the gene-wise perturbation scores of genes in that pathway.
+This function visualises individual pathway genes' perturbation scores as a
+heatmap to demonstrate pathway genes' contribution to a pathway perturbation.
 
-Plotting of the heatmap is done through \code{pheatmap::pheatmap()} so all plotting parameters accepted by \code{pheatmap::pheatmap()} could also be passed to this function.
-
-It is recommended to provide the pathway-level perturbation scores derived using the \code{pathway_pert()} function to visualise the directions of changes at pathway-level
-as a column annotation, which helps the identification of genes driving or antagonizing the perturbation.
-
-Additional annotation attributes could be specified through the \code{annotation_attribute} parameter and the specified attributes must be provided by columns of the sample
-metadata \code{data.frame} provided through the \code{metadata} parameter, otherwise the attributes will be ignored.
+Plotting of the heatmap is done through \code{pheatmap::pheatmap()} so all plotting
+parameters accepted by \code{pheatmap::pheatmap()} could also be passed to this function.
 }
 \examples{
 #compute weighted single sample logFCs
 data(metadata_example)
 data(logCPM_example)
-
+metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+   treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 # compute single-sample logFCs for all treated samples
 ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-factor = "patient", control = "Vehicle")
+groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 
 # extract all the KEGG pathways
-gsTopology <- retrieve_topology(database = "kegg")
+gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
 pathwayPertScore <- pathway_pert(genePertScore)
 
-# Genes' contribution to the perturbation of Estrogen signaling pathway was
-# visuaulised with pathway-level perturbation scores
-# and treatments as column annotation attributes.
-plot_gene_contribution(genePertScore = genePertScore, gsToPlot =
-"Estrogen signaling pathway", metadata = metadata_example,
-annotation_attribute = c("pathwayPertScore", "treatment"),
-pathwayPertScore = pathwayPertScore)
+# Genes with top 10 mean absolute gene-wise perturbation scores in the
+# Estrogen signaling pathway was visuaulised.
+plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+filterBy = "mean", topGene = 10)
+
+# Columns of the heatmap could be annotated by the pathway-level perturbation
+# and treatments. Firstly, create a `data.frame` with the two annotation
+# attributes and sample names matching the column names of the perturbation
+# score matrix.
+annotation_df <- dplyr::select(metadata_example, sample, treatment)
+pathwayLevel <- dplyr::filter(pathwayPertScore,
+gs_name == "kegg.Estrogen signaling pathway")
+pathwayLevel$`pathway-level` <- ifelse(
+pathwayLevel$score > 0, "Activated", "Inhibited")
+annotation_df <- dplyr::left_join(
+dplyr::select(pathwayLevel, sample, `pathway-level`),
+annotation_df, unmatched = "drop")
+# To make the gene labels more informative, also map genes' entrez id
+# to chosen identifiers.
+load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
+plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+topGene = 10, filterBy = "mean", annotation_df = annotation_df,
+mapEntrezID = entrez2name)
+
+# Plotting parameters accepted by `pheatmap::pheatmap()` could be passed to
+# this function to customise the plot. For example, changin the color of annotations
+plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+topGene = 10, filterBy = "mean", annotation_df = annotation_df,
+mapEntrezID = entrez2name, annotation_colors = list(
+treatment = c(R5020 = "black", `E2+R5020` = "white"),
+`pathway-level` = c(Activated = "darkred", Inhibited = "lightskyblue")))
 }
 \references{
-Kolde R (2019). \emph{pheatmap: Pretty Heatmaps}. R package version 1.0.12, \url{https://CRAN.R-project.org/package=pheatmap}.
+Kolde R (2019). \emph{pheatmap: Pretty Heatmaps}. R package version
+1.0.12, \url{https://CRAN.R-project.org/package=pheatmap}.
 }
