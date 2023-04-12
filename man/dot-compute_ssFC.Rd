@@ -4,7 +4,7 @@
 \alias{.compute_ssFC}
 \title{Compute single sample logFCs}
 \usage{
-.compute_ssFC(logCPM, metadata, factor, control)
+.compute_ssFC(logCPM, metadata, sampleColumn, treatColumn, groupBy)
 }
 \arguments{
 \item{logCPM}{Matrix of normaslised logCPM}

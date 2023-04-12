@@ -27,10 +27,12 @@ rank, the more the gene contributed to the pathways' inhibition. When there's a 
 #compute weighted single sample logFCs
 data(metadata_example)
 data(logCPM_example)
+metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+   treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-factor = "patient", control = "Vehicle")
+groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 # extract all the KEGG pathways
-gsTopology <- retrieve_topology(database = "kegg")
+gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 # rank genes by gene-wise perturbation scores within each sample

@@ -6,6 +6,7 @@ Scores <- data.frame(
     robustZ = runif(5, -1, 1),
     pvalue = runif(5))
 Scores <- dplyr::mutate(Scores, color_Z = ifelse(robustZ < 0, "Inhibited", "Activated"))
+Scores <- dplyr::mutate(Scores, gs_name = paste("kegg.", gs_name, sep = ""))
 GS <- Scores$gs_name
 g_Zscore <- .make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", plotIsolated = TRUE)
 g_pvalue <- .make_gsNetwork(Scores, gsTopology, colorBy = "pvalue", plotIsolated = TRUE)

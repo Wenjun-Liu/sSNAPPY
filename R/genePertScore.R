@@ -8,15 +8,17 @@
 #'
 #' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
 #' Bioinformatics. 2009 Jan 1;25(1):75-82.
-#' @return A data.frame with 3 columns: tA (single-sample pathway-level perturbation score), sample, and gs_name (gene-set name)
+#' @return A data.frame with 3 columns: score (single-sample pathway-level perturbation score), sample, and gs_name (gene-set name)
 #' @examples
 #' #compute weighted single sample logFCs
 #' data(metadata_example)
 #' data(logCPM_example)
+#' metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+#'    treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 #' ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-#' factor = "patient", control = "Vehicle")
+#' groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 #' # extract all the KEGG pathways
-#' gsTopology <- retrieve_topology(database = "kegg")
+#' gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 #' # compute raw gene-wise perturbation scores
 #' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 #' # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
@@ -32,7 +34,7 @@ pathway_pert <- function(genePertScore){
     # sum pathway perturbation scores for each pathway
     PF <- lapply(names(genePertScore), function(x){
         temp <- as.data.frame(apply(genePertScore[[x]], 2, sum))
-        temp <- set_colnames(temp, "tA")
+        temp <- set_colnames(temp, "score")
         temp <- rownames_to_column(temp, "sample")
         temp <- mutate(temp, gs_name = x)
     })
@@ -56,10 +58,12 @@ pathway_pert <- function(genePertScore){
 #' #compute weighted single sample logFCs
 #' data(metadata_example)
 #' data(logCPM_example)
+#' metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+#'    treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 #' ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-#' factor = "patient", control = "Vehicle")
+#' groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 #' # extract all the KEGG pathways
-#' gsTopology <- retrieve_topology(database = "kegg")
+#' gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 #' # compute raw gene-wise perturbation scores
 #' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 #' # rank genes by gene-wise perturbation scores within each sample
@@ -112,29 +116,43 @@ rank_gene_pert <- function(genePertScore, gsTopology){
 
 #' @title Compute Gene-wise Perturbation Score
 #'
-#' @description Propagate weighted single sample logFCs down the pathway topologies to compute gene-wise perturbation score per gene per sample per pathway
+#' @description Propagate weighted single sample logFCs down the pathway topologies
+#' to compute gene-wise perturbation score per gene per sample per pathway
 #'
-#' @details This function use the algorithm adopted from `SPIA` (see citation) to integrate genes' changes in expression and gene-gene interaction
-#' to compute gene-wise perturbation score per gene per sample per pathway. The rownames of the weighted single sample logFC matrix and the pathway
-#' topology matrices must use the same type of gene identifier (ie. entrez ID).
+#' @details This function use the algorithm adopted from `SPIA` (see citation) to
+#' integrate genes' changes in expression and gene-gene interaction to compute
+#' gene-wise perturbation score per gene per sample per pathway. The rownames of
+#' the weighted single sample logFC matrix and the pathway topology matrices must
+#' use the same type of gene identifier (ie. entrez ID).
 #'
-#' @param weightedFC A matrix of weighted single sample logFCs derived from function `weight_ss_fc()`
-#' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology()`
-#' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
+#' Pathways with zero perturbation scores across all genes and samples will be
+#' dropped from the output.
+#'
+#' @param weightedFC A matrix of weighted single sample logFCs
+#' derived from function `weight_ss_fc()`
+#' @param gsTopology List of pathway topology matrices generated using function
+#' `retrieve_topology()`
+#' @references Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS,
+#' Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.
 #' Bioinformatics. 2009 Jan 1;25(1):75-82.
-#' @return A list where each element is a matrix corresponding to a pathway. Each column of an element corresponds to a sample, and each row corresponds to a pathway gene.
+#' @return A list where each element is a matrix corresponding to a pathway.
+#' Each column of an element corresponds to a sample, and each row corresponds
+#' to a pathway gene.
 #' @examples
 #' #compute weighted single sample logFCs
 #' data(metadata_example)
 #' data(logCPM_example)
+#' metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+#'    treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 #' ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-#' factor = "patient", control = "Vehicle")
+#' groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 #' # extract all the KEGG pathways
-#' gsTopology <- retrieve_topology(database = "kegg")
+#' gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 #' # compute raw gene-wise perturbation scores
 #' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 #' @export
 raw_gene_pert <- function(weightedFC, gsTopology){
+
     if (length(intersect(rownames(weightedFC), unlist(unname(lapply(gsTopology, rownames))))) == 0)
         stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
     # extract all unique pathway genes and find ones that are not expressed
