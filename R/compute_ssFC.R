@@ -136,15 +136,11 @@ setMethod("weight_ss_fc",
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
-<<<<<<< HEAD
     pairs <- unique(as.character(pull(metadata, sym(groupBy))))
 
     # extract the base level of the treatment column as the control
     control <- levels(pull(metadata, sym(treatColumn)))[1]
-=======
 
-    pairs <- unique(as.character(pull(metadata, sym(factor))))
->>>>>>> a3472bc (Small change in weighting strategy so it's treatment-agnostic)
     ls <- lapply(pairs, function(x){
         contrSample <- dplyr::filter(metadata, !!sym(treatColumn) == control, !!sym(groupBy) == x)
         contrSample <- as.character(pull(contrSample, sym(sampleColumn)))
