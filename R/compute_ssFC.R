@@ -85,7 +85,7 @@ setMethod("weight_ss_fc",
 setMethod("weight_ss_fc",
           signature = signature(expreMatrix = "data.frame"),
           function(expreMatrix, metadata = NULL, sampleColumn, treatColumn, groupBy){
-              weight_ss_fc(as.matrix(expreMatrix), metadata,treatColumn, groupBy)
+              weight_ss_fc(as.matrix(expreMatrix), metadata, sampleColumn, treatColumn, groupBy)
           })
 
 #' @rdname weight_ss_fc
