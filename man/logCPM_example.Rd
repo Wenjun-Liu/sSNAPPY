@@ -5,7 +5,7 @@
 \alias{logCPM_example}
 \title{logCPM_example: Normalised logCPM of patient-derived explant models obtained from 5 ER-positive primamry breast cancer patients (GSE80098)}
 \format{
-A matrix with 7672 rows and 15 columns
+A \code{data.frame} with 7672 rows and 15 columns
 }
 \source{
 \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE80098}

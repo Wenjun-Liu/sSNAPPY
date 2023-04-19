@@ -12,10 +12,11 @@ sample <- sample %>%
         treatment = vapply(.$sample, function(x){
             stringr::str_split(x, "_")[[1]][2]
         }, character(1)),
+        treatment = factor(treatment, levels = c("control", "treat1", "treat2")),
         patient = vapply(.$sample, function(x){
             stringr::str_split(x, "_")[[1]][1]
         }, character(1)))
-ssFC <- weight_ss_fc(y, sample, "patient", "control")
+ssFC <- weight_ss_fc(y, sample, sampleColumn = "sample", groupBy = "patient", treatColumn = "treatment")
 pathwayDir <- system.file("extdata", "gsTopology.rda", package = "sSNAPPY")
 load(pathwayDir)
 # the number of pathways with at least one of those five genes in it
@@ -24,7 +25,7 @@ interesectName <- names(gsTopology[lapply(gsTopology, function(x){length(interse
 # create logCPM matrix with gene_id as rownames (instead of entrezID required)
 y_wrongIdentifier <- y
 rownames(y_wrongIdentifier) <- c("ENSG00000000003","ENSG00000000419","ENSG00000000457","ENSG00000000460","ENSG00000000938")
-ssFC_wrongIdentifier <- weight_ss_fc(y_wrongIdentifier, sample, "patient", "control")
+ssFC_wrongIdentifier <- weight_ss_fc(y_wrongIdentifier, sample, sampleColumn = "sample", groupBy = "patient", treatColumn = "treatment")
 
 test_that("raw_gene_pert returns error when expected", {
     expect_error(raw_gene_pert(ssFC_wrongIdentifier$logFC, gsTopology), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
@@ -57,8 +58,8 @@ test_that("raw_gene_pert produces the expected output",{
 
 test_that("pathway_pert produces the expected output", {
     output <- pathway_pert(ls)
-    expect_true(setequal(colnames(output), c( "tA", "sample","gs_name")))
-    expect_false(anyNA(output$tA))
+    expect_true(setequal(colnames(output), c( "score", "sample","gs_name")))
+    expect_false(anyNA(output$score))
     expect_equal(unique(output$sample), stringr::str_subset(sample$sample, "control", negate = TRUE))
     expect_true(length(setdiff(output$gs_name, interesectName)) == 0)
 })
@@ -72,35 +73,35 @@ test_that("rank_gene_pert produces the expected output", {
     geneRank <- rank_gene_pert(ls, gsTopology)
     expect_equal(length(geneRank), length(ls))
     expect_equal(ncol(geneRank[[1]]), ncol(ssFC$logFC))
-    # since all non-zero perturbation scores of pathway Chemokine signaling pathway were positive, expect all rankings to be positives too
+    # since all non-zero perturbation scores of pathway kegg.Chemokine signaling pathway were positive, expect all rankings to be positives too
     expect_false(any(geneRank[[1]] < 0))
 
     # if all gene-wise perturbation scores are changed to negative values, expect all rankings to be negative
-    ls$`Chemokine signaling pathway` <- (-1)*ls$`Chemokine signaling pathway`
+    ls$`kegg.Chemokine signaling pathway` <- (-1)*ls$`kegg.Chemokine signaling pathway`
     geneRank2 <- rank_gene_pert( ls, gsTopology)
     expect_false(any(geneRank2[[1]] > 0))
 
     #
     # if only one gene's perturbation scores were changed back to positive for all samples, expect only one row in the output with 1 as ranking for all samples
     # to test that, extract the first 9 rows, which contains 7 rows of all zeros and 2 rows of all negative
-    ls$`Chemokine signaling pathway` <- ls$`Chemokine signaling pathway`[1:9,]
+    ls$`kegg.Chemokine signaling pathway` <- ls$`kegg.Chemokine signaling pathway`[1:9,]
     # change the 9th row to all positive
-    ls$`Chemokine signaling pathway`[9,] <- abs(ls$`Chemokine signaling pathway`[9,])
-    geneRank5 <- rank_gene_pert(ls, lapply(gsTopology[c("Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:9, 1:9]))
-    geneRank5 <- geneRank5$`Chemokine signaling pathway`[,-1]
+    ls$`kegg.Chemokine signaling pathway`[9,] <- abs(ls$`kegg.Chemokine signaling pathway`[9,])
+    geneRank5 <- rank_gene_pert(ls, lapply(gsTopology[c("kegg.Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:9, 1:9]))
+    geneRank5 <- geneRank5$`kegg.Chemokine signaling pathway`[,-1]
     expect_equal(sum(apply(geneRank5, 1, function(y){all(y == 1)})), 1)
     expect_equal(sum(apply(geneRank5, 1, function(y){all(y == -1)})), 1)
 
     # extract the first 8 rows, which contains 7 rows of all zeros and one row of all negative
-    ls$`Chemokine signaling pathway` <- ls$`Chemokine signaling pathway`[1:8,]
-    geneRank3 <- rank_gene_pert(ls, lapply(gsTopology[c("Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:8, 1:8]))
-    expect_equal(dim(geneRank3$`Chemokine signaling pathway`), c(1, ncol(ssFC$logFC) +1))
-    expect_true(all(geneRank3$`Chemokine signaling pathway`[,-1] == -1))
+    ls$`kegg.Chemokine signaling pathway` <- ls$`kegg.Chemokine signaling pathway`[1:8,]
+    geneRank3 <- rank_gene_pert(ls, lapply(gsTopology[c("kegg.Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:8, 1:8]))
+    expect_equal(dim(geneRank3$`kegg.Chemokine signaling pathway`), c(1, ncol(ssFC$logFC) +1))
+    expect_true(all(geneRank3$`kegg.Chemokine signaling pathway`[,-1] == -1))
 
     # for the only non-zero gene, if the gene-wise perturbation scores for the first and third treated sample are changed to positive,
     #expect the rank for those two samples become 1
-    ls$`Chemokine signaling pathway`[8,c(1,3)] <- abs(ls$`Chemokine signaling pathway`[8,c(1,3)])
-    geneRank4 <- rank_gene_pert(ls, lapply(gsTopology[c("Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:8, 1:8]))
-    expect_equal(dim(geneRank4$`Chemokine signaling pathway`), c(1, ncol(ssFC$logFC) +1))
-    expect_equal(unname(unlist(as.vector(geneRank4$`Chemokine signaling pathway`[1, 2:5]), TRUE)), c(1, -1, 1, -1))
+    ls$`kegg.Chemokine signaling pathway`[8,c(1,3)] <- abs(ls$`kegg.Chemokine signaling pathway`[8,c(1,3)])
+    geneRank4 <- rank_gene_pert(ls, lapply(gsTopology[c("kegg.Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:8, 1:8]))
+    expect_equal(dim(geneRank4$`kegg.Chemokine signaling pathway`), c(1, ncol(ssFC$logFC) +1))
+    expect_equal(unname(unlist(as.vector(geneRank4$`kegg.Chemokine signaling pathway`[1, 2:5]), TRUE)), c(1, -1, 1, -1))
 })
