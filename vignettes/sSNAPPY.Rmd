@@ -236,6 +236,7 @@ Since the permutation step takes a long time to run and the output is too large 
 
 ```{r}
 load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
+levels(normalisedScores$gs_name) <- str_remove_all(levels(normalisedScores$gs_name), "kegg.")
 ```
 
 Pathways that were significant perturbed within individual samples are:
@@ -401,7 +402,8 @@ From the heatmap below that we can see that the activation of this pathway was s
 
 ```{r fig.height= 5, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 15 absolute mean gene-wise perturbation scores in the Ovarian steroidogenesis gene-set.*" }
 plot_gene_contribution(
-    genePertMatr  = genePertScore$`kegg.Ovarian steroidogenesis`, 
+    # genePertMatr  = genePertScore$`kegg.Ovarian steroidogenesis`, 
+    genePertMatr  = genePertScore$`Ovarian steroidogenesis`,
     # only plot genes with top 15 absolute mean gene-wise scores
     filterBy = "mean", topGene = 15
 )
@@ -417,7 +419,8 @@ We can also annotate each column (ie. each sample) by the direction of pathway p
 
 ```{r annotation_df}
 annotation_df <- pathwayPertScore %>%
-    dplyr::filter(gs_name == "kegg.Ovarian steroidogenesis") %>%
+    # dplyr::filter(gs_name == "kegg.Ovarian steroidogenesis") %>%
+    dplyr::filter(gs_name == "Ovarian steroidogenesis") %>%
     mutate(
         `pathway-level` =  ifelse(
             score > 0, "Activated", "Inhibited")
@@ -435,7 +438,8 @@ Colors of the annotation could be customised through `pheatmap::pheatmap()`'s `a
 ```{r fig.height= 5, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 15 absolute mean gene-wise perturbation scores in the Ovarian steroidogenesis gene-set.Genes playing the most important roles in pathway activation was INS, CGA, GNAS.*"}
 load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
 plot_gene_contribution(
-    genePertMatr  = genePertScore$`kegg.Ovarian steroidogenesis`, 
+    # genePertMatr  = genePertScore$`kegg.Ovarian steroidogenesis`, 
+    genePertMatr  = genePertScore$`Ovarian steroidogenesis`,
     annotation_df = annotation_df,
     filterBy = "mean", topGene = 15,
     mapEntrezID = entrez2name,

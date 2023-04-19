@@ -63,8 +63,9 @@ genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 pathwayPertScore <- pathway_pert(genePertScore)
 
 # Genes with top 10 mean absolute gene-wise perturbation scores in the
-# Estrogen signaling pathway was visuaulised.
-plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+# Estrogen signaling pathway was visualised.
+#plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+plot_gene_contribution(genePertScore$`Estrogen signaling pathway`,
 filterBy = "mean", topGene = 10)
 
 # Columns of the heatmap could be annotated by the pathway-level perturbation
@@ -73,7 +74,8 @@ filterBy = "mean", topGene = 10)
 # score matrix.
 annotation_df <- dplyr::select(metadata_example, sample, treatment)
 pathwayLevel <- dplyr::filter(pathwayPertScore,
-gs_name == "kegg.Estrogen signaling pathway")
+#gs_name == "kegg.Estrogen signaling pathway")
+gs_name == "Estrogen signaling pathway")
 pathwayLevel$`pathway-level` <- ifelse(
 pathwayLevel$score > 0, "Activated", "Inhibited")
 annotation_df <- dplyr::left_join(
@@ -82,13 +84,15 @@ annotation_df, unmatched = "drop")
 # To make the gene labels more informative, also map genes' entrez id
 # to chosen identifiers.
 load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
-plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+#plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+plot_gene_contribution(genePertScore$`Estrogen signaling pathway`,
 topGene = 10, filterBy = "mean", annotation_df = annotation_df,
 mapEntrezID = entrez2name)
 
 # Plotting parameters accepted by `pheatmap::pheatmap()` could be passed to
 # this function to customise the plot. For example, changin the color of annotations
-plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+#plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
+plot_gene_contribution(genePertScore$`Estrogen signaling pathway`,
 topGene = 10, filterBy = "mean", annotation_df = annotation_df,
 mapEntrezID = entrez2name, annotation_colors = list(
 treatment = c(R5020 = "black", `E2+R5020` = "white"),
