@@ -12,10 +12,11 @@ sample <- sample %>%
         treatment = vapply(.$sample, function(x){
             stringr::str_split(x, "_")[[1]][2]
         }, character(1)),
+        treatment = factor(treatment, levels = c("control", "treat1", "treat2")),
         patient = vapply(.$sample, function(x){
             stringr::str_split(x, "_")[[1]][1]
         }, character(1)))
-ssFC <- weight_ss_fc(y, sample, "patient", "control")
+ssFC <- weight_ss_fc(y, sample, groupBy  = "patient", sampleColumn = "sample", treatColumn = "treatment")
 pathwayDir <- system.file("extdata", "gsTopology.rda", package = "sSNAPPY")
 load(pathwayDir)
 load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
@@ -27,43 +28,24 @@ genePertScore <- raw_gene_pert(ssFC$logFC, gsTopology)
 pathwayPertScore <- pathway_pert(genePertScore)
 
 test_that("plot_gene_contribution returns error when expected", {
-    expect_error(plot_gene_contribution( genePertScore, "random name"), "Gene-wise perturbation scores not provided for the chosen pathway.")
+    expect_error(plot_gene_contribution( genePertScore$`kegg.Chemokine signaling pathway`, topGene = "random"))
+    expect_warning(
+        plot_gene_contribution( genePertScore$`kegg.Chemokine signaling pathway`, mapEntrezID = entrez2name[1,])
+    )
+    expect_message(
+        plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`,
+                               annotation_df = dplyr::select(sample, -sample))
+    )
 })
 
 test_that("plot_gene_contribution returns a pheatmap object as expected", {
-    hp <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway", metadata = sample,
-                                 annotation_attribute = c("pathwayPertScore", "treatment"))
+    hp <- plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`)
     expect_equal(class(hp), "pheatmap")
-    hp2 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway",
-                                 annotation_attribute = NULL)
+    hp2 <- plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`,
+                                  annotation_df = sample)
     expect_equal(class(hp2), "pheatmap")
-    hp3 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway")
+    hp3 <- plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`,
+                                  annotation_df = sample, mapEntrezID = entrez2name)
     expect_equal(class(hp3), "pheatmap")
-
-    hp4 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway", annotation_attribute = "treatment", metadata = sample)
-    expect_equal(class(hp4), "pheatmap")
-
-    hp5 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway", pathwayPertScore = pathwayPertScore)
-    expect_equal(class(hp5), "pheatmap")
-
-    randomRownames <- sample(1:1000, nrow(genePertScore$`Chemokine signaling pathway`))
-    hp6 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway", pathwayPertScore = pathwayPertScore, mapRownameTo = randomRownames)
-    expect_equal(class(hp6), "pheatmap")
-
-    hp7 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway", annotation_attribute = c("pathwayPertScore", "treatment"),
-                                  pathwayPertScore = pathwayPertScore)
-    expect_equal(class(hp7), "pheatmap")
-
-    hp8 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway", annotation_attribute = c("pathwayPertScore", "treatment"),
-                                  pathwayPertScore = pathwayPertScore, metadata = sample)
-    expect_equal(class(hp8), "pheatmap")
-
-    hp9 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway", annotation_attribute = c("pathwayPertScore", "treatment"),
-                                   metadata = sample)
-    expect_equal(class(hp9), "pheatmap")
-
-    hp10 <- plot_gene_contribution(genePertScore, gsToPlot = "Chemokine signaling pathway", annotation_attribute = c("pathwayPertScore", "treatment"),
-                                  mapEntrezID = entrez2name)
-    expect_equal(class(hp10), "pheatmap")
 })
 

@@ -1,10 +1,9 @@
 #' @title Compute weighted single sample LogFCs from normalised logCPM
 #'
 #' @description Compute weighted single sample logFCs for each treated samples
-#' using normalised logCPM values. Fit a lowess curve on variances of single
-#' sample logFCs ~ mean of logCPM, and use it to predict a gene-wise weight.
-#' The weighted single sample logFCs are ready to be used for computing
-#' perturbation scores.
+#' using normalized logCPM values. Fit a lowess curve on variances ~ mean of
+#' logCPM values, and use it to predict gene-wise weights. The weighted single
+#' sample logFCs are ready to be used for computing perturbation scores.
 #'
 #' @details
 #'
@@ -13,65 +12,64 @@
 #'
 #' Since genes with smaller logCPM turn to have larger variances among single
 #' sample logFCs.A lowess curve will be fitted to estimate the relationship
-#' between variances of single-sample logFCs and mean of logCPM, and the relationship
-#' will be used to estimate the variance of each mean logCPM value. Gene-wise weights,
-#' which are inverse of variances, will then be multiplied to single-sample logFCs to
-#' down-weight genes with low counts.
+#' between variances and mean of logCPM, and the relationship will be used to
+#' estimate the variance of each mean logCPM value. Gene-wise weights, which are
+#' defined to be inverse of variances, will then be multiplied to single-sample
+#' logFCs to down-weight genes with low counts.
 #'
 #' It is assumed that the genes with extremely low counts have been removed and the
-#' count matrix has been normalised prior to the logCPM matrix was derived. Row names
-#' of the matrix must be genes' entrez IDs.
+#' count matrix has been normalised prior to the logCPM matrix was derived. Row
+#' names of the matrix must be in genes' entrez IDs.
 #'
 #' If a S4 object of \code{DGEList or SummarizedExperiment} is provided as input
-#' to `expreMatrix`, the gene expression matrix will be extracted from it and converted
-#' to a logCPM matrix. Sample metadata will also be extracted from the same S4 object
-#' unless otherwise specified.
+#' to `expreMatrix`, the gene expression matrix will be extracted from it and
+#' converted to a logCPM matrix. Sample metadata will also be extracted from the
+#' same S4 object unless otherwise specified.
 #'
-#' Provided sample metadata should have the same number of rows as the number of columns
-#' in the logCPM matrix. Metadata also must have a column called "sample" storing
-#' sample names (column names of logCPM matrix), and a column called "treatment"
-#' storing treatment of each sample.The control treatment level specified by the `control`
-#' parameter must exist in the treatment column.
+#' Provided sample metadata should have the same number of rows as the number of
+#' columns in the logCPM matrix and must contain the a column for treatment, one
+#' for sample names and a column for how samples should be matched into pairs.
 #'
-#' This analysis was designed for experimental designs involving matched pairs of
-#' samples, such as when tissues collected from the same patient were treated with
-#' different treatments to study different treatment effects. Parameter `factor` tells
-#' the function how samples can be put into matching pairs. It must also be included as
-#' a column in the metadata.
-#'
-#' @param expreMatrix `matrix` and `data.frame` of logCPM, or `DGEList`/`SummarizedExperiment`
-#' storing gene expression counts and sample metadata. Feature names need to be in entrez IDs,
-#' and column names need to be sample names
+#' @param expreMatrix `matrix` or `data.frame` of logCPM, or `DGEList`/
+#' `SummarizedExperiment` storing gene expression counts and sample metadata.
+#' Feature names need to be in entrez IDs, and column names need to be sample names
 #' @param metadata Sample metadata `data.frame` as described in the details section.
-#' @param factor `character` Factor defines how samples can be put into matching pairs (eg. patient).
-#' @param control `character` Treatment level that is the control.
-#'
+#' @param sampleColumn Name of the column in the `metadata` containing column
+#' names of the `expreMatrix`
+#' @param treatColumn Name of the column in the `metadata` containing treatment
+#' information. The column must be a factor with the reference level set to be
+#' the control treatment.
+#' @param groupBy Name of the column in the `metadata` containing information
+#' for how samples are matched in pairs (eg. patient).
 #' @importFrom stats approxfun lowess var
 #' @return A list with two elements:
 #' $weight  gene-wise weights;
 #' $logFC weighted single sample logFC matrix
 #' @examples
-#' # Inspect metadata data frame to make sure it has treatment, sample and patient columns
+#' # Inspect metadata data frame to make sure it has treatment, sample
+#' # and patient columns
 #' data(metadata_example)
 #' data(logCPM_example)
-#' length(setdiff(colnames(logCPM_example), metadata_example$sample)) == 0
+#' # Set the treatment column to be a factor where the reference is the control
+#' #treatment
+#' metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+#'    treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 #' ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-#'  factor = "patient", control = "Vehicle")
+#'  sampleColumn = "sample", groupBy = "patient", treatColumn = "treatment")
 #' @export
-setGeneric("weight_ss_fc", function(expreMatrix, metadata = NULL, factor, control)
+
+setGeneric("weight_ss_fc", function(expreMatrix, metadata = NULL, sampleColumn, treatColumn, groupBy)
     standardGeneric("weight_ss_fc"))
 
 #' @rdname weight_ss_fc
 setMethod("weight_ss_fc",
           signature = signature(expreMatrix = "matrix"),
-          function(expreMatrix, metadata = NULL, factor, control){
-              if (is.null(metadata)) stop("sample metadata must be provided")
-              ssFC <- .compute_ssFC(expreMatrix, metadata, factor, control)
-              varFC <- apply(ssFC, 1, var)
+          function(expreMatrix, metadata = NULL, sampleColumn, treatColumn, groupBy){
+              if (is.null(metadata)|!is.data.frame(metadata))
+                  stop("sample metadata must be provided as a data frame")
+              ssFC <- .compute_ssFC(expreMatrix, metadata, sampleColumn, treatColumn, groupBy)
+              varFC <- apply(expreMatrix, 1, var)
               meanCPM <- apply(expreMatrix, 1, mean)
-
-              # make sure varFC & meanCPM are in correct order
-              meanCPM <- meanCPM[match(names(meanCPM),names(varFC))]
               l <- lowess(meanCPM, varFC)
               f <- approxfun(l, rule = 2, ties = list("ordered", mean))
               weight <- 1/f(meanCPM)
@@ -86,30 +84,30 @@ setMethod("weight_ss_fc",
 #' @rdname weight_ss_fc
 setMethod("weight_ss_fc",
           signature = signature(expreMatrix = "data.frame"),
-          function(expreMatrix, metadata = NULL, factor, control){
-              weight_ss_fc(as.matrix(expreMatrix), metadata, factor, control)
+          function(expreMatrix, metadata = NULL, sampleColumn, treatColumn, groupBy){
+              weight_ss_fc(as.matrix(expreMatrix), metadata,treatColumn, groupBy)
           })
 
 #' @rdname weight_ss_fc
 setMethod("weight_ss_fc",
           signature = signature(expreMatrix = "DGEList"),
-          function(expreMatrix, metadata = NULL, factor, control){
+          function(expreMatrix, metadata = NULL, sampleColumn, treatColumn, groupBy){
               cpm <- cpm(expreMatrix$counts, log = TRUE)
               if(is.null(metadata)){
                   metadata <- expreMatrix$samples
               }
-              weight_ss_fc(cpm, metadata, factor, control)
+              weight_ss_fc(cpm, metadata, sampleColumn, treatColumn, groupBy)
           })
 
 #' @rdname weight_ss_fc
 setMethod("weight_ss_fc",
           signature = signature(expreMatrix = "SummarizedExperiment"),
-          function(expreMatrix, metadata = NULL, factor, control){
+          function(expreMatrix, metadata = NULL,sampleColumn, treatColumn, groupBy){
               cpm <- cpm(SummarizedExperiment::assay(expreMatrix), log = TRUE)
               if(is.null(metadata)){
-                  metadata <- SummarizedExperiment::colData(expreMatrix)
+                  metadata <- as.data.frame(SummarizedExperiment::colData(expreMatrix))
               }
-              weight_ss_fc(cpm, metadata, factor, control)
+              weight_ss_fc(cpm, metadata, sampleColumn, treatColumn, groupBy)
           })
 
 #' @title Compute single sample logFCs
@@ -122,33 +120,44 @@ setMethod("weight_ss_fc",
 #' @importFrom magrittr set_colnames
 #' @return A matrix of single sample logFC
 #' @keywords internal
-.compute_ssFC <- function(logCPM, metadata, factor, control){
-
-    metadata <- as.data.frame(metadata)
+.compute_ssFC <- function(logCPM, metadata, sampleColumn, treatColumn, groupBy){
 
     # checks
-    if (!all(c("treatment", "sample", factor) %in% colnames(metadata))) stop("Sample metadata must include factor, treatment and sample")
-    if (any(c(!control %in% unique(metadata$treatment), length(unique(metadata[,"treatment"])) <2))) stop(
-        "Treatment needs at least 2 levels where one is the control specified")
-    if (!setequal(colnames(logCPM), metadata[,"sample"])) stop("Sample metadaata does not match with logCPM's column names")
+    if (!all(c(treatColumn, groupBy) %in% colnames(metadata)))
+        stop("Sample metadata must include the columns matching the treatColumn and groupBy parameter")
+    if (!sampleColumn %in% colnames(metadata))
+        stop("Sample metadata does not contain the sample name column specified")
+    if (!is.factor(pull(metadata,sym(treatColumn)))|
+        length(levels(pull(metadata,sym(treatColumn)))) <2
+        ) stop(
+        "The specified treatment column must be a factor with at least 2 levels")
+    if (!setequal(colnames(logCPM), pull(metadata,sym(sampleColumn))))
+        stop("Sample names in the metadaata does not match with logCPM's column names")
     m <- min(logCPM)
     if (is.na(m)) stop("NA values not allowed")
 
-    pairs <- unique(as.character(pull(metadata, sym(factor))))
-    ls <- lapply(pairs, function(x){
-        contrSample <- dplyr::filter(metadata, metadata$treatment == control, !!sym(factor) == x)
-        contrSample <- as.character(pull(contrSample, sample))
-        treatedSample <- dplyr::filter(metadata, metadata$treatment != control, !!sym(factor) == x)
-        treatedSample <- as.character(pull(treatedSample, sample))
+    pairs <- unique(as.character(pull(metadata, sym(groupBy))))
 
-        if (length(unique(metadata[,"treatment"])) == 2){
-            set_colnames(as.matrix(logCPM[, treatedSample] - logCPM[, contrSample]), x)
+    # extract the base level of the treatment column as the control
+    control <- levels(pull(metadata, sym(treatColumn)))[1]
+    ls <- lapply(pairs, function(x){
+        contrSample <- dplyr::filter(metadata, !!sym(treatColumn) == control, !!sym(groupBy) == x)
+        contrSample <- as.character(pull(contrSample, sym(sampleColumn)))
+        treatedSample <- dplyr::filter(metadata, !!sym(treatColumn) != control, !!sym(groupBy) == x)
+        treatedSample <- as.character(pull(treatedSample, sym(sampleColumn)))
+
+        if (length(treatedSample) == 1){
+            set_colnames(as.matrix(logCPM[, treatedSample] - logCPM[, contrSample]), treatedSample)
         } else {
             logCPM[, treatedSample] - logCPM[, contrSample]
         }
 
         })
     do.call(cbind,ls)
+
+
 }
+
+
 
 

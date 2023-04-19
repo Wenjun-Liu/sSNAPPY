@@ -10,7 +10,7 @@ pathway_pert(genePertScore)
 \item{genePertScore}{List of gene-wise raw perturbation score matrices generated using function \code{raw_gene_pert()}}
 }
 \value{
-A data.frame with 3 columns: tA (single-sample pathway-level perturbation score), sample, and gs_name (gene-set name)
+A data.frame with 3 columns: score (single-sample pathway-level perturbation score), sample, and gs_name (gene-set name)
 }
 \description{
 Sum gene-wise raw perturbation scores within each sample to derive single-sample perturbation scores for each pathway
@@ -19,10 +19,12 @@ Sum gene-wise raw perturbation scores within each sample to derive single-sample
 #compute weighted single sample logFCs
 data(metadata_example)
 data(logCPM_example)
+metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+   treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
 ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
-factor = "patient", control = "Vehicle")
+groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 # extract all the KEGG pathways
-gsTopology <- retrieve_topology(database = "kegg")
+gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores

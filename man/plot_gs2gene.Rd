@@ -9,74 +9,89 @@ plot_gs2gene(
   gsTopology,
   geneFC = NULL,
   mapEntrezID = NULL,
-  colorGS_By = c("robustZ", "pvalue"),
+  colorGsBy = NULL,
   foldGSname = TRUE,
   foldafter = 2,
-  layout = "fr",
+  filterGeneBy = 2,
+  layout = c("fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"),
+  edgeColor = "darkgrey",
   edgeAlpha = 0.8,
-  upGS_col = "brown3",
-  downGS_col = "steelblue3",
-  upGene_col = "pink",
-  downGene_col = "lightblue",
-  GeneNode_size = 3,
-  GeneNode_shape = 17,
-  GsNode_size = 2,
-  GsNode_shape = 16,
-  label_Gene = TRUE,
-  GeneName_size = 3,
-  GsName_size = 6,
-  gene_lg_title = "Changes in Gene Expression",
-  gs_lg_title = "Pathway Perturbation",
-  arc_strength = 0.5
+  edgeArc = 0.5,
+  geneNodeSize = 3,
+  geneNodeShape = 17,
+  geneNameFace = c("italic", "plain", "bold", "bold-italic"),
+  geneNameColor = "grey30",
+  geneNameSize = 3,
+  labelGene = TRUE,
+  gsNodeSize = 2,
+  gsNodeShape = 21,
+  gsNodeStroke = 0.5,
+  gsNodeOutline = "white",
+  gsNameSize = 6,
+  gsNameColor = "black",
+  geneLegTitle = "Mean logFC",
+  gsLegTitle = colorGsBy,
+  maxOverlaps = 10,
+  ...
 )
 }
 \arguments{
-\item{normalisedScores}{A \code{data.frame} derived from the \code{normalise_by_permu()} function. Only gene-sets of interest should be included}
+\item{normalisedScores}{A \code{data.frame} derived from the
+\code{normalise_by_permu()} function. Only gene-sets of interest should be included}
 
-\item{gsTopology}{List of pathway topology matrices generated using function \code{retrieve_topology()}}
+\item{gsTopology}{List of pathway topology matrices generated using function
+\code{retrieve_topology()}}
 
 \item{geneFC}{An optional named vector of pathways' fold changes}
 
-\item{mapEntrezID}{Optional. A \code{data.frame} matching genes' entrez IDs to other identifier. Must contain 2 columns: \code{"entrezid"} and \code{"mapTo"}}
+\item{mapEntrezID}{Optional. A \code{data.frame} matching genes' entrez IDs to
+another identifier with preferred labels. Must contain the columns:
+\code{"entrezid"} and \code{"mapTo"}}
 
-\item{colorGS_By}{Choose to color nodes by \emph{robustZ} or \emph{pvalue}. A column must exist in the normalisedScores \code{data.frame}
-for the chosen parameter}
+\item{colorGsBy}{Column within \code{normalisedScores} to color gene-set/pathway
+nodes by}
 
-\item{foldGSname}{\code{logical}. Should long gene-set names be folded into two lines}
+\item{foldGSname}{\code{logical}. Should long gene-set names be folded into two
+lines}
 
-\item{foldafter}{The number of words after which gene-set names should be folded. Defaulted to 2}
+\item{foldafter}{The number of words after which gene-set names should be
+folded.}
 
-\item{layout}{The layout algorithm to apply. Accept all layout supported by \code{igraph}.}
+\item{filterGeneBy}{Filtration cut-off applied to genes' connectivity (ie.
+how many pathways was a gene involved in).}
 
-\item{edgeAlpha}{Transparency of edges. Default to 0.8}
+\item{layout}{The layout algorithm to apply. Accepts all layout supported by
+\code{igraph}.}
 
-\item{upGS_col}{Color for activated gene-sets. Only applicable if \code{colorGS_By} is set to be "robustZ"}
+\item{edgeColor, edgeAlpha}{Color and transparency of edges}
 
-\item{downGS_col}{Color for inhibited gene-sets. Only applicable if \code{colorGS_By} is set to be "robustZ"}
+\item{edgeArc}{The bend of edges. 1 approximates a semi-circle whilst 0
+will give a straight line.}
 
-\item{upGene_col}{Color for up-regulated genes. Only applicable if \code{geneFC} is not NULL}
+\item{geneNodeSize, geneNodeShape}{Size and shape for gene nodes}
 
-\item{downGene_col}{Color for down-regulated genes. Only applicable if \code{geneFC} is not NULL}
+\item{geneNameSize, geneNameColor, geneNameFace}{Size, color and fontface
+to use for gene labels}
 
-\item{GeneNode_size}{Size for gene nodes}
+\item{labelGene}{\code{logical(1)} Should the gene names be included}
 
-\item{GeneNode_shape}{Shape for gene nodes}
+\item{gsNodeSize}{Size for gene-set/pathway nodes}
 
-\item{GsNode_size}{Size for gene-set nodes}
+\item{gsNodeShape}{Shape for gene-set/pathway nodes. Should be a shape with
+a fill parameter, such as 21:25}
 
-\item{GsNode_shape}{Shape for gene nodes}
+\item{gsNodeStroke, gsNodeOutline}{Border thickness and color for
+gene-set/pathway nodes}
 
-\item{label_Gene}{\code{logical} Should gene name be plotted}
+\item{gsNameSize, gsNameColor}{Size and color of gene-set/pathway labels}
 
-\item{GeneName_size}{Size of gene name label}
+\item{geneLegTitle}{\code{character(1)}. Legend title for gene nodes}
 
-\item{GsName_size}{Size of gene-set name label}
+\item{gsLegTitle}{\code{character(1)} Legend title for gene-set/pathway nodes}
 
-\item{gene_lg_title}{`character. Legend for gene nodes color}
+\item{maxOverlaps}{passed to \link[ggraph]{geom_node_text}}
 
-\item{gs_lg_title}{\code{character} Legend for gene-set nodes color}
-
-\item{arc_strength}{The bend of edges. 1 approximates a halfcircle while 0 will give a straight line.}
+\item{...}{Not used}
 }
 \value{
 A ggplot2 object
@@ -85,50 +100,81 @@ A ggplot2 object
 Plot pathways and genes contained in them as a network
 }
 \details{
-Taking the perturbation scores of a list of gene-sets derived from \code{normalise_by_permu()} as input, this function matches gene-set to
+Taking the perturbation scores of a list of gene-sets derived from
+\code{normalise_by_permu()} as input, this function matches gene-sets to
 their associated genes by utilizing information from pathway topology matrices.
 
-It's optional to provide genes' logFCs as a named vector, where the names must be genes' entrez IDs in the format of "ENTREZID:XXXX".
-This is because pathway topology matrices retrieved through \code{retrieve_topology()} always use entrez ID as identifiers.
+If providing logFC values as a named vector, the names must be entrezgene IDs
+in the format of "ENTREZID:XXXX" for compatibility with the values returned
+by \code{retrieve_topology()}. If not providing this vector, only genes associated
+with two or more pathways will be added to the plot, however, it should be
+noted that if omitting this vector, network plots can easily become
+unmanageable.
 
-However, it might not be very informative to label genes with their entrez ID. So users can also choose to proivde a \code{mapEntrezID}
-\code{data.frame} to match entrez IDs to their chosen identifiers. The \code{data.frame} should contain two columns: \code{"entrezid"} and \code{"mapTo"}.
+Users can also choose to provide a \code{mapEntrezID} \code{data.frame} to match
+entrezgene IDs to their chosen identifiers. The \code{data.frame} should contain
+the columns: \code{"entrezid"} and \code{"mapTo"}.
 
-If \code{geneFC} is provided, gene nodes will be colored by genes' directions of changes. Otherwise, all gene nodes will be black.
+If \code{geneFC} is provided, gene nodes will be colored by values provided,
+otherwise all gene nodes will drawn in grey.
 
-Since some gene-sets could can contain hundreds of genes, it is not recommended to plot all of those genes. If \code{mapEntrezID} \code{data.frame} is provided,
+Since some gene-sets could can contain hundreds of genes, it is not
+recommended to plot all genes. If \code{mapEntrezID} \code{data.frame} is provided,
 only genes included in that \code{data.frame} will be used in the plot.
 
-It is strongly recommended to filter for genes with the highest magnitude of changes. If all pathway genes
-have to be plotted, consider setting \code{label_Gene} to FALSE to turn off plotting all gene names.
+It is strongly recommended to filter genes using some criteria, such as those
+with the largest magnitude of change. If all pathway genes are desired,
+please consider setting \code{labelGene} to FALSE to remove gene names.
 }
 \examples{
+
 load(system.file("extdata", "gsTopology.rda", package = "sSNAPPY"))
 load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
-#Subset pathways significantly perturbed in sample R5020_N2_48
+
+# Subset pathways significantly perturbed in sample R5020_N2_48
 subset <- dplyr::filter(normalisedScores, adjPvalue < 0.05, sample == "R5020_N2_48")
+subset$response <- ifelse(subset$robustZ > 0, "Activated", "Inhibited")
 
 # Color gene-sets nodes by robust z-scores.
-plot_gs2gene(subset, gsTopology, colorGS_By = "robustZ", label_Gene = FALSE,
-GeneNode_size = 1)
-# When genes' fold-changes are not provided, gene nodes are colored in black.
+plot_gs2gene(
+  subset, gsTopology, colorGsBy = "robustZ", labelGene = FALSE, geneNodeSize = 1,
+  gsNodeSize = 4
+) + scale_fill_gradient2()
+# When fold-changes are not provided, gene nodes are colored grey.
 
-# To color genes by their directions of changes, firstly compute genes' single-sample logFCs
+# To color genes by their direction of change, firstly compute single-sample logFC
 data(logCPM_example)
 data(metadata_example)
-ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
- factor = "patient", control = "Vehicle")
+metadata_example <- dplyr::mutate(metadata_example, treatment = factor(
+   treatment, levels = c("Vehicle", "E2+R5020", "R5020")))
+ls <- weight_ss_fc(
+  logCPM_example, metadata = metadata_example,
+  groupBy = "patient", treatColumn = "treatment",
+  sampleColumn = "sample"
+)
 # Provide fold-changes of sample R5020_N2_48 as a named vector
-plot_gs2gene(subset, gsTopology, geneFC = ls$logFC[,"R5020_N2_48"], colorGS_By = "robustZ",
-label_Gene = FALSE)
+plot_gs2gene(
+  subset, gsTopology, geneFC = ls$logFC[,"R5020_N2_48"],
+  colorGsBy = "response", labelGene = FALSE
+) + scale_colour_gradient2()
 
-# There are still a large number of genes, making the plot cumbersome. There only fold-changes of
-# genes with top 500 absolute fold-changes are provide so only pathway genes in that list of 500
-# genes were plotted.
-FC <- sort(abs(ls$logFC[,"R5020_N2_48"]), decreasing = TRUE)[1:500]
-plot_gs2gene(subset, gsTopology, geneFC = FC, colorGS_By = "robustZ")
+# By default, the function only include genes involved in at least 2 pathways,
+# which can be overwritten by the `filterGeneBy` parameter. But there are still
+# a large number of genes, making the plot cumbersome. Instead, only include
+# fold-changes of genes within the top 500 absolute values for fold-change
+top500 <- rank(1/abs(ls$logFC[,"R5020_N2_48"])) <= 500
+fcByDir <- ifelse(ls$logFC[top500,"R5020_N2_48"] > 0, "Up-Regulated", "Down-Regulated")
+plot_gs2gene(subset, gsTopology, geneFC = fcByDir, colorGsBy = "response") +
+  scale_fill_manual(values = c("darkred", "lightskyblue")) +
+  scale_colour_manual(values = c("red", "blue"))
 
 # To make the gene labels more informative, map genes' entrez id to chosen identifiers.
 load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
-plot_gs2gene(subset, gsTopology, geneFC = FC, mapEntrezID = entrez2name, colorGS_By = "robustZ")
+plot_gs2gene(
+  subset, gsTopology, geneFC = fcByDir, mapEntrezID = entrez2name,
+  colorGsBy = "response", gsNodeSize = 4
+) +
+  scale_fill_manual(values = c("darkred", "lightskyblue"), name = "Pathway") +
+  scale_colour_manual(values = c("blue", "red"), name = "Gene\nDirection")
+
 }
