@@ -62,14 +62,11 @@ needs to be performed once for each database.
 # retrieve pathway topology matrices of all KEGG pathway
 gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 
-# retrieve pathway topology matrices from multiple databases
-gsTopology <- retrieve_topology(database = c("kegg","reactome"),
-species = "hsapiens")}
-
 # If only interested in selected pathways, specify the areas of interest as
 # keywords
 gsTopology <- retrieve_topology(database = "kegg",
 keyword = c("metabolism", "signaling"), species = "hsapiens")
+}
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS,

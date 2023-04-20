@@ -8,16 +8,12 @@ test_that("retrieve_topology returns erros when expected", {
 test_that("retrieve_topology returns expected output", {
     temp <- retrieve_topology(database = "kegg", species = "hsapien",
                               keyword = "estrogen")
-    # expect_equal(names(temp), "kegg.Estrogen signaling pathway")
-    ## The following has the database prefix removed. Is this needed?
-    expect_equal(names(temp), "Estrogen signaling pathway")
+    expect_equal(names(temp), "kegg.Estrogen signaling pathway")
     expect_true(stringr::str_detect(rownames(temp[[1]])[1], "ENTREZID:"))
 
     # if multiple dataset were provided
     temp <- retrieve_topology(database = c("kegg", "path"), species = "hsapien",
                               keyword = "estrogen")
-    # expect_equal(names(temp), c("kegg.Estrogen signaling pathway","pathbank.Androgen and Estrogen Metabolism"))
-    ## The following has the database prefix removed. Is this needed?
-    expect_equal(names(temp), c("Estrogen signaling pathway","Androgen and Estrogen Metabolism"))
+    expect_equal(names(temp), c("kegg.Estrogen signaling pathway","pathbank.Androgen and Estrogen Metabolism"))
     expect_true(stringr::str_detect(rownames(temp[[1]])[1], "ENTREZID:"))
 })
