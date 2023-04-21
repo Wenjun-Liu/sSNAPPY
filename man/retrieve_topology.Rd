@@ -2,14 +2,14 @@
 % Please edit documentation in R/pathwayTopology.R
 \name{retrieve_topology}
 \alias{retrieve_topology}
-\title{Retrieve pathway topology as weighted adjacent matrix}
+\title{Retrieve pathway topology as weighted adjacency matrix}
 \usage{
 retrieve_topology(
   database = c("kegg", "pathbank", "wikipathways", "reactome", "panther", "pharmgkb",
     "smpdb"),
-  species = c("athaliana", "btaurus", "celegans", "cfamiliaris", "dmelanogaster",
-    "drerio", "ecoli", "ggallus", "hsapiens", "mmusculus", "rnorvegicus", "scerevisiae",
-    "sscrofa", "xlaevis"),
+  species = c("hsapiens", "athaliana", "btaurus", "celegans", "cfamiliaris",
+    "dmelanogaster", "drerio", "ecoli", "ggallus", "mmusculus", "rnorvegicus",
+    "scerevisiae", "sscrofa", "xlaevis"),
   keyword = NULL,
   beta = NULL
 )
@@ -32,25 +32,27 @@ Retrieve pathway topology matrices and convert them to normalized
 weighted directed adjacency matrices describing gene signaling networks.
 }
 \details{
-This function takes the pathway topology information retrieved using \code{graphite}
-and convert them to normalized weighted directed adjacency matrices describing
-the gene signaling network, which can be used to compute gene-wise and
-pathway-level perturbation score through the scoring algorithm derived from
-the \emph{SPIA} algorithm. See cited document for more details.
+This function takes pathway topology information retrieved using \code{graphite}
+and converts these to normalized weighted directed adjacency matrices
+describing the gene signaling network, which can be used to compute gene-wise
+and pathway-level perturbation score through the scoring algorithm derived
+from the \emph{SPIA} algorithm. See cited document for more details.
 
-The \code{databse} parameter could be a vector containing multiple databases but
-only one species name could be provided to the \code{species} parameter.
+The \code{database} parameter may specify multiple databases but only one species
+can provided to the \code{species} parameter.
 
 Users can provide areas of interests as keywords, which will be matched to
-pathway names from chosen databases to filter for pathways. Cases will be
+pathway names from chosen databases to subset pathways. Cases will be
 ignored in string matchings.
 
 The beta parameter specifies weights to be assigned to each type of gene-gene
-interaction. It should be a named numeric vector of length 23,
+interaction. It should be a named numeric vector of length 25,
 whose names must be: \code{c("activation","compound","binding/association", "expression","inhibition","activation_phosphorylation","phosphorylation", "indirect","inhibition_phosphorylation","dephosphorylation_inhibition", "dissociation","dephosphorylation","activation_dephosphorylation", "state","activation_indirect","inhibition_ubiquination","ubiquination", "expression_indirect","indirect_inhibition","repression", "binding/association_phosphorylation","dissociation_phosphorylation", "indirect_phosphorylation")}.
 
-If unspecified, beta will be by default chosen as: \code{c(1,0,0,1,-1,1,0,0,-1,-1, 0,0,1,0,1,-1,0,1,-1,-1,0,0,0)}.
-
+If unspecified, beta will be set as an integer vector with: a) values of 1
+for interactions which match 'expression' or 'activation'; b) values of -1
+for interactions which match 'repression' or 'inhibition'; and c) 0
+elsewhere.
 The converted weighted adjacent matrices will be stored in a list. We
 recommend users to store the returned list as a file so this step only
 needs to be performed once for each database.
@@ -60,14 +62,11 @@ needs to be performed once for each database.
 # retrieve pathway topology matrices of all KEGG pathway
 gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 
-# retrieve pathway topology matrices from multiple databases
-gsTopology <- retrieve_topology(database = c("kegg","reactome"),
-species = "hsapiens")}
-
 # If only interested in selected pathways, specify the areas of interest as
 # keywords
 gsTopology <- retrieve_topology(database = "kegg",
 keyword = c("metabolism", "signaling"), species = "hsapiens")
+}
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS,

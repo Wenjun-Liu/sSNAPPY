@@ -63,7 +63,7 @@ genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
 pathwayPertScore <- pathway_pert(genePertScore)
 
 # Genes with top 10 mean absolute gene-wise perturbation scores in the
-# Estrogen signaling pathway was visuaulised.
+# Estrogen signaling pathway was visualised.
 plot_gene_contribution(genePertScore$`kegg.Estrogen signaling pathway`,
 filterBy = "mean", topGene = 10)
 
