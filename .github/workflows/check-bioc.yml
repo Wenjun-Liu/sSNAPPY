@@ -117,8 +117,8 @@ jobs:
         run: brew install --cask xquartz
 
       - name: Update clang
-      run: brew update
-           brew upgrade llvm # temporary step because macOS image still contains Clang 9 by default
+        run: brew update
+             brew upgrade llvm # temporary step because macOS image still contains Clang 9 by default
 
     - name: configure
       run: export CXX="/usr/local/opt/llvm/bin/clang++" # Switch to Clang 10
