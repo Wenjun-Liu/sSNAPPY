@@ -8,8 +8,8 @@ Scores <- data.frame(
     mutate(color_Z = ifelse(robustZ < 0, "Inhibited", "Activated"))
 Scores <- dplyr::mutate(Scores, gs_name = paste("kegg.", gs_name, sep = ""))
 GS <- Scores$gs_name
-g_Zscore <- .make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", plotIsolated = TRUE)
-g_pvalue <- .make_gsNetwork(Scores, gsTopology, colorBy = "pvalue", plotIsolated = TRUE)
+g_Zscore <- .make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", plotIsolated = TRUE, labelFun = NULL)
+g_pvalue <- .make_gsNetwork(Scores, gsTopology, colorBy = "pvalue", plotIsolated = TRUE, labelFun = NULL)
 
 test_that("make_gsNetwork produces the expected outcome",{
     expect_s3_class(g_Zscore, "igraph")

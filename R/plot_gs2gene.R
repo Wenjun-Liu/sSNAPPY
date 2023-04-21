@@ -40,6 +40,8 @@
 #' lines
 #' @param foldafter The number of words after which gene-set names should be
 #' folded.
+#' @param labelFun function to manipulate or modify gene-set labels. By default,
+#' any database will be stripped from the prefix using a regex pattern
 #' @param filterGeneBy Filtration cut-off applied to genes' connectivity (ie.
 #' how many pathways was a gene involved in).
 #' @param layout The layout algorithm to apply. Accepts all layout supported by
@@ -121,7 +123,8 @@
 #' @export
 plot_gs2gene <- function(
         normalisedScores, gsTopology, geneFC = NULL, mapEntrezID = NULL,
-        colorGsBy = NULL, foldGSname = TRUE, foldafter = 2, filterGeneBy = 2,
+        colorGsBy = NULL, foldGSname = TRUE, foldafter = 2,
+        labelFun = .rm_prefix, filterGeneBy = 2,
         layout = c(
             "fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"
         ),
@@ -147,7 +150,7 @@ plot_gs2gene <- function(
 
     # Make sure the gs topologies are a named list with at least two elements
     stopifnot(length(names(gsTopology)) == length(gsTopology))
-    if(length(unique(normalisedScores$gs_name)) < 2)
+    if (length(unique(normalisedScores$gs_name)) < 2)
         stop("At least 2 gene-sets are required for a network plot")
     gsTopology <- gsTopology[names(gsTopology) %in% normalisedScores$gs_name]
 
@@ -156,18 +159,27 @@ plot_gs2gene <- function(
         normalisedScores, gsTopology, geneFC, colorGsBy, mapEntrezID
     )
 
-    if( filterGeneBy >=2 ){
-        # filter genes by connectivity
-        g <- delete_vertices(g,
-                             degree(g) < filterGeneBy & V(g)$type == "GENE")
-    }
+    # filter genes by connectivity
+    if (filterGeneBy >= 2) 
+        g <- delete_vertices(g, degree(g) < filterGeneBy & V(g)$type == "GENE")
+    
 
-
-    if(foldGSname){
+    if (foldGSname) {
         nm <-  .str_replace_nth(
             V(g)$name, pattern = " ", replacement = "\n", n = foldafter
         )
         g <- set_vertex_attr(g, "name", value = nm)
+    }
+    
+    ## Tidy up node labels if a function has been passed to this argument
+    if (!is.null(labelFun)) {
+        ## This allows for stadard label replacement, but also for users to
+        ## provide more complex methods of string manipulation
+        stopifnot(is(labelFun, "function"))
+        nm <- vertex_attr(g, "name")
+        new_nm <- labelFun(nm)
+        stopifnot(length(nm) == length(new_nm))
+        g <- set_vertex_attr(g, "name", seq_along(nm), new_nm)
     }
 
     pl <- ggraph(g, layout = layout) +
@@ -178,53 +190,45 @@ plot_gs2gene <- function(
 
     ## Add gene-set nodes
     if (!is.null(colorGsBy)) {
-        pl <- pl +
-            geom_node_point(
-                aes(fill = fill),
-                colour = gsNodeOutline,
-                data = dplyr::filter(pl$data, type == "GS"),
-                stroke = gsNodeStroke, size = gsNodeSize, shape = gsNodeShape
-            )
+        pl <- pl + geom_node_point(
+            aes(fill = fill), data = dplyr::filter(pl$data, type == "GS"),
+            colour = gsNodeOutline, stroke = gsNodeStroke, size = gsNodeSize,
+            shape = gsNodeShape
+        )
     } else {
-        pl <- pl +
-            geom_node_point(
-                colour = gsNodeOutline, fill = "grey50",
-                data = dplyr::filter(pl$data, type == "GS"),
-                stroke = gsNodeStroke, size = gsNodeSize, shape = gsNodeShape
-            )
+        pl <- pl + geom_node_point(
+            data = dplyr::filter(pl$data, type == "GS"), fill = "grey50",
+            colour = gsNodeOutline, stroke = gsNodeStroke, size = gsNodeSize,
+            shape = gsNodeShape
+        )
     }
 
     ## Add gene nodes
     if (!all(is.na(V(g)$color))) {
-        pl <- pl +
-            geom_node_point(
-                aes(color = color),
-                data = dplyr::filter(pl$data, type == "GENE"),
-                size = geneNodeSize, shape = geneNodeShape
-            )
+        pl <- pl + geom_node_point(
+            aes(color = color), data = dplyr::filter(pl$data, type == "GENE"),
+            size = geneNodeSize, shape = geneNodeShape
+        )
     } else {
-        pl <- pl +
-            geom_node_point(
-                data = dplyr::filter(pl$data, type == "GENE"),
-                size = geneNodeSize, shape = geneNodeShape, colour = "grey50"
-            )
+        pl <- pl + geom_node_point(
+            data = dplyr::filter(pl$data, type == "GENE"),
+            size = geneNodeSize, shape = geneNodeShape, colour = "grey50"
+        )
     }
 
-    if (labelGene){
-        pl <- pl +
-            geom_node_text(
-                aes(label = name),
-                data = dplyr::filter(pl$data, type == "GENE"),
-                size = geneNameSize, repel = TRUE, show.legend = FALSE,
-                fontface = geneNameFace, colour = geneNameColor,
-                max.overlaps = maxOverlaps
-            )
+    if (labelGene) {
+        pl <- pl + geom_node_text(
+            aes(label = name),
+            data = dplyr::filter(pl$data, type == "GENE"),
+            size = geneNameSize, repel = TRUE, show.legend = FALSE,
+            fontface = geneNameFace, colour = geneNameColor,
+            max.overlaps = maxOverlaps
+        )
     }
 
     ## Add gene-set labels as the final step
     pl <- pl + geom_node_text(
-        aes(label = name),
-        data = dplyr::filter(pl$data, type == "GS"),
+        aes(label = name), data = dplyr::filter(pl$data, type == "GS"),
         color = gsNameColor, size = gsNameSize, repel = TRUE,
         show.legend = FALSE, max.overlaps = maxOverlaps
     ) +
@@ -260,7 +264,7 @@ plot_gs2gene <- function(
     if (
         !is.vector(geneFC) | is.null(names(geneFC)) |
         length(intersect(GS2Gene$entrezid, names(geneFC))) == 0
-    ){
+    ) {
         message(
             "Gene fold-changes were not provided as a named vector. ",
             "All genes will be colored identically."
