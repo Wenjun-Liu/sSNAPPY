@@ -116,6 +116,17 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install --cask xquartz
 
+      - name: Update clang
+      run: brew update
+           brew upgrade llvm # temporary step because macOS image still contains Clang 9 by default
+
+    - name: configure
+      run: export CXX="/usr/local/opt/llvm/bin/clang++" # Switch to Clang 10
+           cmake CMakeLists.txt
+
+    - name: make
+      run: make
+
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
         run: |
