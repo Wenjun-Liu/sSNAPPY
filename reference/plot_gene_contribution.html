@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sSNAPPY</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.4</span>
       </span>
     </div>
 
@@ -57,42 +57,41 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_gene_contribution</span><span class="op">(</span></span>
-<span>  <span class="va">genePertScore</span>,</span>
-<span>  <span class="va">gsToPlot</span>,</span>
+<span>  <span class="va">genePertMatr</span>,</span>
 <span>  mapEntrezID <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  annotation_attribute <span class="op">=</span> <span class="st">"pathwayPertScore"</span>,</span>
-<span>  pathwayPertScore <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  topGene <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  filterBy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"variance"</span><span class="op">)</span>,</span>
+<span>  annotation_df <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>genePertScore</dt>
-<dd><p>List of gene-wise perturbation scores generated using function <code><a href="raw_gene_pert.html">raw_gene_pert()</a></code></p></dd>
-
-
-<dt>gsToPlot</dt>
-<dd><p><code>character</code> Name of the pathway to be plotted</p></dd>
+    <dl><dt>genePertMatr</dt>
+<dd><p>A matrix of gene-wise perturbation scores corresponding
+to a pathway. An element of the output generated using function <code><a href="raw_gene_pert.html">raw_gene_pert()</a></code></p></dd>
 
 
 <dt>mapEntrezID</dt>
-<dd><p>Optional. A <code>data.frame</code> matching genes' entrez IDs to other identifiers, such as gene names.
-Must contain 2 columns: <code>"entrezid"</code> and <code>"mapTo"</code></p></dd>
+<dd><p>Optional. A <code>data.frame</code> matching genes' entrez IDs to
+another identifier with preferred labels. Must contain the columns:
+<code>"entrezid"</code> and <code>"mapTo"</code></p></dd>
 
 
-<dt>metadata</dt>
-<dd><p>A <code>data.frame</code> containing sample metadata for heatmap annotation</p></dd>
+<dt>topGene</dt>
+<dd><p>Numeric(1). The number of top genes to plot</p></dd>
 
 
-<dt>annotation_attribute</dt>
-<dd><p><code>character</code> Vector specifying attributes to draw annotations for. Default to "pathwayPertScore" (
-ie. pathway-level perturbation scores)</p></dd>
+<dt>filterBy</dt>
+<dd><p>Filter top genes by the mean or the variance of gene-wise
+perturbation scores</p></dd>
 
 
-<dt>pathwayPertScore</dt>
-<dd><p>A <code>data.frame</code> containing pathway-level perturbation scores for each pathway each treated sample. Output of function <code><a href="pathway_pert.html">pathway_pert()</a></code></p></dd>
+<dt>annotation_df</dt>
+<dd><p>A <code>data.frame</code> for annotating heatmap columns. Must
+contain a "sample" column with sample names matching to the column names of
+the <code>genePertMatr</code></p></dd>
 
 
 <dt>...</dt>
@@ -101,17 +100,17 @@ ie. pathway-level perturbation scores)</p></dd>
 </dl></div>
     <div id="details">
     <h2>Details</h2>
-    <p>The single-sample pathway-level perturbation score for a given pathway is derived from aggregating all the gene-wise perturbation scores of genes in that pathway.
-This function visualises individual pathway genes' perturbation scores as a heatmap to demonstrate genes' contribution to a pathway perturbation.</p>
-<p>Plotting of the heatmap is done through <code><a href="https://rdrr.io/pkg/pheatmap/man/pheatmap.html" class="external-link">pheatmap::pheatmap()</a></code> so all plotting parameters accepted by <code><a href="https://rdrr.io/pkg/pheatmap/man/pheatmap.html" class="external-link">pheatmap::pheatmap()</a></code> could also be passed to this function.</p>
-<p>It is recommended to provide the pathway-level perturbation scores derived using the <code><a href="pathway_pert.html">pathway_pert()</a></code> function to visualise the directions of changes at pathway-level
-as a column annotation, which helps the identification of genes driving or antagonizing the perturbation.</p>
-<p>Additional annotation attributes could be specified through the <code>annotation_attribute</code> parameter and the specified attributes must be provided by columns of the sample
-metadata <code>data.frame</code> provided through the <code>metadata</code> parameter, otherwise the attributes will be ignored.</p>
+    <p>The single-sample pathway-level perturbation score for a given pathway
+is derived from aggregating all the gene-wise perturbation scores of genes in that pathway.
+This function visualises individual pathway genes' perturbation scores as a
+heatmap to demonstrate pathway genes' contribution to a pathway perturbation.</p>
+<p>Plotting of the heatmap is done through <code><a href="https://rdrr.io/pkg/pheatmap/man/pheatmap.html" class="external-link">pheatmap::pheatmap()</a></code> so all plotting
+parameters accepted by <code><a href="https://rdrr.io/pkg/pheatmap/man/pheatmap.html" class="external-link">pheatmap::pheatmap()</a></code> could also be passed to this function.</p>
     </div>
     <div id="references">
     <h2>References</h2>
-    <p>Kolde R (2019). <em>pheatmap: Pretty Heatmaps</em>. R package version 1.0.12, <a href="https://CRAN.R-project.org/package=pheatmap" class="external-link">https://CRAN.R-project.org/package=pheatmap</a>.</p>
+    <p>Kolde R (2019). <em>pheatmap: Pretty Heatmaps</em>. R package version
+1.0.12, <a href="https://CRAN.R-project.org/package=pheatmap" class="external-link">https://CRAN.R-project.org/package=pheatmap</a>.</p>
     </div>
 
     <div id="ref-examples">
@@ -119,27 +118,55 @@ metadata <code>data.frame</code> provided through the <code>metadata</code> para
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#compute weighted single sample logFCs</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">metadata_example</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">logCPM_example</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">metadata_example</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">metadata_example</span>, treatment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>   <span class="va">treatment</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Vehicle"</span>, <span class="st">"E2+R5020"</span>, <span class="st">"R5020"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># compute single-sample logFCs for all treated samples</span></span></span>
 <span class="r-in"><span><span class="va">ls</span> <span class="op">&lt;-</span> <span class="fu"><a href="weight_ss_fc.html">weight_ss_fc</a></span><span class="op">(</span><span class="va">logCPM_example</span>, metadata <span class="op">=</span> <span class="va">metadata_example</span>,</span></span>
-<span class="r-in"><span>factor <span class="op">=</span> <span class="st">"patient"</span>, control <span class="op">=</span> <span class="st">"Vehicle"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>groupBy <span class="op">=</span> <span class="st">"patient"</span>, treatColumn <span class="op">=</span> <span class="st">"treatment"</span>, sampleColumn <span class="op">=</span> <span class="st">"sample"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># extract all the KEGG pathways</span></span></span>
-<span class="r-in"><span><span class="va">gsTopology</span> <span class="op">&lt;-</span> <span class="fu"><a href="retrieve_topology.html">retrieve_topology</a></span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gsTopology</span> <span class="op">&lt;-</span> <span class="fu"><a href="retrieve_topology.html">retrieve_topology</a></span><span class="op">(</span>database <span class="op">=</span> <span class="st">"kegg"</span>, species <span class="op">=</span> <span class="st">"hsapiens"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># compute raw gene-wise perturbation scores</span></span></span>
 <span class="r-in"><span><span class="va">genePertScore</span> <span class="op">&lt;-</span> <span class="fu"><a href="raw_gene_pert.html">raw_gene_pert</a></span><span class="op">(</span><span class="va">ls</span><span class="op">$</span><span class="va">logFC</span>, <span class="va">gsTopology</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores</span></span></span>
 <span class="r-in"><span><span class="va">pathwayPertScore</span> <span class="op">&lt;-</span> <span class="fu"><a href="pathway_pert.html">pathway_pert</a></span><span class="op">(</span><span class="va">genePertScore</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Genes' contribution to the perturbation of Estrogen signaling pathway was</span></span></span>
-<span class="r-in"><span><span class="co"># visuaulised with pathway-level perturbation scores</span></span></span>
-<span class="r-in"><span><span class="co"># and treatments as column annotation attributes.</span></span></span>
-<span class="r-in"><span><span class="fu">plot_gene_contribution</span><span class="op">(</span>genePertScore <span class="op">=</span> <span class="va">genePertScore</span>, gsToPlot <span class="op">=</span></span></span>
-<span class="r-in"><span><span class="st">"Estrogen signaling pathway"</span>, metadata <span class="op">=</span> <span class="va">metadata_example</span>,</span></span>
-<span class="r-in"><span>annotation_attribute <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pathwayPertScore"</span>, <span class="st">"treatment"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>pathwayPertScore <span class="op">=</span> <span class="va">pathwayPertScore</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Genes with top 10 mean absolute gene-wise perturbation scores in the</span></span></span>
+<span class="r-in"><span><span class="co"># Estrogen signaling pathway was visualised.</span></span></span>
+<span class="r-in"><span><span class="fu">plot_gene_contribution</span><span class="op">(</span><span class="va">genePertScore</span><span class="op">$</span><span class="va">`kegg.Estrogen signaling pathway`</span>,</span></span>
+<span class="r-in"><span>filterBy <span class="op">=</span> <span class="st">"mean"</span>, topGene <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_gene_contribution-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Columns of the heatmap could be annotated by the pathway-level perturbation</span></span></span>
+<span class="r-in"><span><span class="co"># and treatments. Firstly, create a `data.frame` with the two annotation</span></span></span>
+<span class="r-in"><span><span class="co"># attributes and sample names matching the column names of the perturbation</span></span></span>
+<span class="r-in"><span><span class="co"># score matrix.</span></span></span>
+<span class="r-in"><span><span class="va">annotation_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">metadata_example</span>, <span class="va">sample</span>, <span class="va">treatment</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pathwayLevel</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pathwayPertScore</span>,</span></span>
+<span class="r-in"><span><span class="va">gs_name</span> <span class="op">==</span> <span class="st">"kegg.Estrogen signaling pathway"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pathwayLevel</span><span class="op">$</span><span class="va">`pathway-level`</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">pathwayLevel</span><span class="op">$</span><span class="va">score</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"Activated"</span>, <span class="st">"Inhibited"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">annotation_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">pathwayLevel</span>, <span class="va">sample</span>, <span class="va">`pathway-level`</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span><span class="va">annotation_df</span>, unmatched <span class="op">=</span> <span class="st">"drop"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(sample)`</span>
+<span class="r-in"><span><span class="co"># To make the gene labels more informative, also map genes' entrez id</span></span></span>
+<span class="r-in"><span><span class="co"># to chosen identifiers.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"entrez2name.rda"</span>, package <span class="op">=</span> <span class="st">"sSNAPPY"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_gene_contribution</span><span class="op">(</span><span class="va">genePertScore</span><span class="op">$</span><span class="va">`kegg.Estrogen signaling pathway`</span>,</span></span>
+<span class="r-in"><span>topGene <span class="op">=</span> <span class="fl">10</span>, filterBy <span class="op">=</span> <span class="st">"mean"</span>, annotation_df <span class="op">=</span> <span class="va">annotation_df</span>,</span></span>
+<span class="r-in"><span>mapEntrezID <span class="op">=</span> <span class="va">entrez2name</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot_gene_contribution-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Plotting parameters accepted by `pheatmap::pheatmap()` could be passed to</span></span></span>
+<span class="r-in"><span><span class="co"># this function to customise the plot. For example, changin the color of annotations</span></span></span>
+<span class="r-in"><span><span class="fu">plot_gene_contribution</span><span class="op">(</span><span class="va">genePertScore</span><span class="op">$</span><span class="va">`kegg.Estrogen signaling pathway`</span>,</span></span>
+<span class="r-in"><span>topGene <span class="op">=</span> <span class="fl">10</span>, filterBy <span class="op">=</span> <span class="st">"mean"</span>, annotation_df <span class="op">=</span> <span class="va">annotation_df</span>,</span></span>
+<span class="r-in"><span>mapEntrezID <span class="op">=</span> <span class="va">entrez2name</span>, annotation_colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>treatment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>R5020 <span class="op">=</span> <span class="st">"black"</span>, `E2+R5020` <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>`pathway-level` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Activated <span class="op">=</span> <span class="st">"darkred"</span>, Inhibited <span class="op">=</span> <span class="st">"lightskyblue"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot_gene_contribution-3.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </div>
@@ -150,7 +177,7 @@ metadata <code>data.frame</code> provided through the <code>metadata</code> para
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun Liu</a>.</p>
+  <p></p><p>Developed by <a href="https://github.com/Wenjun-Liu" class="external-link">Wenjun Liu</a>, Stephen Pederson.</p>
 </div>
 
 <div class="pkgdown">
