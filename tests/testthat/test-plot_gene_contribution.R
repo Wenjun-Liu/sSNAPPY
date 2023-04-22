@@ -49,3 +49,8 @@ test_that("plot_gene_contribution returns a pheatmap object as expected", {
     expect_equal(class(hp3), "pheatmap")
 })
 
+test_that("incorrect function errors",{
+    expect_error(
+        plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`, filterBy = "")
+    )
+})

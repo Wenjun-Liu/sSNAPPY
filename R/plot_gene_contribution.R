@@ -1,27 +1,35 @@
-#' Plot genes' contribution to a specific pathway's perturbation as heatmap
+#' @title Plot genes' contribution to a pathway's perturbation as a heatmap
+#' 
+#' @description
+#' Plot individual genes' contributions to the pathway-level perturbation score
+#' 
+#' 
 #' @param genePertMatr A matrix of gene-wise perturbation scores corresponding
-#' to a pathway. An element of the output generated using function `raw_gene_pert()`
+#' to a pathway. An element of the output generated using function `
+#' raw_gene_pert()`
 #' @param mapEntrezID Optional. A `data.frame` matching genes' entrez IDs to
 #' another identifier with preferred labels. Must contain the columns:
 #' `"entrezid"` and `"mapTo"`
 #' @param topGene Numeric(1). The number of top genes to plot
-#' @param filterBy Filter top genes by the mean or the variance of gene-wise
-#' perturbation scores
+#' @param filterBy Filter top genes by the mean, variability (sd), maximum 
+#' value, or maximum absolute values
 #' @param annotation_df  A `data.frame` for annotating heatmap columns. Must
 #' contain a "sample" column with sample names matching to the column names of
 #' the `genePertMatr`
-#' @param ... Used to pass various potting parameters to `pheatmap::pheatmap()`
-#' @details The single-sample pathway-level perturbation score for a given pathway
-#' is derived from aggregating all the gene-wise perturbation scores of genes in that pathway.
-#' This function visualises individual pathway genes' perturbation scores as a
-#' heatmap to demonstrate pathway genes' contribution to a pathway perturbation.
+#' @param ... Used to pass various potting parameters to 
+#' [`pheatmap::pheatmap()`]
+#' 
+#' 
+#' @details The single-sample pathway-level perturbation score for a given 
+#' pathway is derived from aggregating all the gene-wise perturbation scores of 
+#' genes in that pathway. This function visualises individual pathway genes' 
+#' perturbation scores as a heatmap to demonstrate pathway genes' contribution 
+#' to a pathway perturbation.
 #'
-#' Plotting of the heatmap is done through `pheatmap::pheatmap()` so all plotting
-#' parameters accepted by `pheatmap::pheatmap()` could also be passed to this function.
+#' Plotting of the heatmap is done through [`pheatmap::pheatmap()`] so all 
+#' plotting parameters accepted by [`pheatmap::pheatmap()`] could also be passed 
+#' to this function.
 #'
-#' @importFrom tibble column_to_rownames
-#' @importFrom dplyr filter mutate
-#' @importFrom pheatmap pheatmap
 #' @references Kolde R (2019). _pheatmap: Pretty Heatmaps_. R package version
 #' 1.0.12, <https://CRAN.R-project.org/package=pheatmap>.
 #' @examples
@@ -74,59 +82,64 @@
 #' mapEntrezID = entrez2name, annotation_colors = list(
 #' treatment = c(R5020 = "black", `E2+R5020` = "white"),
 #' `pathway-level` = c(Activated = "darkred", Inhibited = "lightskyblue")))
+#' @importFrom tibble column_to_rownames
+#' @importFrom pheatmap pheatmap
 #' @export
-
-plot_gene_contribution <- function(genePertMatr, mapEntrezID = NULL,
-                                   topGene = 10, filterBy = c("mean", "variance"),
-                                   annotation_df = NULL, ...){
+plot_gene_contribution <- function(
+        genePertMatr, mapEntrezID = NULL, topGene = 10, 
+        filterBy = c("mean", "sd", "max.abs"), annotation_df = NULL, ...
+){
     entrezid <- NULL
     filterBy <- match.arg(filterBy)
-    if (!is.numeric(topGene)|topGene > nrow(genePertMatr))
-        stop("TopGene must be a numeric value smaller than the number of genes
-             contained in the pathway")
-
+    if (filterBy == "max.abs") {
+        f <- function(x) {max(abs(x))}
+    } else {
+        f <- match.fun(filterBy)
+    }
+    stopifnot(is.numeric(topGene))
+    topGene <- min(topGene, nrow(genePertMatr))
+    
     # filter genePertMatrx
-    topRanked <- rank(1/abs(apply(genePertMatr, 1, filterBy)))[1:topGene]
-    genePertMatr <- genePertMatr[rownames(genePertMatr) %in% names(topRanked),]
-
+    vals <- apply(genePertMatr, 1, f)
+    topRanked <- rank(1/abs(vals)) <= topGene
+    genePertMatr <- genePertMatr[topRanked,]
+    ids <- rownames(genePertMatr)
+    
     # match Entrez ID to other gene identifiers
-    if (all(c("entrezid","mapTo") %in% colnames(mapEntrezID))){
-        if (any(rownames(genePertMatr) %in% mapEntrezID$entrezid)){
-            mapEntrezID <- dplyr::filter(mapEntrezID, entrezid %in% rownames(genePertMatr))
-            genePertMatr <- genePertMatr[rownames(genePertMatr) %in% mapEntrezID$entrezid,]
-            mapEntrezID <- mapEntrezID[match(rownames(genePertMatr), mapEntrezID$entrezid), ]
+    if (all(c("entrezid","mapTo") %in% colnames(mapEntrezID))) {
+        if (any(rownames(genePertMatr) %in% mapEntrezID$entrezid)) {
+            mapEntrezID <- dplyr::filter(mapEntrezID, entrezid %in% ids)
+            genePertMatr <- genePertMatr[ids %in% mapEntrezID$entrezid,]
+            map <- match(rownames(genePertMatr), mapEntrezID$entrezid)
+            mapEntrezID <- mapEntrezID[map, ]
             rownames(genePertMatr) <- mapEntrezID$mapTo
         } else {
-            warning("None of the Entrez IDs in mapEntrezID mapped to gsTopology.\n
-                        Still using entrez IDs as rownames.")
-
+            warning(
+                "None of the EntrezIDs in mapEntrezID mapped to gsTopology.\n",
+                "The original EntrezIDs will be retained as rownames."
+            )
+            
         }
     }
-
-    if (is.null(annotation_df)){
-        pheatmap::pheatmap(
-            genePertMatr,
-            ...
-        )
+    
+    if (is.null(annotation_df)) {
+        pheatmap(genePertMatr, ...)
     } else{
-
+        
         if (!"sample" %in% colnames(annotation_df) |
-            any(!colnames(genePertMatr) %in% annotation_df$sample)){
+            any(!colnames(genePertMatr) %in% annotation_df$sample)) {
             message(
                 "Column names of the perturbation score matrix must match
                 the sample column of the annotation_df. Annotation df ignored."
             )
+            ## Should this be here? Your message says it should!
+            ## This clearly needs a test built
+            pheatmap(genePertMatr, ...) 
         } else {
             annotation_df <- column_to_rownames(annotation_df, "sample")
-            pheatmap::pheatmap(
-                genePertMatr,
-                annotation_col = annotation_df,
-                ...
-            )
+            pheatmap(genePertMatr, annotation_col = annotation_df, ...)
         }
-
-
+        
     }
-
-
+    
 }
