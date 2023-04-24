@@ -11,6 +11,8 @@
 #' lines
 #' @param foldafter The number of words after which gene-set names should be
 #' folded. Defaults to 2
+#' @param labelFun function to manipulate or modify gene-set labels. By default,
+#' any database will be stripped from the prefix using a regex pattern
 #' @param layout The layout algorithm to apply. Accept all layout supported by
 #' `igraph`
 #' @param edgeAlpha numeric(1) Transparency of edges. Default to 0.8
@@ -59,7 +61,7 @@
 #' @export
 plot_gs_network <- function(
         normalisedScores, gsTopology, colorBy = NULL,
-        foldGSname = TRUE, foldafter = 2,
+        foldGSname = TRUE, foldafter = 2, labelFun = .rm_prefix,
         layout = c(
             "fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"
         ),
@@ -85,7 +87,7 @@ plot_gs_network <- function(
     # create igraph object
     g <- .make_gsNetwork(
         normalisedScores, gsTopology, colorBy = colorBy,
-        plotIsolated = plotIsolated
+        plotIsolated = plotIsolated, labelFun = labelFun
     )
 
     if (foldGSname){
@@ -134,7 +136,7 @@ plot_gs_network <- function(
 #' @import igraph
 #' @keywords internal
 .make_gsNetwork <- function(
-        normalisedScores, gsTopology, colorBy = NULL, plotIsolated
+        normalisedScores, gsTopology, colorBy = NULL, plotIsolated, labelFun
 ){
 
     # create dummy variable to pass R CMD CHECK
@@ -164,12 +166,11 @@ plot_gs_network <- function(
 
     w <- bind_rows(lapply(w, bind_rows))
     w <- dplyr::filter(w, from != to)
+    GSsize <- melt(lapply(GSlist, nrow))
+    colnames(GSsize) <- c("size", "from")
 
     g <- graph.data.frame(dplyr::select(w, from, to), directed = FALSE)
     g <- set_edge_attr(g, "weight", value = w$weight)
-
-    GSsize <- melt(lapply(GSlist, nrow))
-    colnames(GSsize) <- c("size", "from")
     g <- set_vertex_attr(g, "size", index = GSsize$from, value = GSsize$size)
 
     if (!is.null(colorBy)) {
@@ -179,13 +180,23 @@ plot_gs_network <- function(
         )
     }
 
-    if(!plotIsolated){
+    if (!plotIsolated) {
         removeEdge <- which(E(g)$weight == 0)
         g <-  delete_edges(g, removeEdge)
         IsolatedNode <- which(degree(g) == 0)
         g <- delete_vertices(g, IsolatedNode)
     }
 
+    if (!is.null(labelFun)) {
+        ## This allows for stadard label replacement, but also for users to
+        ## provide more complex methods of string manipulation
+        stopifnot(is(labelFun, "function"))
+        nm <- vertex_attr(g, "name")
+        new_nm <- labelFun(nm)
+        stopifnot(length(nm) == length(new_nm))
+        g <- set_vertex_attr(g, "name", seq_along(nm), new_nm)
+    }
+    
     g
 }
 
@@ -239,4 +250,9 @@ plot_gs_network <- function(
     x_list <- unlist(x_list)
     trails <- paste0(replacement, "$")
     gsub(trails, "", x_list) # Remove any trailing line breaks
+}
+
+#' @keywords internal
+.rm_prefix <- function(x) {
+    gsub("^[a-z]+\\.", "", x)
 }

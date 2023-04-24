@@ -35,6 +35,8 @@
 #' lines
 #' @param foldafter The number of words after which gene-set names should be 
 #' folded. Defaults to 2
+#' @param labelFun function to manipulate or modify gene-set labels. By default,
+#' any database will be stripped from the prefix using a regex pattern
 #' @param layout The layout algorithm to apply. Accepted layouts are 
 #' `"fr", "dh", "gem", "graphopt", "kk", "lgl", "mds" and "sugiyama"`
 #' @param markCommunity `character` A `geom_mark_*` method supported by 
@@ -95,7 +97,7 @@ plot_community <- function(
             "louvain", "walktrap", "spinglass", "leading_eigen", 
             "edge_betweenness", "fast_greedy", "label_prop", "leiden"
         ),
-        foldGSname = TRUE, foldafter = 2, 
+        foldGSname = TRUE, foldafter = 2, labelFun = .rm_prefix,
         layout = c(
             "fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"
         ),
@@ -118,11 +120,11 @@ plot_community <- function(
     
     # Make sure the gs topologies are a named list with at least two elements
     stopifnot(length(names(gsTopology)) == length(gsTopology))
-    if(length(unique(normalisedScores$gs_name)) < 2) 
+    if (length(unique(normalisedScores$gs_name)) < 2) 
         stop("At least 2 gene-sets are required for a network plot")
     gsTopology <- gsTopology[names(gsTopology) %in% normalisedScores$gs_name]
     
-    if (is.null(gsAnnotation)){
+    if (is.null(gsAnnotation)) {
         ## if gene-set annotation info is not provided, use built-in KEGG 
         ## pathway annotations
         gsAnnotation_df <- c()
@@ -138,12 +140,12 @@ plot_community <- function(
     if (colorBy != "community") {
         g <- .make_gsNetwork(
             normalisedScores, gsTopology, colorBy = colorBy,  
-            plotIsolated = plotIsolated
+            plotIsolated = plotIsolated, labelFun = NULL
         )
     } else {
         g <- .make_gsNetwork(
             normalisedScores, gsTopology, colorBy = NULL,  
-            plotIsolated = plotIsolated
+            plotIsolated = plotIsolated, NULL
         )
     }
     
@@ -154,7 +156,7 @@ plot_community <- function(
         gs_name = comm_result$names, community = comm_result$membership
     )
     
-    if (length(intersect(names(gsTopology), gsAnnotation$gs_name)) == 0){
+    if (length(intersect(names(gsTopology), gsAnnotation$gs_name)) == 0) {
         warning(
             "Gene-set annotation does not match with topology provided. ",
             "Communities won't be annotated"
@@ -195,7 +197,7 @@ plot_community <- function(
         silent_commu <- FALSE
     }
     
-    if(foldGSname){
+    if (foldGSname) {
         nm <-  .str_replace_nth(
             V(g)$name, pattern = " ", replacement = "\n", n = foldafter
         )
@@ -209,19 +211,31 @@ plot_community <- function(
     )
     xy <- layout_method(g)
     
+    ## Tidy up node labels if a function has been passed to this argument
+    if (!is.null(labelFun)) {
+        ## This allows for stadard label replacement, but also for users to
+        ## provide more complex methods of string manipulation
+        stopifnot(is(labelFun, "function"))
+        nm <- vertex_attr(g, "name")
+        new_nm <- labelFun(nm)
+        stopifnot(length(nm) == length(new_nm))
+        g <- set_vertex_attr(g, "name", seq_along(nm), new_nm)
+    }
+    
     # plot network edges
     pl <- ggraph(g, layout = "manual", x = xy[,1], y = xy[,2]) +
-        geom_edge_link(alpha = edgeAlpha, aes(width=weight), colour='darkgrey') +
+        geom_edge_link(
+            alpha = edgeAlpha, aes(width = weight), colour = 'darkgrey'
+        ) +
         scale_edge_width_continuous(range = scale_edgeWidth, guide = "none")
     
     # plot node points
-    if (!is.null(colorBy)){
+    if (!is.null(colorBy)) {
         color <- ifelse(colorBy == "community", "Community", "color")
-        pl <- pl + 
-            geom_node_point(
-                aes(color = !!sym(color), size = size), shape = nodeShape, 
-                stroke = 0.5
-            ) +
+        pl <- pl + geom_node_point(
+            aes(color = !!sym(color), size = size), shape = nodeShape, 
+            stroke = 0.5
+        ) +
             scale_size(range =  scale_nodeSize, guide = "none")  +
             labs(colour = color_lg_title)
     } else {
@@ -230,28 +244,25 @@ plot_community <- function(
             scale_size(range =  scale_nodeSize, guide = "none")
     }
     
-    if (!is.null(markCommunity)){
+    if (!is.null(markCommunity)) {
         mark_method <- get(
             paste("geom_mark_", markCommunity, sep = ""), 
             envir = rlang::ns_env("ggforce")
         )
         if (silent_commu) {
-            pl <- pl +
-                mark_method(
-                    aes(x = x, y = y, fill = Community), alpha = markAlpha, ...
-                )
+            pl <- pl + mark_method(
+                aes(x = x, y = y, fill = Community), alpha = markAlpha, ...
+            )
         } else {
-            pl <- pl +
-                mark_method(
-                    aes(x = x, y = y, fill = Community, label = Community), 
-                    color = NA, alpha = markAlpha, ...
-                )
+            pl <- pl + mark_method(
+                aes(x = x, y = y, fill = Community, label = Community), 
+                color = NA, alpha = markAlpha, ...
+            )
         }
     }
     
-    pl +
-        geom_node_text(
-            aes(label = name), size = lb_size, repel = TRUE, colour = lb_color
-        ) 
+    pl + geom_node_text(
+        aes(label = name), size = lb_size, repel = TRUE, colour = lb_color
+    ) 
     
 }

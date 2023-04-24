@@ -13,6 +13,7 @@ plot_community(
     "edge_betweenness", "fast_greedy", "label_prop", "leiden"),
   foldGSname = TRUE,
   foldafter = 2,
+  labelFun = .rm_prefix,
   layout = c("fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"),
   markCommunity = "ellipse",
   markAlpha = 0.2,
@@ -53,6 +54,9 @@ lines}
 
 \item{foldafter}{The number of words after which gene-set names should be
 folded. Defaults to 2}
+
+\item{labelFun}{function to manipulate or modify gene-set labels. By default,
+any database will be stripped from the prefix using a regex pattern}
 
 \item{layout}{The layout algorithm to apply. Accepted layouts are
 \verb{"fr", "dh", "gem", "graphopt", "kk", "lgl", "mds" and "sugiyama"}}

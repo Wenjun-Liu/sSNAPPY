@@ -2,20 +2,20 @@
 % Please edit documentation in R/plot_gene_contribution.R
 \name{plot_gene_contribution}
 \alias{plot_gene_contribution}
-\title{Plot genes' contribution to a specific pathway's perturbation as heatmap}
+\title{Plot genes' contribution to a pathway's perturbation as a heatmap}
 \usage{
 plot_gene_contribution(
   genePertMatr,
   mapEntrezID = NULL,
   topGene = 10,
-  filterBy = c("mean", "variance"),
+  filterBy = c("mean", "sd", "max.abs"),
   annotation_df = NULL,
   ...
 )
 }
 \arguments{
 \item{genePertMatr}{A matrix of gene-wise perturbation scores corresponding
-to a pathway. An element of the output generated using function \code{raw_gene_pert()}}
+to a pathway. An element of the output generated using function \code{ raw_gene_pert()}}
 
 \item{mapEntrezID}{Optional. A \code{data.frame} matching genes' entrez IDs to
 another identifier with preferred labels. Must contain the columns:
@@ -23,26 +23,29 @@ another identifier with preferred labels. Must contain the columns:
 
 \item{topGene}{Numeric(1). The number of top genes to plot}
 
-\item{filterBy}{Filter top genes by the mean or the variance of gene-wise
-perturbation scores}
+\item{filterBy}{Filter top genes by the mean, variability (sd), maximum
+value, or maximum absolute values}
 
 \item{annotation_df}{A \code{data.frame} for annotating heatmap columns. Must
 contain a "sample" column with sample names matching to the column names of
 the \code{genePertMatr}}
 
-\item{...}{Used to pass various potting parameters to \code{pheatmap::pheatmap()}}
+\item{...}{Used to pass various potting parameters to
+\code{\link[pheatmap:pheatmap]{pheatmap::pheatmap()}}}
 }
 \description{
-Plot genes' contribution to a specific pathway's perturbation as heatmap
+Plot individual genes' contributions to the pathway-level perturbation score
 }
 \details{
-The single-sample pathway-level perturbation score for a given pathway
-is derived from aggregating all the gene-wise perturbation scores of genes in that pathway.
-This function visualises individual pathway genes' perturbation scores as a
-heatmap to demonstrate pathway genes' contribution to a pathway perturbation.
+The single-sample pathway-level perturbation score for a given
+pathway is derived from aggregating all the gene-wise perturbation scores of
+genes in that pathway. This function visualises individual pathway genes'
+perturbation scores as a heatmap to demonstrate pathway genes' contribution
+to a pathway perturbation.
 
-Plotting of the heatmap is done through \code{pheatmap::pheatmap()} so all plotting
-parameters accepted by \code{pheatmap::pheatmap()} could also be passed to this function.
+Plotting of the heatmap is done through \code{\link[pheatmap:pheatmap]{pheatmap::pheatmap()}} so all
+plotting parameters accepted by \code{\link[pheatmap:pheatmap]{pheatmap::pheatmap()}} could also be passed
+to this function.
 }
 \examples{
 #compute weighted single sample logFCs

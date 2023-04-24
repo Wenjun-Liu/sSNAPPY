@@ -8,8 +8,8 @@ Scores <- data.frame(
 Scores <- dplyr::mutate(Scores, color_Z = ifelse(robustZ < 0, "Inhibited", "Activated"))
 Scores <- dplyr::mutate(Scores, gs_name = paste("kegg.", gs_name, sep = ""))
 GS <- Scores$gs_name
-g_Zscore <- .make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", plotIsolated = TRUE)
-g_pvalue <- .make_gsNetwork(Scores, gsTopology, colorBy = "pvalue", plotIsolated = TRUE)
+g_Zscore <- .make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", plotIsolated = TRUE, labelFun = NULL)
+g_pvalue <- .make_gsNetwork(Scores, gsTopology, colorBy = "pvalue", plotIsolated = TRUE, labelFun = NULL)
 entrez2name_dir <- system.file("extdata", "entrez2name.rda", package = "sSNAPPY")
 load(entrez2name_dir)
 
@@ -27,8 +27,8 @@ test_that("make_gsNetwork produces the expected outcome",{
     expect_true(is.numeric(igraph::V(g_pvalue)$color))
     # expect_equal(stringr::str_subset(V(g_Zscore)$name, "Histidine"), "Histidine metabolism")
     # expect_equal(stringr::str_subset(V(g_Zscore)$name, "Ascorbate"), "Ascorbate and\naldarate metabolism")
-    g_Zscore_n3 <- .make_gsNetwork(Scores, gsTopology, colorBy = "robustZ",  plotIsolated = TRUE)
-    # expect_equal(stringr::str_subset(V(g_Zscore_n3)$name, "Ascorbate"), "Ascorbate and aldarate metabolism")
+    g_Zscore_n3 <- .make_gsNetwork(Scores, gsTopology, colorBy = "robustZ", plotIsolated = TRUE, labelFun = .rm_prefix)
+    expect_equal(stringr::str_subset(V(g_Zscore_n3)$name, "Ascorbate"), "Ascorbate and aldarate metabolism")
 })
 
 test_that("plot_gs_network returns error when expected", {

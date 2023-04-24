@@ -12,6 +12,7 @@ plot_gs2gene(
   colorGsBy = NULL,
   foldGSname = TRUE,
   foldafter = 2,
+  labelFun = .rm_prefix,
   filterGeneBy = 2,
   layout = c("fr", "dh", "gem", "graphopt", "kk", "lgl", "mds", "sugiyama"),
   edgeColor = "darkgrey",
@@ -56,6 +57,9 @@ lines}
 
 \item{foldafter}{The number of words after which gene-set names should be
 folded.}
+
+\item{labelFun}{function to manipulate or modify gene-set labels. By default,
+any database will be stripped from the prefix using a regex pattern}
 
 \item{filterGeneBy}{Filtration cut-off applied to genes' connectivity (ie.
 how many pathways was a gene involved in).}
