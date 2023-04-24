@@ -47,6 +47,10 @@ test_that("plot_gene_contribution returns a pheatmap object as expected", {
     hp3 <- plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`,
                                   annotation_df = sample, mapEntrezID = entrez2name)
     expect_equal(class(hp3), "pheatmap")
+    hp4 <- plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`,
+                               annotation_df = dplyr::select(sample, -sample))
+    expect_equal(class(hp), "pheatmap")
+
 })
 
 test_that("incorrect function errors",{

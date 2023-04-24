@@ -1,9 +1,9 @@
 #' @title Plot genes' contribution to a pathway's perturbation as a heatmap
-#' 
+#'
 #' @description
 #' Plot individual genes' contributions to the pathway-level perturbation score
-#' 
-#' 
+#'
+#'
 #' @param genePertMatr A matrix of gene-wise perturbation scores corresponding
 #' to a pathway. An element of the output generated using function `
 #' raw_gene_pert()`
@@ -11,23 +11,23 @@
 #' another identifier with preferred labels. Must contain the columns:
 #' `"entrezid"` and `"mapTo"`
 #' @param topGene Numeric(1). The number of top genes to plot
-#' @param filterBy Filter top genes by the mean, variability (sd), maximum 
+#' @param filterBy Filter top genes by the mean, variability (sd), maximum
 #' value, or maximum absolute values
 #' @param annotation_df  A `data.frame` for annotating heatmap columns. Must
 #' contain a "sample" column with sample names matching to the column names of
 #' the `genePertMatr`
-#' @param ... Used to pass various potting parameters to 
+#' @param ... Used to pass various potting parameters to
 #' [`pheatmap::pheatmap()`]
-#' 
-#' 
-#' @details The single-sample pathway-level perturbation score for a given 
-#' pathway is derived from aggregating all the gene-wise perturbation scores of 
-#' genes in that pathway. This function visualises individual pathway genes' 
-#' perturbation scores as a heatmap to demonstrate pathway genes' contribution 
+#'
+#'
+#' @details The single-sample pathway-level perturbation score for a given
+#' pathway is derived from aggregating all the gene-wise perturbation scores of
+#' genes in that pathway. This function visualises individual pathway genes'
+#' perturbation scores as a heatmap to demonstrate pathway genes' contribution
 #' to a pathway perturbation.
 #'
-#' Plotting of the heatmap is done through [`pheatmap::pheatmap()`] so all 
-#' plotting parameters accepted by [`pheatmap::pheatmap()`] could also be passed 
+#' Plotting of the heatmap is done through [`pheatmap::pheatmap()`] so all
+#' plotting parameters accepted by [`pheatmap::pheatmap()`] could also be passed
 #' to this function.
 #'
 #' @references Kolde R (2019). _pheatmap: Pretty Heatmaps_. R package version
@@ -86,7 +86,7 @@
 #' @importFrom pheatmap pheatmap
 #' @export
 plot_gene_contribution <- function(
-        genePertMatr, mapEntrezID = NULL, topGene = 10, 
+        genePertMatr, mapEntrezID = NULL, topGene = 10,
         filterBy = c("mean", "sd", "max.abs"), annotation_df = NULL, ...
 ){
     entrezid <- NULL
@@ -98,13 +98,13 @@ plot_gene_contribution <- function(
     }
     stopifnot(is.numeric(topGene))
     topGene <- min(topGene, nrow(genePertMatr))
-    
+
     # filter genePertMatrx
     vals <- apply(genePertMatr, 1, f)
     topRanked <- rank(1/abs(vals)) <= topGene
     genePertMatr <- genePertMatr[topRanked,]
     ids <- rownames(genePertMatr)
-    
+
     # match Entrez ID to other gene identifiers
     if (all(c("entrezid","mapTo") %in% colnames(mapEntrezID))) {
         if (any(rownames(genePertMatr) %in% mapEntrezID$entrezid)) {
@@ -118,28 +118,26 @@ plot_gene_contribution <- function(
                 "None of the EntrezIDs in mapEntrezID mapped to gsTopology.\n",
                 "The original EntrezIDs will be retained as rownames."
             )
-            
+
         }
     }
-    
+
     if (is.null(annotation_df)) {
         pheatmap(genePertMatr, ...)
     } else{
-        
+
         if (!"sample" %in% colnames(annotation_df) |
             any(!colnames(genePertMatr) %in% annotation_df$sample)) {
             message(
                 "Column names of the perturbation score matrix must match
                 the sample column of the annotation_df. Annotation df ignored."
             )
-            ## Should this be here? Your message says it should!
-            ## This clearly needs a test built
-            pheatmap(genePertMatr, ...) 
+            pheatmap(genePertMatr, ...)
         } else {
             annotation_df <- column_to_rownames(annotation_df, "sample")
             pheatmap(genePertMatr, annotation_col = annotation_df, ...)
         }
-        
+
     }
-    
+
 }
