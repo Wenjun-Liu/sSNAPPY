@@ -228,37 +228,21 @@ normalise_by_permu <- function(permutedScore, testScore,
 .generate_permutedFC <- function(expreMatrix, numOfTreat,
                                  NB, weight){
     nSample <- ncol(expreMatrix)
-    index <- seq(1, nSample, by = numOfTreat)
 
-    # check if equal numbers of samples exist in all pairs
-    if ( ncol(expreMatrix) %% numOfTreat != 0 ){
-        # in permutation, always assume the last patient had less than
-        # numOfTreat number of samples
-        lapply(seq_len(NB), function(x){
-            # permute sample labels to get permuted expreMatrix
-            expreMatrix <- expreMatrix[,sample(seq_len(nSample), nSample)]
-            temp1 <- lapply(1:(length(index) - 1), function(y){
-                (expreMatrix[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)]
-                 - expreMatrix[,index[[y]]]) * weight
-            })
-            final_index <- index[length(index)]
-            temp2 <- (expreMatrix[,seq(final_index+1, nSample)]
-                      - expreMatrix[,final_index]) * weight
-            cbind(do.call(cbind, temp1), temp2)
+    # calculate number of possible permutation pairs
+    nPairs <- nSample %/% 2
+
+    lapply(seq_len(NB), function(x){
+        # generate random index used to put samples into pairs
+        index <- sample(1:nSample, size = 2*nPairs, replace = FALSE)
+        # indexes to index the random index
+        index_pair <- seq(1, length(index), by = 2)
+        temp <- lapply(index_pair, function(y){
+            (expreMatrix[,index[y+1]] -
+                 expreMatrix[,index[[y]]]) * weight
         })
-    } else {
-        lapply(seq_len(NB), function(x){
-            # permute sample labels to get permuted expreMatrix
-            expreMatrix <- expreMatrix[,sample(seq_len(nSample), nSample)]
-            temp <- lapply(seq_along(index), function(y){
-
-                (expreMatrix[,seq(index[[y]]+1, index[[y]]+numOfTreat-1)] -
-                     expreMatrix[,index[[y]]]) * weight
-            })
-            do.call(cbind, temp)
-        })
-    }
-
+        do.call(cbind, temp)
+    })
 
 }
 
