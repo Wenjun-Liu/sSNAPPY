@@ -160,9 +160,9 @@ plot_gs2gene <- function(
     )
 
     # filter genes by connectivity
-    if (filterGeneBy >= 2) 
+    if (filterGeneBy >= 2)
         g <- delete_vertices(g, degree(g) < filterGeneBy & V(g)$type == "GENE")
-    
+
 
     if (foldGSname) {
         nm <-  .str_replace_nth(
@@ -170,7 +170,7 @@ plot_gs2gene <- function(
         )
         g <- set_vertex_attr(g, "name", value = nm)
     }
-    
+
     ## Tidy up node labels if a function has been passed to this argument
     if (!is.null(labelFun)) {
         ## This allows for stadard label replacement, but also for users to
@@ -233,6 +233,7 @@ plot_gs2gene <- function(
         show.legend = FALSE, max.overlaps = maxOverlaps
     ) +
         labs(fill = gsLegTitle, colour = geneLegTitle)
+    pl
 
 }
 
