@@ -6,7 +6,7 @@ using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 
-List GenePertScore_RCPP(const List& BminsI, arma::mat weightedFC, const CharacterVector& expressedG, const CharacterVector& sample) {
+List GenePertScore_RCPP(const List& BminsI, arma::mat weightedFC, const CharacterVector& expressedG) {
 
     // s number of samples
     int s = weightedFC.n_cols;
@@ -41,7 +41,6 @@ List GenePertScore_RCPP(const List& BminsI, arma::mat weightedFC, const Characte
             arma::vec pf = solve(X,-subset,arma::solve_opts::fast);
             arma::vec diff = pf - subset;
             gene_pert.col(j) = diff;
-
         }
         output[i] = gene_pert;
     }

@@ -42,10 +42,14 @@ test_that("plot_gs2gene returns error when expected", {
 
     expect_error(plot_gs2gene(Scores, colorGsBy = "random"))
     expect_error(plot_gs2gene(Scores, colorGsBy = c("community", "robustZ")))
+    expect_error(plot_gs2gene(Scores[, -c("gs_name")], gsTopology, colorGsBy = "pvalue"))
     gsTopology_noName <- gsTopology
     names(gsTopology_noName) <- NULL
     expect_error(plot_gs2gene(Scores, gsTopology_noName, colorGsBy = "robustZ"))
     expect_error(plot_gs2gene(Scores[, -2], gsTopology, colorGsBy = "robustZ"), "'arg' should be.+")
+    expect_error(plot_gs2gene(Scores, gsTopology, colorGsBy = "pvalue",
+                              gsNodeShape = 1))
+    expect_error(plot_gs2gene(Scores[1,], gsTopology, colorGsBy = "pvalue"))
 })
 
 test_that("plot_gs2gene produces the expected outcome", {

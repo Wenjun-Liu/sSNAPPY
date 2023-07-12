@@ -26,10 +26,6 @@
 #' @export
 pathway_pert <- function(genePertScore){
 #
-#     # check if the dimension of weightedFC matrix match with the gene-wise perturbation scores
-#     if(ncol(weightedFC) != ncol(genePertScore[[1]]))
-#         stop("Dimension of the weighted FC matrix does not match with gene-wise perturbation score matrices.")
-#
 
     # sum pathway perturbation scores for each pathway
     PF <- lapply(names(genePertScore), function(x){
@@ -167,7 +163,7 @@ raw_gene_pert <- function(weightedFC, gsTopology){
 
     sampleName <- colnames(weightedFC)
 
-    GP <-  GenePertScore_RCPP(gsTopology, weightedFC, rownames(weightedFC), sampleName)
+    GP <-  GenePertScore_RCPP(gsTopology, weightedFC, rownames(weightedFC))
 
     # Remove list elements that are null or all zeros
     GP <- GP[sapply(GP, function(x){any(x != 0)})]

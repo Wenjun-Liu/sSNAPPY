@@ -13,6 +13,9 @@
 #' @param topGene Numeric(1). The number of top genes to plot
 #' @param filterBy Filter top genes by the mean, variability (sd), maximum
 #' value, or maximum absolute values
+#' @param tieMethod Method for handling ties in ranking (i.e. in values returned
+#' by `filterBy`, two or many genes share the same value). Default to "min". See
+#' `?rank` for other options.
 #' @param annotation_df  A `data.frame` for annotating heatmap columns. Must
 #' contain a "sample" column with sample names matching to the column names of
 #' the `genePertMatr`
@@ -87,7 +90,8 @@
 #' @export
 plot_gene_contribution <- function(
         genePertMatr, mapEntrezID = NULL, topGene = 10,
-        filterBy = c("mean", "sd", "max.abs"), annotation_df = NULL, ...
+        filterBy = c("mean", "sd", "max.abs"), tieMethod = "min",
+        annotation_df = NULL, ...
 ){
     entrezid <- NULL
     filterBy <- match.arg(filterBy)
@@ -101,7 +105,7 @@ plot_gene_contribution <- function(
 
     # filter genePertMatrx
     vals <- apply(genePertMatr, 1, f)
-    topRanked <- rank(1/abs(vals)) <= topGene
+    topRanked <- rank(1/abs(vals), ties.method = tieMethod ) <= topGene
     genePertMatr <- genePertMatr[topRanked,]
     ids <- rownames(genePertMatr)
 
