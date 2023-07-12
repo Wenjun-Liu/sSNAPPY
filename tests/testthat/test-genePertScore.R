@@ -41,7 +41,7 @@ if (length(notExpressed) != 0){
     ssFC$logFC <- rbind(ssFC$logFC, temp)}
 
 test_that("GenePertScore_RCPP produces outcome of expected size",{
-    ls <- GenePertScore_RCPP(gsTopology, ssFC$logFC, rownames(ssFC$logFC), colnames(ssFC$logFC))
+    ls <- GenePertScore_RCPP(gsTopology, ssFC$logFC, rownames(ssFC$logFC))
     expect_equal(names(ls), names(gsTopology))
     expect_equal(dim(ls[[1]]), c(nrow(gsTopology[[1]]), ncol(ssFC$logFC)))
     expect_equal(dim(ls[[15]]), c(nrow(gsTopology[[15]]), ncol(ssFC$logFC)))

@@ -39,10 +39,11 @@ test_that("plot_gene_contribution returns error when expected", {
 })
 
 test_that("plot_gene_contribution returns a pheatmap object as expected", {
-    hp <- plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`)
+    hp <- plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`,
+                                 topGene = 10)
     expect_equal(class(hp), "pheatmap")
     hp2 <- plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`,
-                                  annotation_df = sample)
+                                  annotation_df = sample, filterBy = "mean")
     expect_equal(class(hp2), "pheatmap")
     hp3 <- plot_gene_contribution(genePertScore$`kegg.Chemokine signaling pathway`,
                                   annotation_df = sample, mapEntrezID = entrez2name)

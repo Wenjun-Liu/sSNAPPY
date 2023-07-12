@@ -38,7 +38,6 @@ Imports:
     magrittr,
     rlang,
     stats,
-    BiocParallel,
     graphite,
     Rcpp,
     tibble,
@@ -52,12 +51,14 @@ Imports:
     ggforce,
     pheatmap,
     utils,
-    stringr
+    stringr,
+    gtools,
+    tidyr
 LinkingTo: 
     Rcpp,
     RcppArmadillo
 Depends: 
-    R (>= 4.2.0),
+    R (>= 4.3.0),
     ggplot2
 biocViews:
     Software, GeneExpression, GeneSetEnrichment, GeneSignaling
