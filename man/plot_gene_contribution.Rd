@@ -9,6 +9,7 @@ plot_gene_contribution(
   mapEntrezID = NULL,
   topGene = 10,
   filterBy = c("mean", "sd", "max.abs"),
+  tieMethod = "min",
   annotation_df = NULL,
   ...
 )
@@ -25,6 +26,10 @@ another identifier with preferred labels. Must contain the columns:
 
 \item{filterBy}{Filter top genes by the mean, variability (sd), maximum
 value, or maximum absolute values}
+
+\item{tieMethod}{Method for handling ties in ranking (i.e. in values returned
+by \code{filterBy}, two or many genes share the same value). Default to "min". See
+\code{?rank} for other options.}
 
 \item{annotation_df}{A \code{data.frame} for annotating heatmap columns. Must
 contain a "sample" column with sample names matching to the column names of

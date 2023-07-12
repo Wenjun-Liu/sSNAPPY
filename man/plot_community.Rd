@@ -122,12 +122,12 @@ load(system.file("extdata", "normalisedScores.rda", package = "sSNAPPY"))
 #Subset the first 10 rows of the normalisedScores data.frame as an example
 subset <- normalisedScores[1:15,]
 subset$status <- ifelse(subset$robustZ > 0, "Activated", "Inhibited")
-# Color network plot nodes by the community they were assigned to and mark 
+# Color network plot nodes by the community they were assigned to and mark
 # nodes belonging to the same community by ellipses
 plot_community(subset, gsTopology, colorBy = "community",layout = "kk",
 color_lg_title = "Community")
 
-# Color network plot nodes by pathways' directions of changes and mark nodes 
+# Color network plot nodes by pathways' directions of changes and mark nodes
 # belonging to the same community by ellipses
 plot_community(subset, gsTopology, colorBy = "status",layout = "kk",
 color_lg_title = "Direction of pathway perturbation")

@@ -12,38 +12,21 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // GenePertScore_RCPP
-List GenePertScore_RCPP(const List& BminsI, arma::mat weightedFC, const CharacterVector& expressedG, const CharacterVector& sample);
-RcppExport SEXP _sSNAPPY_GenePertScore_RCPP(SEXP BminsISEXP, SEXP weightedFCSEXP, SEXP expressedGSEXP, SEXP sampleSEXP) {
+List GenePertScore_RCPP(const List& BminsI, arma::mat weightedFC, const CharacterVector& expressedG);
+RcppExport SEXP _sSNAPPY_GenePertScore_RCPP(SEXP BminsISEXP, SEXP weightedFCSEXP, SEXP expressedGSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const List& >::type BminsI(BminsISEXP);
     Rcpp::traits::input_parameter< arma::mat >::type weightedFC(weightedFCSEXP);
     Rcpp::traits::input_parameter< const CharacterVector& >::type expressedG(expressedGSEXP);
-    Rcpp::traits::input_parameter< const CharacterVector& >::type sample(sampleSEXP);
-    rcpp_result_gen = Rcpp::wrap(GenePertScore_RCPP(BminsI, weightedFC, expressedG, sample));
-    return rcpp_result_gen;
-END_RCPP
-}
-// permutedPertScore_RCPP
-List permutedPertScore_RCPP(const arma::mat& X, const CharacterVector& pathwayG, const CharacterVector& expressedG, const List& permutedFC, int newS);
-RcppExport SEXP _sSNAPPY_permutedPertScore_RCPP(SEXP XSEXP, SEXP pathwayGSEXP, SEXP expressedGSEXP, SEXP permutedFCSEXP, SEXP newSSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const CharacterVector& >::type pathwayG(pathwayGSEXP);
-    Rcpp::traits::input_parameter< const CharacterVector& >::type expressedG(expressedGSEXP);
-    Rcpp::traits::input_parameter< const List& >::type permutedFC(permutedFCSEXP);
-    Rcpp::traits::input_parameter< int >::type newS(newSSEXP);
-    rcpp_result_gen = Rcpp::wrap(permutedPertScore_RCPP(X, pathwayG, expressedG, permutedFC, newS));
+    rcpp_result_gen = Rcpp::wrap(GenePertScore_RCPP(BminsI, weightedFC, expressedG));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_sSNAPPY_GenePertScore_RCPP", (DL_FUNC) &_sSNAPPY_GenePertScore_RCPP, 4},
-    {"_sSNAPPY_permutedPertScore_RCPP", (DL_FUNC) &_sSNAPPY_permutedPertScore_RCPP, 5},
+    {"_sSNAPPY_GenePertScore_RCPP", (DL_FUNC) &_sSNAPPY_GenePertScore_RCPP, 3},
     {NULL, NULL, 0}
 };
 
