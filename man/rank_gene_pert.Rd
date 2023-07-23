@@ -34,7 +34,7 @@ groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 # extract all the KEGG pathways
 gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 # compute raw gene-wise perturbation scores
-genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
+genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
 # rank genes by gene-wise perturbation scores within each sample
 # to compare their contributions to pathway perturbation
 geneRank <- rank_gene_pert(genePertScore, gsTopology)

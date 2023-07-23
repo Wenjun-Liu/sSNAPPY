@@ -157,6 +157,10 @@ setMethod("generate_permuted_scores",
 #' median of perturbation scores for each pathway are firstly derived from the
 #' permuted perturbation scores. The test perturbation scores are then converted
 #' to robust z-scores using MADs and medians calculated.
+#'
+#' Additionally, by accessing the proportion of permuted scores that are more
+#' extreme than the test perturbation score within each pathway, the permuted
+#' p-value of individual test perturbation scores will be computed.
 #' @param permutedScore A list. Output of `generate_permuted_scores`
 #' @param testScore A `data.frame`. Output of `pathwayPertScore``
 #' @param pAdj_method Method for adjusting p-values for multiple comparisons.
@@ -178,7 +182,7 @@ setMethod("generate_permuted_scores",
 #' groupBy = "patient", sampleColumn = "sample", treatColumn = "treatment")
 #'
 #' # compute raw gene-wise perturbation scores
-#' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
+#' genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
 #'
 #' # sum gene-wise perturbation scores to derive the pathway-level
 #' # single-sample perturbation scores
@@ -198,22 +202,37 @@ normalise_by_permu <- function(permutedScore, testScore,
     pvalue <- NULL
     pAdj_method <- match.arg(pAdj_method, p.adjust.methods)
     sortBy <- match.arg(sortBy)
-
+    pvalue_ls <- lapply(unique(testScore$gs_name), function(x){
+        temp <- dplyr::filter(testScore, gs_name == x)
+        mutate(
+            temp,
+            pvalue = vapply(temp$score, function(y){
+                (sum(
+                    abs(permutedScore[[x]]) >= abs(y)
+                ) ) / (length(permutedScore[[x]]) )
+            }, numeric(1))
+        )
+    })
+    pvalues <- bind_rows(pvalue_ls)
     summary_func <- function(x){c(MAD = mad(x), MEDIAN = median(x))}
     summaryScore <- t(sapply(permutedScore, summary_func))
     gs_name <- rownames(summaryScore)
     summaryScore <- mutate(as.data.frame(summaryScore), gs_name = gs_name)
-    summaryScore <- filter(summaryScore, summaryScore$MAD != 0)
+    summaryScore <- dplyr::filter(summaryScore, summaryScore$MAD != 0)
     summaryScore <- left_join(summaryScore, testScore, by = "gs_name",
                               multiple = "all")
     summaryScore <- mutate(
         summaryScore, robustZ =
             (summaryScore$score - summaryScore$MEDIAN)/summaryScore$MAD)
-    summaryScore <- mutate(
-        summaryScore, pvalue = 2*pnorm(-abs(summaryScore$robustZ)))
+    # summaryScore <- mutate(
+    #     summaryScore, z_pvalue = 2*pnorm(-abs(summaryScore$robustZ)))
+    summaryScore <- left_join(summaryScore, pvalues,
+                              by = c("gs_name", "score", "sample"))
     summaryScore <- split(summaryScore, f = summaryScore$sample)
     summaryScore <- lapply(summaryScore, mutate,
-                           adjPvalue = p.adjust(pvalue, pAdj_method))
+                           adjPvalue = p.adjust(pvalue, pAdj_method),
+                           # adjPvalue_z = p.adjust(z_pvalue, pAdj_method)
+                           )
     summaryScore <-bind_rows(summaryScore)
     summaryScore <- dplyr::mutate_at(
         summaryScore, vars(c("gs_name", "sample")), as.factor
@@ -240,6 +259,4 @@ normalise_by_permu <- function(permutedScore, testScore,
              expreMatrix[,x[2]]) * weight
     })
 }
-
-
 

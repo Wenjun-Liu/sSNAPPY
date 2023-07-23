@@ -20,7 +20,7 @@ ssFC <- weight_ss_fc(y, sample, sampleColumn = "sample", groupBy = "patient", tr
 pathwayDir <- system.file("extdata", "gsTopology.rda", package = "sSNAPPY")
 load(pathwayDir)
 # the number of pathways with at least one of those five genes in it
-interesectName <- names(gsTopology[lapply(gsTopology, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
+interesectName <- names(gsTopology[lapply(gsTopology, function(x){length(intersect(rownames(ssFC$weighted_logFC),rownames(x)))}) != 0])
 
 # create logCPM matrix with gene_id as rownames (instead of entrezID required)
 y_wrongIdentifier <- y
@@ -28,26 +28,26 @@ rownames(y_wrongIdentifier) <- c("ENSG00000000003","ENSG00000000419","ENSG000000
 ssFC_wrongIdentifier <- weight_ss_fc(y_wrongIdentifier, sample, sampleColumn = "sample", groupBy = "patient", treatColumn = "treatment")
 
 test_that("raw_gene_pert returns error when expected", {
-    expect_error(raw_gene_pert(ssFC_wrongIdentifier$logFC, gsTopology), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
+    expect_error(raw_gene_pert(ssFC_wrongIdentifier$weighted_logFC, gsTopology), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
 })
 
-notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(ssFC$logFC))
+notExpressed <- setdiff(unique(unlist(unname(lapply(gsTopology, rownames)))), rownames(ssFC$weighted_logFC))
 if (length(notExpressed) != 0){
     # set the FCs of unexpressed pathway genes to 0
-    temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(ssFC$logFC))
+    temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(ssFC$weighted_logFC))
     rownames(temp) <- notExpressed
-    colnames(temp) <- colnames(ssFC$logFC)
+    colnames(temp) <- colnames(ssFC$weighted_logFC)
     # set the weights of unexpressed pathway genes to 0
-    ssFC$logFC <- rbind(ssFC$logFC, temp)}
+    ssFC$weighted_logFC <- rbind(ssFC$weighted_logFC, temp)}
 
 test_that("GenePertScore_RCPP produces outcome of expected size",{
-    ls <- GenePertScore_RCPP(gsTopology, ssFC$logFC, rownames(ssFC$logFC))
+    ls <- GenePertScore_RCPP(gsTopology, ssFC$weighted_logFC, rownames(ssFC$weighted_logFC))
     expect_equal(names(ls), names(gsTopology))
-    expect_equal(dim(ls[[1]]), c(nrow(gsTopology[[1]]), ncol(ssFC$logFC)))
-    expect_equal(dim(ls[[15]]), c(nrow(gsTopology[[15]]), ncol(ssFC$logFC)))
+    expect_equal(dim(ls[[1]]), c(nrow(gsTopology[[1]]), ncol(ssFC$weighted_logFC)))
+    expect_equal(dim(ls[[15]]), c(nrow(gsTopology[[15]]), ncol(ssFC$weighted_logFC)))
 })
 
-ls <- raw_gene_pert( ssFC$logFC, gsTopology)
+ls <- raw_gene_pert( ssFC$weighted_logFC, gsTopology)
 
 test_that("raw_gene_pert produces the expected output",{
 
@@ -72,7 +72,7 @@ test_that("rank_gene_pert produces the expected output", {
 
     geneRank <- rank_gene_pert(ls, gsTopology)
     expect_equal(length(geneRank), length(ls))
-    expect_equal(ncol(geneRank[[1]]), ncol(ssFC$logFC))
+    expect_equal(ncol(geneRank[[1]]), ncol(ssFC$weighted_logFC))
     # since all non-zero perturbation scores of pathway kegg.Chemokine signaling pathway were positive, expect all rankings to be positives too
     expect_false(any(geneRank[[1]] < 0))
 
@@ -95,13 +95,13 @@ test_that("rank_gene_pert produces the expected output", {
     # extract the first 8 rows, which contains 7 rows of all zeros and one row of all negative
     ls$`kegg.Chemokine signaling pathway` <- ls$`kegg.Chemokine signaling pathway`[1:8,]
     geneRank3 <- rank_gene_pert(ls, lapply(gsTopology[c("kegg.Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:8, 1:8]))
-    expect_equal(dim(geneRank3$`kegg.Chemokine signaling pathway`), c(1, ncol(ssFC$logFC) +1))
+    expect_equal(dim(geneRank3$`kegg.Chemokine signaling pathway`), c(1, ncol(ssFC$weighted_logFC) +1))
     expect_true(all(geneRank3$`kegg.Chemokine signaling pathway`[,-1] == -1))
 
     # for the only non-zero gene, if the gene-wise perturbation scores for the first and third treated sample are changed to positive,
     #expect the rank for those two samples become 1
     ls$`kegg.Chemokine signaling pathway`[8,c(1,3)] <- abs(ls$`kegg.Chemokine signaling pathway`[8,c(1,3)])
     geneRank4 <- rank_gene_pert(ls, lapply(gsTopology[c("kegg.Chemokine signaling pathway", "Viral myocarditis" )], function(x)x[1:8, 1:8]))
-    expect_equal(dim(geneRank4$`kegg.Chemokine signaling pathway`), c(1, ncol(ssFC$logFC) +1))
+    expect_equal(dim(geneRank4$`kegg.Chemokine signaling pathway`), c(1, ncol(ssFC$weighted_logFC) +1))
     expect_equal(unname(unlist(as.vector(geneRank4$`kegg.Chemokine signaling pathway`[1, 2:5]), TRUE)), c(1, -1, 1, -1))
 })

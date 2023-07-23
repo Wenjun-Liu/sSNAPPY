@@ -21,7 +21,7 @@ ssFC <- weight_ss_fc(y, sample, groupBy  = "patient", sampleColumn = "sample", t
 pathwayDir <- system.file("extdata", "gsTopology.rda", package = "sSNAPPY")
 load(pathwayDir)
 # the number of pathways with at least one of those five genes in it
-intersectName <- names(gsTopology[lapply(gsTopology, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
+intersectName <- names(gsTopology[lapply(gsTopology, function(x){length(intersect(rownames(ssFC$weighted_logFC),rownames(x)))}) != 0])
 
 y_withNA <- y
 y_withNA[2,2] <- NA
@@ -55,7 +55,7 @@ test_that(".generate_permutedFC produces the expected outcome", {
 })
 
 test_that("generate_permuted_scores produces the expected outcome", {
-    genePertScore <- raw_gene_pert(ssFC$logFC, gsTopology)
+    genePertScore <- raw_gene_pert(ssFC$weighted_logFC, gsTopology)
     ssPertScore <- pathway_pert( genePertScore)
     temp <- generate_permuted_scores(y, NB = 2, weight = ssFC$weight,
                                      gsTopology = gsTopology,
@@ -128,7 +128,7 @@ test_that("normalise_by_permu produces the expected outcome",{
     perS <- list(
         "kegg.Chemokine signaling pathway"= rnorm(40, mean = 1, sd = 0.3)
     )
-    genePertScore <- raw_gene_pert(ssFC$logFC, gsTopology)
+    genePertScore <- raw_gene_pert(ssFC$weighted_logFC, gsTopology)
     ssPertScore <- pathway_pert( genePertScore)
     output <- normalise_by_permu(perS, ssPertScore)
     expect_equal(levels(output$sample),

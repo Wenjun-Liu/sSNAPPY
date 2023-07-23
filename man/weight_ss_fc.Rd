@@ -38,7 +38,7 @@ for how samples are matched in pairs (eg. patient).}
 \value{
 A list with two elements:
 $weight  gene-wise weights;
-$logFC weighted single sample logFC matrix
+$weighted_logFC weighted single sample logFC matrix
 }
 \description{
 Compute weighted single sample logFCs for each treated samples
