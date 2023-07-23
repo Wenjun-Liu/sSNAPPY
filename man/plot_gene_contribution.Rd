@@ -66,7 +66,7 @@ groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 
 # compute raw gene-wise perturbation scores
-genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
+genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
 # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
 pathwayPertScore <- pathway_pert(genePertScore)
 

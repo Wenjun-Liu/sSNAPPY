@@ -34,6 +34,10 @@ through the permuted perturbation scores derived from the
 median of perturbation scores for each pathway are firstly derived from the
 permuted perturbation scores. The test perturbation scores are then converted
 to robust z-scores using MADs and medians calculated.
+
+Additionally, by accessing the proportion of permuted scores that are more
+extreme than the test perturbation score within each pathway, the permuted
+p-value of individual test perturbation scores will be computed.
 }
 \examples{
 \dontrun{
@@ -46,7 +50,7 @@ ls <- weight_ss_fc(logCPM_example, metadata = metadata_example,
 groupBy = "patient", sampleColumn = "sample", treatColumn = "treatment")
 
 # compute raw gene-wise perturbation scores
-genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
+genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
 
 # sum gene-wise perturbation scores to derive the pathway-level
 # single-sample perturbation scores

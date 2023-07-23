@@ -94,7 +94,7 @@
 #' )
 #' # Provide fold-changes of sample R5020_N2_48 as a named vector
 #' plot_gs2gene(
-#'   subset, gsTopology, geneFC = ls$logFC[,"R5020_N2_48"],
+#'   subset, gsTopology, geneFC = ls$weighted_logFC[,"R5020_N2_48"],
 #'   colorGsBy = "response", labelGene = FALSE
 #' ) + scale_colour_gradient2()
 #'
@@ -102,8 +102,8 @@
 #' # which can be overwritten by the `filterGeneBy` parameter. But there are still
 #' # a large number of genes, making the plot cumbersome. Instead, only include
 #' # fold-changes of genes within the top 500 absolute values for fold-change
-#' top500 <- rank(1/abs(ls$logFC[,"R5020_N2_48"])) <= 500
-#' fcByDir <- ifelse(ls$logFC[top500,"R5020_N2_48"] > 0, "Up-Regulated", "Down-Regulated")
+#' top500 <- rank(1/abs(ls$weighted_logFC[,"R5020_N2_48"])) <= 500
+#' fcByDir <- ifelse(ls$weighted_logFC[top500,"R5020_N2_48"] > 0, "Up-Regulated", "Down-Regulated")
 #' plot_gs2gene(subset, gsTopology, geneFC = fcByDir, colorGsBy = "response") +
 #'   scale_fill_manual(values = c("darkred", "lightskyblue")) +
 #'   scale_colour_manual(values = c("red", "blue"))
@@ -160,9 +160,9 @@ plot_gs2gene <- function(
     )
 
     # filter genes by connectivity
-    if (filterGeneBy >= 2) 
+    if (filterGeneBy >= 2)
         g <- delete_vertices(g, degree(g) < filterGeneBy & V(g)$type == "GENE")
-    
+
 
     if (foldGSname) {
         nm <-  .str_replace_nth(
@@ -170,7 +170,7 @@ plot_gs2gene <- function(
         )
         g <- set_vertex_attr(g, "name", value = nm)
     }
-    
+
     ## Tidy up node labels if a function has been passed to this argument
     if (!is.null(labelFun)) {
         ## This allows for stadard label replacement, but also for users to

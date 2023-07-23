@@ -171,7 +171,7 @@ names(gsTopology_mult)
 Once the expression matrix, sample metadata and pathway topologies are all ready, gene-wise single-sample perturbation scores can be computed within each sample:
 
 ```{r}
-genePertScore <- raw_gene_pert(weightedFC$logFC, gsTopology)
+genePertScore <- raw_gene_pert(weightedFC$weighted_logFC, gsTopology)
 ```
 
 and summed to derive pathway perturbation scores for each pathway in each treated samples.
@@ -204,9 +204,9 @@ permutedScore <- generate_permuted_scores(
 
 After the empirical null distributions are generated, the median and mad of each distribution will be calculated for each pathway to convert the test single-sample perturbation scores derived from the `compute_perturbation_score()` function to robust z-scores: $(Score - Median)/MAD$. 
 
-Two-sided p-values associated with each robust z-scores are also computed and will be corrected for multiple-testing using a user-defined approach. The default is `fdr`.
+Two-sided p-values associated with each perturbation scores are also computed by the proportion of permuted scores that are more extreme than the test perturbation score within each pathway. Raw p-values will be corrected for multiple-testing using a user-defined approach. The default is `fdr`.
 
-In a data with N samples, the total number of possible permuted pairs of samples is $N \times (N-1)$. When the sample size is small, the p-values derived from the robust z-scores should be interpreted with caution. The MAD and median derived from the permuted scores are more likely to be accurately estimated when the number of permuted scores computed for each pathway is above 100, meaning that at least 11 samples are required. 
+In a data with N samples, the total number of possible permuted pairs of samples is $N \times (N-1)$. When the sample size is small, small p-values cannot be accurately estimated so the p-values returned by the `normalise_by_permu()` function should be intepreted with caution.
 
 The `normalise_by_permu()` function requires the test perturbation scores and permuted perturbation scores as input. Users can choose to sort the output by p-values, gene-set names or sample names.
 
@@ -214,98 +214,12 @@ The `normalise_by_permu()` function requires the test perturbation scores and pe
 normalisedScores <- normalise_by_permu(permutedScore, pathwayPertScore, sortBy = "pvalue")
 ```
 
-Pathways that were significant perturbed within individual samples are:
+In this example dataset, none of the pathway was considered to be significantly perturbed within individual samples using a FDR cut-off of 0.05.
 
 ```{r DT_indi}
 normalisedScores %>%
-    dplyr::filter(adjPvalue < 0.05) %>%
-    left_join(metadata_example) %>%
-    mutate_at(vars(c("sample", "gs_name")), as.factor) %>%
-    mutate_if(is.numeric, sprintf, fmt = '%#.4f') %>%
-    mutate(Direction = ifelse(robustZ < 0, "Inhibited", "Activation")) %>%
-    dplyr::select(
-        sample, patient, Treatment = treatment,
-        `Perturbation Score` = robustZ, Direction,
-        `Gene-set name` = gs_name, 
-        `P-value` = pvalue, 
-        FDR = adjPvalue
-    ) %>%
-    datatable(
-        filter = "top", 
-        options = list(
-            columnDefs = list(list(targets = "Direction", visible = FALSE))
-        ), 
-        caption = htmltools::tags$caption(
-                  htmltools::em(
-                      "Pathways that were significant perturbed within individual samples.")
-              )
-    ) %>% 
-    formatStyle(
-        'Perturbation Score', 'Direction',
-        color = styleEqual(c("Inhibited", "Activation"), c("blue", "red"))
-    )
+    dplyr::filter(adjPvalue < 0.05) 
 ```
-
-#### Visualise overlap between gene-sets as networks
-
- To visualise significantly perturbed biological pathways as a network, where edges between gene-sets reflect how much overlap those two gene-sets share, we can use the `plot_gs_network` function. The function can take `normalise_by_permu()`'s output, or a subset of it as its direct input.
-
-Nodes in the network plots could be colored by the predicted direction of perturbation (i.e.. sign of robust z-score):
-
-```{r sigGS_nt_zscore, fig.width= 14, fig.height=5, fig.cap="*Pathways significantly perturbed in individual samples, where gene-sets were colored by pathways' directions of changes.*"}
-pl <- normalisedScores %>%
-    dplyr::filter(adjPvalue < 0.05) %>%
-    droplevels() %>%
-    split(f = .$sample) %>%
-    lapply(function(x){
-        mutate(x, 
-               status = ifelse(
-                   robustZ > 0, "Activated", "Inhibited")) 
-    }) %>% 
-    lapply(
-        plot_gs_network, 
-        gsTopology = gsTopology, 
-        colorBy = "status",
-        gsLegTitle = "Direction of pathway Perturbation"
-    ) %>%
-    lapply(function(x){
-        x + theme(
-            panel.grid = element_blank(), 
-            panel.background = element_blank()
-        ) })
-plot_grid(
-    plotlist = pl, 
-    labels = names(pl),
-    label_size = 8,
-    nrow = 1)
-```
-
-Or p-values:
-
-```{r sigGS_nt_pvalue, fig.width= 10, fig.height=4,fig.cap="*Pathways significantly perturbed in individual samples, where gene-sets were colored by pathways' p-values*"}
-pl <- normalisedScores %>%
-    dplyr::filter(adjPvalue < 0.05) %>%
-    droplevels() %>%
-    split(f = .$sample) %>%
-    lapply(
-        plot_gs_network, 
-        gsTopology = gsTopology, 
-        colorBy = "pvalue", 
-        color_lg_title = "P-value"
-    ) %>%
-    lapply(function(x){
-        x + theme(
-        panel.grid = element_blank(), 
-        panel.background = element_blank()
-        ) })
-plot_grid(
-    plotlist = pl, 
-    labels = names(pl),
-    label_size = 8,
-    nrow = 1)
-```
-
-The function allows you to customize the layout, colour, edge transparency and other aesthetics of the graph. More information can be found on the help page (`?plot_gs_network`). The output of the graph is a `ggplot` object and the theme of it can be changed just as any other `ggplot` figures.
 
 ### treatment-level
 
@@ -375,21 +289,22 @@ If there's a specific pathway that we would like to dig deeper into and explore 
 
 From the heatmap below that we can see that the activation of this pathway was strongly driven by two genes: ENTREZID:3630 and ENTREZID:3479.
 
-```{r fig.height= 5, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 10 highest absolute mean gene-wise perturbation scores in the Ovarian steroidogenesis gene-set.*" }
+```{r fig.height= 7, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 15 highest absolute mean gene-wise perturbation scores in the Ovarian steroidogenesis gene-set.*" }
 plot_gene_contribution(
     genePertMatr  = genePertScore$`kegg.Ovarian steroidogenesis`,
-    # only plot genes with top 10 highest absolute mean gene-wise scores
     filterBy = "mean"
 )
 ```
 
 By default, genes' entrez IDs are used and plotted as row names, which may not be very informative. So the row names could be overwritten by providing a `data.frame` mapping entrez IDs to other identifiers through the `mapRownameTo` parameter. 
 
-Mapping between different gene identifiers could be achieved through the `mapIDs()` function from the Bioconductor package [`AnnotationDbi`](https://bioconductor.org/packages/release/bioc/html/AnnotationDbi.html). But to reduce the compiling time of this vignette, mappings between entrez IDs and gene names have been provided as a `data.frame` called `entrez2name`.
+Mapping between different gene identifiers could be achieved through the `mapIDs()` function from the Bioconductor package [`AnnotationDbi`](https://bioconductor.org/packages/release/bioc/html/AnnotationDbi.html). But to reduce the compiling time of this vignette, mappings between entrez IDs and gene names as available in Ensembl Release 101 have been provided as a `data.frame` called `entrez2name`.
 
-Note that if the mapping information was provided and the mapping was successful for some genes but not the others, only genes that have been mapped successfully will be plotted.
+Note that if the mapping information was provided and the mapping was only successful for some genes but not the others, only genes that have been mapped successfully will be plotted.
 
-We can also annotate each column (ie. each sample) by the direction of pathway perturbation in that sample or any other sample metadata, such as their treatments. To annotate the columns, we need to create an annotation `data.frame` with desired attributes. 
+Since `plot_gene_contribution()` is built on `pheatmap`, which provides a practical column annotation feature, the `plot_gene_contribution()` function also allow a `data.frame` storing annotation information to be provided. We can annotate each column (ie. each sample) by the direction of pathway perturbation in that sample or any other sample metadata, such as their treatments. 
+
+In this example, we first create a `data.frame` storing the pathway perturbation scores of the "Ovarian steroidogenesis" pathway in each sample and their treatments.
 
 ```{r annotation_df}
 annotation_df <- pathwayPertScore %>%
@@ -406,9 +321,9 @@ annotation_df <- pathwayPertScore %>%
     )
 ```
 
-Colors of the annotation could be customised through `pheatmap::pheatmap()`'s `annotation_colors` parameter. 
+The annotation `data.frame` was provided to the `plot_gene_contribution()` function through the `annotation_df` parameter. Colors of the annotation could be customised through `pheatmap::pheatmap()`'s `annotation_colors` parameter. 
 
-```{r fig.height= 5, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 15 absolute mean gene-wise perturbation scores in the Ovarian steroidogenesis gene-set.Genes playing the most important roles in pathway activation was INS, CGA, GNAS.*"}
+```{r fig.height= 7, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 15 absolute mean gene-wise perturbation scores in the Ovarian steroidogenesis gene-set.Genes playing the most important roles in pathway activation was INS, CGA, GNAS.*"}
 load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
 plot_gene_contribution(
     genePertMatr  = genePertScore$`kegg.Ovarian steroidogenesis`,
@@ -423,10 +338,15 @@ plot_gene_contribution(
 
 #### Visualise overlap between gene-sets as networks
 
+Visualising significantly perturbed biological pathways as a network, where edges between gene-sets reflect how much overlap they share, is an useful approach for demonstrating the connections between biological processes. The `plot_gs_network()` function in this package allows an easy construction of such network by taking the `normalise_by_permu()` function's output as direct input and allowing flexible customisation. 
+
+Nodes in the network plots could be colored by the predicted direction of perturbation (i.e.. sign of robust z-score).
 Results of group-level perturbation can also be visualised using the `plot_gs_network()` function.
 
+The function allows you to customize the layout, colour, edge transparency and other aesthetics of the graph. More information can be found on the help page (`?plot_gs_network`). The output of the graph is a `ggplot` object and the theme of it can be changed just as any other `ggplot` figures.
+
 ```{r fig.width=10, fig.height=8, fig.cap="*Pathways significantly perturbed by the E2+R5020 combintation treatment, where colors of nodes reflect pathways' directions of changes.*"}
-treat_sig %>% 
+p1 <- treat_sig %>% 
     dplyr::filter(FDR < 0.05, Treatment == "E2+R5020") %>%
     mutate(status = ifelse(Estimate > 0, "Activated", "Inhibited")) %>%
     plot_gs_network(
@@ -437,6 +357,17 @@ treat_sig %>%
         panel.grid = element_blank(), 
         panel.background = element_blank()
     ) 
+p2 <- treat_sig %>% 
+    dplyr::filter(FDR < 0.05, Treatment == "E2+R5020") %>%
+    mutate(status = ifelse(Estimate > 0, "Activated", "Inhibited")) %>%
+    plot_gs_network(
+        gsTopology = gsTopology, 
+        colorBy = "status"
+    ) +
+    theme(
+        panel.grid = element_blank(), 
+        panel.background = element_blank()
+    )
 ```
 
 By default, `plot_gs_network()` function does not include nodes that are not connected to any other nodes, which could be overwritten by setting the `plotIsolated` parameter to TURE.
@@ -482,7 +413,7 @@ However, since there are a large number of genes in each pathway, the plot above
 For example, we can rank genes by the absolute values of their mean single-sample logFCs and only focus on genes that were ranked in the top 200 of the list.
 
 ```{r top200_FC}
-meanFC <- weightedFC$logFC %>%
+meanFC <- weightedFC$weighted_logFC %>%
     .[, str_detect(colnames(.), "E2", negate = TRUE)] %>%
     apply(1, mean )
 top200_gene <- meanFC %>%
