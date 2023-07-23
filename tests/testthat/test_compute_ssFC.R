@@ -86,7 +86,7 @@ test_that(".compute_ssFC returns erros when expected",{
 
 test_that("weight_ss_fc produces expected output", {
     output <- weight_ss_fc(y, sample, groupBy  = "patient", sampleColumn = "sample", treatColumn = "treatment")
-    expect_equal(output$logFC, weighted_FC)
+    expect_equal(output$weighted_logFC, weighted_FC)
     expect_equal(output$weight, weight)
 })
 
@@ -97,12 +97,12 @@ test_that("weight_ss_fc returns erros when expected", {
 test_that("Test DGEList input for weight_ss_fc", {
     dge <- edgeR::DGEList(counts = y, samples = sample)
     output <- weight_ss_fc(dge,  groupBy  = "patient", sampleColumn = "sample", treatColumn = "treatment")
-    expect_equal(dim(output$logFC), c(5, 4))
+    expect_equal(dim(output$weighted_logFC), c(5, 4))
 })
 
 test_that("Test SummarizedExperiment input for weight_ss_fc", {
     dge <- SummarizedExperiment::SummarizedExperiment(assays=list(counts=y),
                                                       colData = sample)
     output <- weight_ss_fc(dge, groupBy  = "patient", sampleColumn = "sample", treatColumn = "treatment")
-    expect_equal(dim(output$logFC), c(5, 4))
+    expect_equal(dim(output$weighted_logFC), c(5, 4))
 })

@@ -20,7 +20,7 @@
 #' # extract all the KEGG pathways
 #' gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 #' # compute raw gene-wise perturbation scores
-#' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
+#' genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
 #' # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
 #' pathwayPertScore <- pathway_pert( genePertScore)
 #' @export
@@ -61,7 +61,7 @@ pathway_pert <- function(genePertScore){
 #' # extract all the KEGG pathways
 #' gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 #' # compute raw gene-wise perturbation scores
-#' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
+#' genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
 #' # rank genes by gene-wise perturbation scores within each sample
 #' # to compare their contributions to pathway perturbation
 #' geneRank <- rank_gene_pert(genePertScore, gsTopology)
@@ -145,7 +145,7 @@ rank_gene_pert <- function(genePertScore, gsTopology){
 #' # extract all the KEGG pathways
 #' gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 #' # compute raw gene-wise perturbation scores
-#' genePertScore <- raw_gene_pert(ls$logFC, gsTopology)
+#' genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
 #' @export
 raw_gene_pert <- function(weightedFC, gsTopology){
 

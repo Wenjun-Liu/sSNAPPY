@@ -44,7 +44,7 @@
 #' @importFrom stats approxfun lowess var
 #' @return A list with two elements:
 #' $weight  gene-wise weights;
-#' $logFC weighted single sample logFC matrix
+#' $weighted_logFC weighted single sample logFC matrix
 #' @examples
 #' # Inspect metadata data frame to make sure it has treatment, sample
 #' # and patient columns
@@ -77,7 +77,7 @@ setMethod("weight_ss_fc",
               rownames(ssFC) <- paste("ENTREZID:", rownames(ssFC), sep = "")
               list(
                   weight = scaled_w,
-                  logFC = ssFC * scaled_w
+                  weighted_logFC = ssFC * scaled_w
               )
           })
 

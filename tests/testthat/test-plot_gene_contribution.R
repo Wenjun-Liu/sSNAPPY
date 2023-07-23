@@ -21,9 +21,9 @@ pathwayDir <- system.file("extdata", "gsTopology.rda", package = "sSNAPPY")
 load(pathwayDir)
 load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
 # the number of pathways with at least one of those five genes in it
-interesectName <- names(gsTopology[lapply(gsTopology, function(x){length(intersect(rownames(ssFC$logFC),rownames(x)))}) != 0])
+interesectName <- names(gsTopology[lapply(gsTopology, function(x){length(intersect(rownames(ssFC$weighted_logFC),rownames(x)))}) != 0])
 # compute raw gene-wise perturbation scores
-genePertScore <- raw_gene_pert(ssFC$logFC, gsTopology)
+genePertScore <- raw_gene_pert(ssFC$weighted_logFC, gsTopology)
 # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
 pathwayPertScore <- pathway_pert(genePertScore)
 
