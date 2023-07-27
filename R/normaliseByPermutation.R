@@ -109,16 +109,30 @@ setMethod("generate_permuted_scores",
 
               # Compute gene-level perturbation scores for each column of permuted
               # FCs
-              permute_Gene <- GenePertScore_RCPP(
-                  gsTopology, permutedFC, rownames(permutedFC)
-                  )
+              allGene <- rownames(permutedFC)
+              permute_Gene <- lapply(gsTopology, function(x){
+                  gs_sub <- x[rownames(x) %in% allGene, colnames(x) %in% allGene ]
+                  if (abs(det(gs_sub))>1e-7){
+                      netP_ls <- lapply(seq_len(ncol(permutedFC)), function(y){
+                          de <- permutedFC[rownames(permutedFC) %in% rownames(gs_sub), y]
+                          de <- de[match(rownames(gs_sub), names(de))]
+                          solve(t(gs_sub), -de) -de
+                      })
+                      do.call(cbind,netP_ls)
+                  } else {
+                      NULL
+                  }
+              })
+
+              names(permute_Gene) <- names(gsTopology)
+
+              permute_Gene <-  permute_Gene[!sapply( permute_Gene, is.null)]
 
               # Sum gene-wise permuted scores to pathway-wise
               permute_path <- lapply(permute_Gene, function(x){
                   apply(x, 2, sum)
               })
 
-              names(permute_path) <- names(gsTopology)
               permute_path
 
           })
