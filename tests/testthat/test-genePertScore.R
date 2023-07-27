@@ -27,6 +27,7 @@ y_wrongIdentifier <- y
 rownames(y_wrongIdentifier) <- c("ENSG00000000003","ENSG00000000419","ENSG00000000457","ENSG00000000460","ENSG00000000938")
 ssFC_wrongIdentifier <- weight_ss_fc(y_wrongIdentifier, sample, sampleColumn = "sample", groupBy = "patient", treatColumn = "treatment")
 
+
 test_that("raw_gene_pert returns error when expected", {
     expect_error(raw_gene_pert(ssFC_wrongIdentifier$weighted_logFC, gsTopology), "None of the expressed gene was matched to pathways. Check if gene identifiers match")
 })
@@ -54,6 +55,26 @@ test_that("raw_gene_pert produces the expected output",{
     expect_true(is.list(ls))
     # the returned output shouldn't contain any all 0 element
     expect_false(any(sapply(ls, function(x){any(x != 0)}) == FALSE))
+
+
+    # create an artificial gstopology matrix and FC to test the scoring algorithm
+    test_gs <- matrix(c(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0 , 0, 0, 0, 0, -1, 0, 0), nrow = 5)
+    colnames(test_gs) <- LETTERS[1:5]
+    rownames(test_gs) <- LETTERS[1:5]
+    nd <- apply(test_gs, 1, function(x){sum(x!=0)})
+    nd[nd == 0] <-  1
+    test_gs <- test_gs/nd
+    diag(test_gs) <- diag(test_gs) - 1
+    test_FC <-  matrix(
+        c(1.2, 0.8, -1, 2, -2),
+        ncol = 1
+    )
+    rownames(test_FC) <- LETTERS[1:5]
+    test_genePer <- raw_gene_pert( test_FC, list("GS" = test_gs))
+    res <- c(1.2, 1.4, -1.6, 3.4, -0.4)
+    names(res) <- LETTERS[1:5]
+    # expect_identical(test_genePer$GS[,1], res)
+
 })
 
 test_that("pathway_pert produces the expected output", {
