@@ -22,14 +22,30 @@
 #' # compute raw gene-wise perturbation scores
 #' genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
 #' # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
-#' pathwayPertScore <- pathway_pert( genePertScore)
+#' pathwayPertScore <- pathway_pert(genePertScore, ls$weighted_logFC)
 #' @export
-pathway_pert <- function(genePertScore){
-#
+pathway_pert <- function(genePertScore, weightedFC){
+    browser()
+    # extract all unique pathway genes and find ones that are not expressed
+    notExpressed <- setdiff(unique(unlist(unname(lapply(genePertScore, rownames)))), rownames(weightedFC))
+    if (length(notExpressed) != 0){
+        # set the FCs of unexpressed pathway genes to 0
+        temp <- matrix(0, nrow = length(notExpressed), ncol = ncol(weightedFC))
+        rownames(temp) <- notExpressed
+        colnames(temp) <- colnames(weightedFC)
+        # set the weights of unexpressed pathway genes to 0
+        weightedFC <- rbind(weightedFC, temp)
+        }
 
     # sum pathway perturbation scores for each pathway
     PF <- lapply(names(genePertScore), function(x){
-        temp <- as.data.frame(apply(genePertScore[[x]], 2, sum))
+        raw_per <- genePertScore[[x]][rownames(genePertScore[[x]]) %in% rownames(weightedFC), ]
+        sub_FC <- weightedFC[rownames(weightedFC) %in% rownames(raw_per),]
+        sub_FC <- sub_FC[
+            match(rownames(raw_per), rownames(sub_FC)),
+            match(colnames(raw_per), colnames(sub_FC))]
+        net_per <- raw_per - sub_FC
+        temp <- as.data.frame(apply(net_per, 2, sum))
         temp <- set_colnames(temp, "score")
         temp <- rownames_to_column(temp, "sample")
         temp <- mutate(temp, gs_name = x)
@@ -162,16 +178,26 @@ raw_gene_pert <- function(weightedFC, gsTopology){
         weightedFC <- rbind(weightedFC, temp)}
 
     sampleName <- colnames(weightedFC)
+    allGene <- rownames(weightedFC)
+    GP <- lapply(gsTopology, function(x){
+        gs_sub <- x[rownames(x) %in% allGene, colnames(x) %in% allGene ]
+        if (abs(det(gs_sub))>1e-7){
+            geneP_ls <- lapply(seq_len(ncol(weightedFC)), function(y){
+                de <- weightedFC[rownames(weightedFC) %in% rownames(gs_sub), y]
+                de <- de[match(rownames(gs_sub), names(de))]
+                solve(t(gs_sub), -de)
+            })
+            geneP_df <- do.call(cbind,geneP_ls)
+            colnames(geneP_df) <- sampleName
+            geneP_df
+        } else {
+            NULL
+        }
+    })
 
-    GP <-  GenePertScore_RCPP(gsTopology, weightedFC, rownames(weightedFC))
-
+    # Remove pathways that were unsolvable
+    GP <- GP[!sapply(GP, is.null)]
     # Remove list elements that are null or all zeros
-    GP <- GP[sapply(GP, function(x){any(x != 0)})]
-
-    sapply(names(GP), function(x){
-        rownames(GP[[x]]) <- rownames(gsTopology[[x]])
-        colnames(GP[[x]]) <- sampleName
-        GP[[x]]
-    }, simplify = FALSE)
+    GP[sapply(GP, function(x){any(x != 0)})]
 
 }
