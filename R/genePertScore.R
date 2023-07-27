@@ -25,7 +25,6 @@
 #' pathwayPertScore <- pathway_pert(genePertScore, ls$weighted_logFC)
 #' @export
 pathway_pert <- function(genePertScore, weightedFC){
-    browser()
     # extract all unique pathway genes and find ones that are not expressed
     notExpressed <- setdiff(unique(unlist(unname(lapply(genePertScore, rownames)))), rownames(weightedFC))
     if (length(notExpressed) != 0){
