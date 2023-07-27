@@ -52,7 +52,7 @@
 #' genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
 
 #' # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
-#' pathwayPertScore <- pathway_pert(genePertScore)
+#' pathwayPertScore <- pathway_pert(genePertScore, ls$weighted_logFC)
 #'
 #' # Genes with top 10 mean absolute gene-wise perturbation scores in the
 #' # Estrogen signaling pathway was visualised.

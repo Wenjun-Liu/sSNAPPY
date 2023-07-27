@@ -186,7 +186,7 @@ setMethod("generate_permuted_scores",
 #'
 #' # sum gene-wise perturbation scores to derive the pathway-level
 #' # single-sample perturbation scores
-#' pathwayPertScore <- pathway_pert(genePertScore)
+#' pathwayPertScore <- pathway_pert(genePertScore, ls$weighted_logFC)
 #'
 #' # simulate the null distribution of scores through sample permutation
 #' permutedScore <- generate_permuted_scores(logCPM_example,
