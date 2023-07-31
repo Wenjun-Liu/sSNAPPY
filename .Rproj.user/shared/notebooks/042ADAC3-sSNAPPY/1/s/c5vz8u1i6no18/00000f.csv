@@ -1,0 +1,30 @@
+"0","pl <- permutedScore %>%"
+"0","    keep(~all(.!=0)) %>%"
+"0","    .[sample(seq_along(.), 6)] %>%"
+"0","    lapply("
+"0","        function(x){"
+"0","            ggplot(mapping = aes(x)) + "
+"0","                geom_histogram() +"
+"0","                xlab(""Perturbation Score"") +"
+"0","                theme_bw()"
+"0","        }"
+"0","    ) "
+"0","plot_grid(plotlist = pl, nrow = 2)"
+"2","`stat_bin()` using `bins = 30`. Pick better value
+with `binwidth`.
+"
+"2","`stat_bin()` using `bins = 30`. Pick better value
+with `binwidth`.
+"
+"2","`stat_bin()` using `bins = 30`. Pick better value
+with `binwidth`.
+"
+"2","`stat_bin()` using `bins = 30`. Pick better value
+with `binwidth`.
+"
+"2","`stat_bin()` using `bins = 30`. Pick better value
+with `binwidth`.
+"
+"2","`stat_bin()` using `bins = 30`. Pick better value
+with `binwidth`.
+"

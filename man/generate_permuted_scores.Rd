@@ -53,11 +53,10 @@ generate_permuted_scores(
 storing gene expression counts. Feature names need to be in entrez IDs}
 
 \item{NB}{Number of permuted sample pairs to compute permuted logFCs for.
-Default to be the maximum number of possibilities.}
+Default to be the maximum number of possibilities (See details).}
 
-\item{testScore}{Optional. Users can provide the test perturbation score
-\code{data.frame} (ie. output of \code{pathwayPertScore}) to restrict the permutation
-step only to pathways with non-zero test scores in at least one sample.}
+\item{testScore}{Optional. Output of \code{pathway_pert()} for restricting the
+permutation only to pathways with non-zero test scores in at least one sample.}
 
 \item{gsTopology}{List of pathway topology matrices generated using function \code{retrieve_topology}}
 
@@ -71,26 +70,30 @@ Simulate null distributions of perturbation scores for each
 pathway through sample permutation.
 }
 \details{
-This \code{generate_permuted_scores} function is a generic function that can
-deal with multiple types of inputs. It firstly randomly permute sample labels
+This \code{generate_permuted_scores} function firstly randomly permute sample labels
 to form permuted pairs and generate permuted logFCs, which are then used to
 compute permuted perturbation scores for each pathway.
 
 The function outputs a list that is of the same length as the list storing
-pathway topology matrices. Each element of the output list corresponds to one pathway
-and contains a vector of permuted perturbation scores. The permuted perturbation
-scores will be used to approximate the null distributions of perturbation scores.
+pathway topology matrices (i.e. \code{gsTopology}). Each element of the output list
+corresponds to one pathway and contains a vector of permuted perturbation scores.
+The permuted perturbation scores will be used to approximate the null distributions
+of perturbation scores and compute permuted p-values.
 
 If the input is S4 object of \code{DGEList or SummarizedExperiment}, gene expression
 matrix will be extracted and converted to a logCPM matrix.
 
-The number of unique permutations when choosing 2 samples from a dataset with
-N samples without repetitions is N x (N-1). By default, permuted logFCs will
-be computed for all N x (N-1) permuted pairs of samples. However, this can be
-overwritten by the \code{NB} parameter. If the \code{NB} specified is smaller than N x (N-1),
-\code{NB} possibilities will be randomly sampled from all the possible permutation.
-If the \code{NB} specified is larger than the maximum number of permutation possible,
-the parameter will be ignored.
+The sample permutation is operated by randomly choosing combination of 2 samples
+from the column names of the \code{expreMatrix}. Hence, sample metadata is not a
+required input. The number of maximum unique permutations in a dataset with N
+samples is N x (N-1). By default, permuted logFCs will be computed for all N x (N-1)
+permuted pairs. However, this can be overwritten by the \code{NB} parameter.
+If the \code{NB} specified is smaller than N x (N-1), \code{NB} possibilities will be randomly
+sampled from all the possible permutation. If the \code{NB} specified is larger than
+the maximum number of permutation possible, the parameter will be ignored.
+Since the smallest achievable permutation p-value is 1/\code{NB}, accurate estimation
+of small p-value requires a large number of permutations that is only feasible
+in data with a large sample size.
 }
 \examples{
 #compute weighted single sample logFCs

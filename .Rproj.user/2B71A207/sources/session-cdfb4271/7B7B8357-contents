@@ -1,0 +1,64 @@
+Package: sSNAPPY
+Title: Single Sample directioNAl Pathway Perturbation analYsis
+Version: 1.5.1
+Authors@R: c(
+    person(
+        "Wenjun", "Liu", , "wenjun.liu@adelaide.edu.au", role = c("aut", "cre"),
+        comment = c(ORCID = "0000-0002-8185-3069")),
+    person(
+        "Stephen", "Pederson", email = "stephen.pederson.au@gmail.com", 
+        role = "aut", comment = c(ORCID = "0000-0001-8197-3303")))
+Description: A single sample pathway perturbation testing method for RNA-seq 
+    data. The method propagates changes in gene expression down gene-set 
+    topologies to compute single-sample directional pathway perturbation scores 
+    that reflect potential direction of change. Perturbation scores can be 
+    used to test significance of pathway perturbation at both individual-sample 
+    and treatment levels.  
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Suggests: 
+    BiocManager,
+    BiocStyle,
+    cowplot,
+    DT,
+    htmltools,
+    knitr,
+    pander,
+    rmarkdown,
+    spelling,
+    testthat (>= 3.0.0),
+    tidyverse
+Config/testthat/edition: 3
+SystemRequirements: C++11
+LazyData: false
+Imports: 
+    dplyr (>= 1.1),
+    magrittr,
+    rlang,
+    stats,
+    graphite,
+    tibble,
+    ggraph,
+    igraph,
+    reshape2,
+    org.Hs.eg.db,
+    SummarizedExperiment,
+    edgeR,
+    methods,
+    ggforce,
+    pheatmap,
+    utils,
+    stringr,
+    gtools,
+    tidyr
+Depends: 
+    R (>= 4.3.0),
+    ggplot2
+biocViews:
+    Software, GeneExpression, GeneSetEnrichment, GeneSignaling
+URL: https://wenjun-liu.github.io/sSNAPPY/
+VignetteBuilder: knitr
+BugReports: https://github.com/Wenjun-Liu/sSNAPPY/issues
+Language: en-US

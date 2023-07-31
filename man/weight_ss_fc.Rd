@@ -6,17 +6,52 @@
 \alias{weight_ss_fc,data.frame-method}
 \alias{weight_ss_fc,DGEList-method}
 \alias{weight_ss_fc,SummarizedExperiment-method}
-\title{Compute weighted single sample LogFCs from normalised logCPM}
+\title{Compute weighted single sample LogFC from normalised logCPM}
 \usage{
-weight_ss_fc(expreMatrix, metadata = NULL, sampleColumn, treatColumn, groupBy)
+weight_ss_fc(
+  expreMatrix,
+  metadata = NULL,
+  sampleColumn,
+  treatColumn,
+  groupBy,
+  prefix = "ENTREZID:"
+)
 
-\S4method{weight_ss_fc}{matrix}(expreMatrix, metadata = NULL, sampleColumn, treatColumn, groupBy)
+\S4method{weight_ss_fc}{matrix}(
+  expreMatrix,
+  metadata = NULL,
+  sampleColumn,
+  treatColumn,
+  groupBy,
+  prefix = "ENTREZID:"
+)
 
-\S4method{weight_ss_fc}{data.frame}(expreMatrix, metadata = NULL, sampleColumn, treatColumn, groupBy)
+\S4method{weight_ss_fc}{data.frame}(
+  expreMatrix,
+  metadata = NULL,
+  sampleColumn,
+  treatColumn,
+  groupBy,
+  prefix = "ENTREZID:"
+)
 
-\S4method{weight_ss_fc}{DGEList}(expreMatrix, metadata = NULL, sampleColumn, treatColumn, groupBy)
+\S4method{weight_ss_fc}{DGEList}(
+  expreMatrix,
+  metadata = NULL,
+  sampleColumn,
+  treatColumn,
+  groupBy,
+  prefix = "ENTREZID:"
+)
 
-\S4method{weight_ss_fc}{SummarizedExperiment}(expreMatrix, metadata = NULL, sampleColumn, treatColumn, groupBy)
+\S4method{weight_ss_fc}{SummarizedExperiment}(
+  expreMatrix,
+  metadata = NULL,
+  sampleColumn,
+  treatColumn,
+  groupBy,
+  prefix = "ENTREZID:"
+)
 }
 \arguments{
 \item{expreMatrix}{\code{matrix} or \code{data.frame} of logCPM, or \code{DGEList}/
@@ -34,6 +69,10 @@ the control treatment.}
 
 \item{groupBy}{Name of the column in the \code{metadata} containing information
 for how samples are matched in pairs (eg. patient).}
+
+\item{prefix}{Character(1). Prefix to be add to the \code{rownames} of the
+\code{expreMatrix}. Default to \verb{ENTREZID:} to align with the format that topology
+matrices will be retrieved in, but can be adjusted according to users' needs.}
 }
 \value{
 A list with two elements:
@@ -41,25 +80,27 @@ $weight  gene-wise weights;
 $weighted_logFC weighted single sample logFC matrix
 }
 \description{
-Compute weighted single sample logFCs for each treated samples
+Compute weighted single sample logFC for each treated samples
 using normalized logCPM values. Fit a lowess curve on variances ~ mean of
 logCPM values, and use it to predict gene-wise weights. The weighted single
-sample logFCs are ready to be used for computing perturbation scores.
+sample logFC are ready to be used for computing perturbation scores.
 }
 \details{
-This function computes weighted single-sample logFCs from normalised logCPM
+This function computes weighted single-sample logFC (ssFC) from normalised logCPM
 values, used for computing single-sample perturbation scores.
 
-Since genes with smaller logCPM turn to have larger variances among single
-sample logFCs.A lowess curve will be fitted to estimate the relationship
-between variances and mean of logCPM, and the relationship will be used to
-estimate the variance of each mean logCPM value. Gene-wise weights, which are
-defined to be inverse of variances, will then be multiplied to single-sample
-logFCs to down-weight genes with low counts.
+Genes with low expression tend to have larger variances, which will
+introduce biases to the ssFC computed. Therefore, a lowess curve will be fitted to
+estimate the relationship between the variances and the mean of logCPM, and
+the relationship will be used to estimate the variance of each gene-wise mean
+logCPM value. Gene-wise weights, which are defined to be the inverse of predicted
+variances that are scaled to have a sum of 1, will then be multiplied to ssFC
+to down-weight genes with low counts.
 
 It is assumed that the genes with extremely low counts have been removed and the
 count matrix has been normalised prior to the logCPM matrix was derived. Row
-names of the matrix must be in genes' entrez IDs.
+names of the matrix must be in genes' entrez IDs to align with the fomrat of
+pathway topology matrices.
 
 If a S4 object of \code{DGEList or SummarizedExperiment} is provided as input
 to \code{expreMatrix}, the gene expression matrix will be extracted from it and
@@ -69,6 +110,9 @@ same S4 object unless otherwise specified.
 Provided sample metadata should have the same number of rows as the number of
 columns in the logCPM matrix and must contain the a column for treatment, one
 for sample names and a column for how samples should be matched into pairs.
+
+The treatment column in the sample metadata must be a factor with the reference
+level set to be the control condition.
 }
 \examples{
 # Inspect metadata data frame to make sure it has treatment, sample

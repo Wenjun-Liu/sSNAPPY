@@ -1,0 +1,18 @@
+"0","plot_grid(p1, 
+          p2)
+"
+"1","[1m[33mError[39m in [38;5;232m`check_aesthetics()`[39m:[22m
+[33m![39m Aesthetics must be either length 1 or the same as the data (12000): y
+Backtrace:
+[90m  1. [39m[1mcowplot[22m::plot_grid(p1, p2)
+[90m  2. [39mcowplot::align_plots(...)
+[90m  3. [39m[1mbase[22m::lapply(...)
+[90m  4. [39m[1mcowplot[22m FUN(X[[i]], ...)
+[90m  6. [39mcowplot:::as_gtable.default(x)
+     ...
+[90m 13. [39mggplot2 by_layer(function(l, d) l$compute_aesthetics(d, plot))
+[90m 14. [39mggplot2 f(l = layers[[i]], d = data[[i]])
+[90m 15. [39ml$compute_aesthetics(d, plot)
+[90m 16. [39mggplot2 f(..., self = self)
+[90m 17. [39mggplot2:::check_aesthetics(evaled, n)
+"

@@ -1,0 +1,6 @@
+"0","plot_gene_contribution("
+"0","    genePertScore = genePertScore, gsToPlot = ""Ovarian steroidogenesis"", metadata = metadata_example, "
+"0","    annotation_attribute = c(""pathwayPertScore"", ""treatment""), pathwayPertScore = pathwayPertScore, "
+"0","    breaks = seq(-0.0001, 0.0001, length.out = 100),"
+"0","    show_rownames = FALSE"
+"0",")"

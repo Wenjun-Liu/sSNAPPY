@@ -1,13 +1,5 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-*.Rproj
-TODO.md
-/inst/doc/
+*.o
+*.so
+*.dll
+/doc/
 /Meta/
-data/..rda
-.o
-.so
-src/*.o
-docs
