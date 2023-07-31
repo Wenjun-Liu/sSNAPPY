@@ -131,8 +131,8 @@ retrieve_topology <-  function(
       if (database == "reactome"){
           g2gInteraction <- t(g2gInteraction)
       }
-      # count the nub of downstream genes ()
-      numDownstream <- apply(g2gInteraction, 2, function(x){sum(x!=0)})
+      # count the nub of downstream genes (the rows capture downstream)
+      numDownstream <- apply(g2gInteraction, 1, function(x){sum(x!=0)})
       numDownstream[numDownstream == 0] <- 1
       B <- g2gInteraction/numDownstream
       diag(B) <- diag(B) - 1
