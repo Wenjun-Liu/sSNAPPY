@@ -1,6 +1,11 @@
+# Changes in version 1.4.3 (2023-07-31)
+- Updated the perturbation scoring step to account for the orientiaton of topology 
+matrices for KEGG pathways (row - Downstream genes; column - Upstream genes)
+- Add `prefix` parameter to the `weight_ss_fc` function to allow user-specified 
+prefix that are other than "ENTREZID:"
+
 # Changes in version 1.4.2 (2023-07-12)
-- Updated the permtuation strategy so that the `generate_permuted_scores` function
-now construct all possible permuted pairs by default
+- Updated the permtuation strategy so that the `generate_permuted_scores` function now construct all possible permuted pairs by default
 - Updated the `plot_community` function so KEGG pathways that are not assigned to
 categories will be ignored in community labeling
 
