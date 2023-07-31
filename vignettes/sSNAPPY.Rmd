@@ -4,6 +4,8 @@ author:
 - name: Wenjun Nora Liu
   affiliation: Dame Roma Mitchell Cancer Research Laboratories, Adelaide Medical School, University of Adelaide
   email: wenjun.liu@adelaide.edu.au
+- name: Stephen Pederson
+  email: stephen.pederson.au@gmail.com
 pacakge: sSNAPPY
 output: 
     BiocStyle::html_document:
@@ -22,7 +24,7 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE, crop = NULL)
 
 # Introduction
 
-This vignette demonstrates how to use the package `sSNAPPY` to compute directional single sample pathway perturbation scores by incorporating pathway topologies, utilizing sample permutation to test the significance of individual scores and comparing average pathway activities across treatments.
+This vignette demonstrates how to use the package `sSNAPPY` to compute directional single sample pathway perturbation scores by incorporating pathway topologies and changes in gene expression, utilizing sample permutation to test the significance of individual scores and comparing average pathway activities across treatments.
 
 The package also provides many powerful and easy-to-use visualisation functions that helps visualising significantly perturbed pathways as networks, detecting community structures in pathway networks, and revealing pathway genes' involvement in the perturbation. 
 
@@ -52,13 +54,14 @@ library(ggplot2)
 library(cowplot)
 library(DT)
 library(htmltools)
+library(patchwork)
 ```
 
 ## Load data
 
 The example dataset used for this tutorial can be loaded with `data()` as shown below. It's a subset of data retrieved from [Singhal H et al. 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/), where ER-positive primary breast cancer tumour tissues collected from 12 patients were split into tissue fragments of equal sizes for different treatments.
 
-For this tutorial, we are only looking at the RNA-seq data from samples that were treated with vehicle, R5020(progesterone) OR E2(estrogen) + R5020 for 48 hrs. Tumour specimens were collected from 5 patients, giving rise to a total of 15 samples. A more detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
+For this tutorial, we are only looking at the RNA-seq data from samples that were treated with vehicle, R5020(progesterone) OR E2(estrogen) + R5020 for 48 hrs. Tumour specimens were collected from 5 patients, giving rise to a total of 15 samples. To cut down the computation time, only half the expressed genes were randomly sampled to derive the example logCPM matrix. A more detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
 
 ```{r data}
 data(logCPM_example)
@@ -67,7 +70,6 @@ data(metadata_example)
 setequal(colnames(logCPM_example), metadata_example$sample)
 # View sample metadata
 datatable(metadata_example,  filter = "top")
-    unique()
 ```
 
 # `sSNAPPY` workflow
@@ -76,15 +78,15 @@ datatable(metadata_example,  filter = "top")
 
 It is expected that the logCPM matrix will be filtered to remove undetectable genes and normalised to correct for library sizes or other systematic artefacts, such as gene length or GC contents, prior to applying the `sSNAPPY` workflow. Filtration and normalisation have been performed on the example dataset.
 
-Before single-sample logFCs (ssLogFCs) can be computed, row names of the logCPM matrix need to be converted to `entrez ID`. This is because all the pathway topology information retrieved will be in `entrez ID`. The conversion can be achieved through bioconductor packages `AnnotationHub` and `ensembldb`.
+Before single-sample logFC (ssFC) can be computed, row names of the logCPM matrix need to be converted to `entrez ID`. This is because all the pathway topology information retrieved will be in `entrez ID`. The conversion can be achieved through bioconductor packages `AnnotationHub` and `ensembldb`.
 
 ```{r logCPM_example, eval=FALSE}
 head(logCPM_example)
 ```
 
-To compute the ssLogFCs, samples must be in matching pairs. In our example data, treated samples were matched to the corresponding control samples derived from the same patients. Therefore the `groupBy` parameter of the `weight_ss_fc()` functions will be set to be "patient". 
+To compute the ssFC, samples must be in matching pairs. In our example data, treated samples were matched to the corresponding control samples derived from the same patients. Therefore the `groupBy` parameter of the `weight_ss_fc()` functions will be set to be "patient". 
 
-`weight_ss_fc()` requires both the logCPM matrix and sample metadata as input. The column names of the logCPM matrix should be sample names, matching a column in the metadata. Name of the column in the metadata with sample name will be provided as the `sampleColumn` parameter. The function also requires the name of the metadata column containing treatment information to be specified. The column with treatment information must be a factor with the control treatment set to be the reference level.
+`weight_ss_fc()` requires both the logCPM matrix and sample metadata as input. The column names of the logCPM matrix should be sample names, matching a column in the metadata. Name of the sample name column will be provided as the `sampleColumn` parameter. The function also requires the name of the metadata column that contains treatment information to be specified. The column with treatment information must be a factor with the control treatment set to be the reference level.
 
 ```{r ssFC}
 # Check that the baseline level of the treatment column is the control
@@ -95,9 +97,9 @@ weightedFC <- weight_ss_fc(logCPM_example, metadata = metadata_example,
                            treatColumn = "treatment")
 ```
 
-The `weight_ss_fc()` function firstly computes raw ssLogFCs for each gene by subtracting logCPM values of the control sample from the logCPM values of treated samples within each patient.
+The `weight_ss_fc()` function firstly computes raw ssFC for each gene by subtracting logCPM values of the control sample from the logCPM values of treated samples within each patient.
 
-It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have larger variances, which is also demonstrated in the plot below. To reduce the impact of this artifact, `weight_ss_fc` also weights each ssLogFCs by estimating the mean-variance relationship of logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
+It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have larger variances, which is also demonstrated in the plot below. To reduce the impact of this artifact, `weight_ss_fc` also weights each ssFC by estimating the mean-variance relationship of logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
 
 ```{r lowess, fig.width=6,fig.height=5, fig.cap="*Gene-wise standard deviations are plotted against the mean logCPM values with mean-variance trend modelled by a loess fit. Genes with low expression values tend to have a larger variance.*"}
 logCPM_example %>%
@@ -123,7 +125,7 @@ logCPM_example %>%
     )
 ```
 
-The output of the `weight_ss_fc()` function is a list with two element, where one is the weighted ssLogFCs matrix and the other is a vector of gene-wise weights.
+The output of the `weight_ss_fc()` function is a list with two element, where one is the weighted ssFC matrix (`weighted_logFC`) and the other is a vector of gene-wise weights (`weight`).
 
 ## Retrieve pathway topologies in the required format
 
@@ -147,6 +149,7 @@ This vignette uses *KEGG* pathways in human as an example.
 gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 head(names(gsTopology))
 ```
+
 
 If only selected biological processes are of interest to your research, it's possible to only retrieve the topologies of those pathways by specifying keywords. For example, to retrieve all metabolism-related *KEGG* pathways:
 
@@ -189,7 +192,7 @@ To derive the empirical p-values for each single-sample perturbation scores and 
 
 In the permutation, all sample labels will be randomly shuffled and put into permuted pairs. Permuted single-sample logFCs will be calculated for each permuted pair of samples, while the reminding pathway perturbation scoring algorithm remains unchanged. Unless otherwise specified through the `NB` parameter, all possible permuted pairs will be used to construct the null distributions of perturbation scores. 
 
-The output of the `generate_permuted_scores()` function is a list where each element is a vector of permuted perturbation scores for one specific pathway.
+The output of the `generate_permuted_scores()` function is a list where each element is a vector of permuted perturbation scores for a specific pathway.
 
 ```{r permutedScore}
 set.seed(123)
@@ -207,9 +210,9 @@ permutedScore <- generate_permuted_scores(
 
 After the empirical null distributions are generated, the median and mad of each distribution will be calculated for each pathway to convert the test single-sample perturbation scores derived from the `compute_perturbation_score()` function to robust z-scores: $(Score - Median)/MAD$. 
 
-Two-sided p-values associated with each perturbation scores are also computed by the proportion of permuted scores that are more extreme than the test perturbation score within each pathway. Raw p-values will be corrected for multiple-testing using a user-defined approach. The default is `fdr`.
+Two-sided p-values associated with each perturbation scores are also computed by the proportion of permuted scores that are as or more extreme than the test perturbation score within each pathway. Raw p-values will be corrected for multiple-testing using a user-defined approach. The default is `fdr`.
 
-In a data with N samples, the total number of possible permuted pairs of samples is $N \times (N-1)$. When the sample size is small, small p-values cannot be accurately estimated so the p-values returned by the `normalise_by_permu()` function should be intepreted with caution.
+In a data with N samples, the total number of possible permuted pairs of samples is $N \times (N-1)$. When the sample size is small, small p-values cannot be accurately estimated so the p-values returned by the `normalise_by_permu()` function should be interpreted with caution.
 
 The `normalise_by_permu()` function requires the test perturbation scores and permuted perturbation scores as input. Users can choose to sort the output by p-values, gene-set names or sample names.
 
@@ -228,14 +231,13 @@ normalisedScores %>%
 
 In addition to testing pathway perturbations at single-sample level, normalised perturbation scores can also be used to model mean treatment effects within a group, such as within each treatment group. An advantage of this method is that it has a high level of flexibility that allows us to incorporate confounding factors as co-factors or co-variates to offset their effects.
 
-For example, in the example data-set, samples were collected from patients with different progesterone receptor (PR) statuses. Knowing that PR status would affect how tumour tissues responded to estrogen and/or progesterone treatments, we can include it as a cofactor to offset its confounding effect.
+In the example data-set, the key question is how tumour tissues responded to the activation of PR alone or both ER and AR. We can test for the treatment-level pathway perturbation using a linear regression model of the form `~ 0 + treatment`.
 
 ```{r fit}
 fit <- normalisedScores %>%
     left_join(metadata_example) %>%
     split(f = .$gs_name) %>%
-    #.["Estrogen signaling pathway"] %>%
-    lapply(function(x)lm(robustZ ~ 0 + treatment + PR, data = x)) %>%
+    lapply(function(x)lm(robustZ ~ 0 + treatment, data = x)) %>%
     lapply(summary)
 treat_sig <- lapply(
   names(fit), 
@@ -284,18 +286,21 @@ treat_sig %>%
     )
 ```
 
-It is not surprising to see that the estrogen signalling pathway was significantly activated under both R5020 (progesterone) and E2 (estrogen) +R5020 treatments.
 
 #### Visualise genes' contributions to pathway perturbation
 
-If there's a specific pathway that we would like to dig deeper into and explore which pathway genes played a key role in its perturbation, for example, activation of the "Ovarian steroidogenesis", we can plot the gene-level perturbation scores of genes that are constantly highly perturbed or highly variable in that pathway as a heatmap using the `plot_gene_contribution()` function.
+If there's a specific pathway that we would like to dig deeper into and explore which pathway genes potentially played a key role in its perturbation, for example, activation of the "Proteoglycans in cancer" in progesterone-treated samples, we can plot the gene-level perturbation scores of genes that are constantly highly perturbed or highly variable in that pathway as a heatmap using the `plot_gene_contribution()` function.
 
-From the heatmap below that we can see that the activation of this pathway was strongly driven by two genes: ENTREZID:3630 and ENTREZID:3479.
+From the heatmap below that we can see that the activation of this pathway was consistently driven by two genes: ENTREZID:1277 and ENTREZID:3688 in all R5020-treated samples while the other genes show some inter-patient heterogeneity.
 
-```{r fig.height= 7, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 15 highest absolute mean gene-wise perturbation scores in the Ovarian steroidogenesis gene-set.*" }
+```{r fig.height= 7, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 10 highest absolute mean gene-wise perturbation scores in the kegg.Proteoglycans in cancer gene-set. Only samples treated with R52020 are included.*" }
 plot_gene_contribution(
-    genePertMatr  = genePertScore$`kegg.Ovarian steroidogenesis`,
-    filterBy = "mean"
+    genePertMatr  = genePertScore$`kegg.Proteoglycans in cancer` %>%
+        .[, str_detect(colnames(.), "E2", negate = TRUE)],
+    filterBy = "mean",
+    topGene = 10,
+    color = rev(colorspace::divergex_hcl(100, palette = "RdBu")),
+    breaks = seq(-0.001, 0.001, length.out = 100)
 )
 ```
 
@@ -305,18 +310,19 @@ Mapping between different gene identifiers could be achieved through the `mapIDs
 
 Note that if the mapping information was provided and the mapping was only successful for some genes but not the others, only genes that have been mapped successfully will be plotted.
 
-Since `plot_gene_contribution()` is built on `pheatmap`, which provides a practical column annotation feature, the `plot_gene_contribution()` function also allow a `data.frame` storing annotation information to be provided. We can annotate each column (ie. each sample) by the direction of pathway perturbation in that sample or any other sample metadata, such as their treatments. 
+Since `plot_gene_contribution()` is built on `pheatmap`, which provides a practical column annotation feature, the `plot_gene_contribution()` function also allow a `data.frame` storing annotation information to be provided to utilise that feature. We can annotate each column (ie. each sample) by the pathway-level perturbation score or any other sample metadata, such as their treatments. 
 
-In this example, we first create a `data.frame` storing the pathway perturbation scores of the "Ovarian steroidogenesis" pathway in each sample and their treatments.
+In this example, we first create a `data.frame` storing the pathway perturbation scores of the "Proteoglycans in cancer" pathway in each sample and their treatments.
 
 ```{r annotation_df}
-annotation_df <- pathwayPertScore %>%
-    dplyr::filter(gs_name == "kegg.Ovarian steroidogenesis") %>%
+annotation_df <- normalisedScores %>%
+    dplyr::filter(gs_name == "kegg.Proteoglycans in cancer") %>%
     mutate(
-        `Pathway-level` =  ifelse(
-            score > 0, "Activated", "Inhibited")
+        `Z Range` = cut(
+            robustZ, breaks = seq(-2, 2, length.out = 6), include.lowest = TRUE
+        )
     ) %>%
-    dplyr::select(sample, `Pathway-level`) %>%
+    dplyr::select(sample, `Z Range`) %>%
     left_join(
         .,  metadata_example %>%
             dplyr::select(sample, Treatment = treatment), 
@@ -326,78 +332,120 @@ annotation_df <- pathwayPertScore %>%
 
 The annotation `data.frame` was provided to the `plot_gene_contribution()` function through the `annotation_df` parameter. Colors of the annotation could be customised through `pheatmap::pheatmap()`'s `annotation_colors` parameter. 
 
-```{r fig.height= 7, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 15 absolute mean gene-wise perturbation scores in the Ovarian steroidogenesis gene-set.Genes playing the most important roles in pathway activation was INS, CGA, GNAS.*"}
+```{r fig.height= 7, fig.width=10, fig.cap="*Gene-level perturbation scores of genes with top 10 absolute mean gene-wise perturbation scores in the Proteoglycans in cancer gene-set.Genes playing the most important roles in pathway activation was MTOR.*"}
 load(system.file("extdata", "entrez2name.rda", package = "sSNAPPY"))
+z_levels <- levels(annotation_df$`Z Range`)
+sample_order <- metadata_example %>%
+    dplyr::filter(treatment != "Vehicle") %>%
+    .[order(.$treatment),] %>%
+    pull(sample)
 plot_gene_contribution(
-    genePertMatr  = genePertScore$`kegg.Ovarian steroidogenesis`,
+    genePertMatr  = genePertScore$`kegg.Proteoglycans in cancer` %>%
+        .[, match(sample_order, colnames(.))],
     annotation_df = annotation_df,
     filterBy = "mean", 
+    topGene = 10,
+    cluster_cols = FALSE,
     mapEntrezID = entrez2name,
     annotation_colors = list(
         Treatment = c(R5020 = "black", `E2+R5020` = "white"),
-        `Pathway-level` = c(Activated = "darkred", Inhibited = "lightskyblue"))
-)
+        `Z Range` = setNames(
+            colorRampPalette(c("navyblue", "white", "darkred"))(length(z_levels)),
+            z_levels
+        ))
+    )
 ```
 
 #### Visualise overlap between gene-sets as networks
 
 Visualising significantly perturbed biological pathways as a network, where edges between gene-sets reflect how much overlap they share, is an useful approach for demonstrating the connections between biological processes. The `plot_gs_network()` function in this package allows an easy construction of such network by taking the `normalise_by_permu()` function's output as direct input and allowing flexible customisation. 
 
-Nodes in the network plots could be colored by the predicted direction of perturbation (i.e.. sign of robust z-score).
+Nodes in the network plots could be colored by the predicted direction of perturbation (i.e. sign of robust z-score) or p-values.
 Results of group-level perturbation can also be visualised using the `plot_gs_network()` function.
 
 The function allows you to customize the layout, colour, edge transparency and other aesthetics of the graph. More information can be found on the help page (`?plot_gs_network`). The output of the graph is a `ggplot` object and the theme of it can be changed just as any other `ggplot` figures.
 
-```{r fig.width=10, fig.height=8, fig.cap="*Pathways significantly perturbed by the E2+R5020 combintation treatment, where colors of nodes reflect pathways' directions of changes.*"}
-p1 <- treat_sig %>% 
-    dplyr::filter(FDR < 0.05, Treatment == "E2+R5020") %>%
-    mutate(status = ifelse(Estimate > 0, "Activated", "Inhibited")) %>%
+Taking the pathways that were among the top 20 ranked in the R5020 group as an example:
+
+```{r}
+pathway2plot <- treat_sig %>% 
+    dplyr::filter(Treatment == "R5020") %>%
+    arrange(FDR) %>%
+    .[1:20,] %>%
+    mutate(
+        status = ifelse(Estimate > 0, "Activated", "Inhibited"), 
+        status = ifelse(FDR < 0.05, status, "Unchanged"))
+```
+
+```{r fig.width=12, fig.height=5, fig.cap="*Networks of pathways that were perturbed by the R5020 treatment, where colors of nodes reflect (A) pathways' predicted directions of changes. and (B) -log10(p-values). In panel A, pathways that were significantly perturbed were predicted to be either inhibited or activated while pathways that did not pass the significance threshold were deemed unchanged.*"}
+set.seed(123)
+p1 <- pathway2plot %>%
     plot_gs_network(
         gsTopology = gsTopology, 
         colorBy = "status"
+    ) +
+    scale_color_manual(
+        values = c(
+            "Activated" = "red", 
+            "Unchanged" = "gray"
+        )
     ) +
     theme(
         panel.grid = element_blank(), 
         panel.background = element_blank()
     ) 
-p2 <- treat_sig %>% 
-    dplyr::filter(FDR < 0.05, Treatment == "E2+R5020") %>%
-    mutate(status = ifelse(Estimate > 0, "Activated", "Inhibited")) %>%
+set.seed(123)
+p2 <- pathway2plot %>%
+    mutate(`-log10(p)` = -log10(pvalue)) %>%
     plot_gs_network(
         gsTopology = gsTopology, 
-        colorBy = "status"
+        colorBy = "-log10(p)"
     ) +
     theme(
         panel.grid = element_blank(), 
         panel.background = element_blank()
     )
+(p1 | p2) +
+    plot_annotation(tag_levels = "A")
 ```
 
-By default, `plot_gs_network()` function does not include nodes that are not connected to any other nodes, which could be overwritten by setting the `plotIsolated` parameter to TURE.
 
 #### Visualise community structure in the gene-set network
 
-When a large number of pathways were perturbed, it is hard to answer the question "What key biological processes were perturbed?" solely by looking at all the pathway names. To solve that, we can use the `plot_community()` function to apply a community detection algorithm to the network we had above, and annotate each community by the biological process that most pathways assigned to that community belong to.
+When a large number of pathways were perturbed, it is hard to answer the question "What key biological processes were perturbed?" solely by looking at all the pathway names. To solve that, we can use the `plot_community()` function to apply a community detection algorithm to the network structure we constructed above, and annotate each community by the biological process that most pathways assigned to that community belong to.
 
-```{r, fig.height=12, fig.width=16, fig.cap="*Pathways significantly perturbed by the E2+R5020 combintation treatment, annotated by the main biological processes each pathways belong to.*" }
-treat_sig %>% 
-    dplyr::filter(FDR < 0.05, Treatment == "E2+R5020") %>%
+```{r, fig.height=7, fig.width=10, fig.cap="*The top 20 ranked pathways in the R5020 treatment group, annotated by the main biological processes each pathways belong to and coloured by pathways' predicted change in direction. The status of pathways that did not pass the significance threshold to be considered as significantly perturbed were deemed as unchanged.*" }
+set.seed(123)
+pathway2plot %>%
     plot_community(
         gsTopology = gsTopology, 
-        colorBy = "community", 
+        colorBy = "status", 
         color_lg_title = "Community"
+    ) +
+    scale_color_manual(
+        values = c(
+            "Activated" = "red", 
+            "Unchanged" = "gray"
+        )
     ) +
     theme(panel.background = element_blank())
 ```
-`sSNAPPY` was built in with categorisations of *KEGG* pathways. But to annotate pathways retrieved from other databases, customized annotation `data.frame` could be provided through the `gsAnnotation` parameter. 
+
+The `plot_community` function was built in with categorizations of *KEGG* pathways so annotation of *KEGG* communities can be automatically completed without the need to specify the `gsAnnotation` parameter.We also retrieved and curated the categorisation of *Reactome* pathways, which can be loaded using the following code:
+
+```{r}
+load(system.file("extdata", "gsAnnotation_df_wiki.rda", package = "sSNAPPY"))
+```
+
+Analyses involving other pathway databases may require user-provided pathway categories.
 
 #### Visualise genes included in perturbed pathways networks
 
 If we want to not only know if two pathways are connected but also the genes connecting those pathways, we can use the `plot_gs2gene()` function instead:
 
-```{r, fig.height=7, fig.width=12, fig.cap="*Pathways significantly perturbed by the E2+R5020 combintation treatment and genes contained in at least 3 of those pathways.*" }
+```{r, fig.height=7, fig.width=12, fig.cap="*Pathways significantly perturbed by the R5020 treatment and genes implicated in at least 3 of those pathways.*" }
 treat_sig %>% 
-    dplyr::filter(FDR < 0.05, Treatment == "E2+R5020") %>%
+    dplyr::filter(FDR < 0.05,) %>%
     plot_gs2gene(
         gsTopology = gsTopology, 
         colorGsBy = "Estimate", 
@@ -411,53 +459,45 @@ treat_sig %>%
     theme(panel.background = element_blank()) 
 ```
 
-However, since there are a large number of genes in each pathway, the plot above was quite messy and it was unrealistic to plot all genes' names. So it is recommend to filter pathway genes by their perturbation scores or logFCs.
+However, since there are a large number of genes in each pathway, the plot above was quite messy and it was unrealistic to plot all genes' names. So it is recommend to filter pathway genes by their perturbation scores or logFC.
 
-For example, we can rank genes by the absolute values of their mean single-sample logFCs and only focus on genes that were ranked in the top 200 of the list.
+For example, we can rank genes by the absolute values of their mean single-sample logFCs and only focus on genes that were ranked in the top 500 of the list.
 
-```{r top200_FC}
+
+```{r top500_FC}
 meanFC <- weightedFC$weighted_logFC %>%
     .[, str_detect(colnames(.), "E2", negate = TRUE)] %>%
     apply(1, mean )
-top200_gene <- meanFC %>%
+top500_gene <- meanFC %>%
     abs() %>%
     sort(decreasing = TRUE, ) %>%
-    .[1:200] %>%
+    .[1:500] %>%
     names()
-top200_FC <- meanFC %>%
-    .[names(.) %in% top200_gene]
-top200_FC  <- ifelse(top200_FC > 0, "Up-Regulated", "Down-Regulated")
+top500_FC <- meanFC %>%
+    .[names(.) %in% top500_gene]
+top500_FC  <- ifelse(top500_FC > 0, "Up-Regulated", "Down-Regulated")
 ```
 
-When we provide genes' logFCs as a named vector through the `geneFC` parameter, only pathway genes with logFCs provided will be plotted and gene nodes will be colored by genes' directions of changes. The names of the logFC vector must be genes' entrez IDs in the format of "ENTREZID:XXXX", as pathway topology matrices retrieved through `retrieve_topology()` always use entrez IDs as identifiers.
+When we provide genes' logFC as a named vector through the `geneFC` parameter, only pathway genes with logFC provided will be plotted and gene nodes will be colored by genes' directions of changes. The names of the logFC vector must be entrez IDs in the format of "ENTREZID:XXXX", as pathway topology matrices retrieved through `retrieve_topology()` always use entrez IDs as identifiers.
 
-However, it is not going to be informative to label genes with their entrez IDs. So the same as the `plot_gene_contribution()` function, we can provide a `data.frame` to match genes' entrez IDs to our chosen identifiers through the `mapEntrezID` parameter in the `plot_gs2gene()` function too.
+However, it is not going to be informative to label genes with their entrez IDs. So just as in the `plot_gene_contribution()` function, we can provide a `data.frame` to match genes' entrez IDs to our chosen identifiers through the `mapEntrezID` parameter in the `plot_gs2gene()` function too.
 
-```{r, fig.height=8, fig.width=10, fig.cap="*Pathways significantly perturbed by the E2+R5020 combintation treatment, and pathway genes with top 200 magnitudes of changes among all E2+R5020-treated samples. Both pathways and genes were colored by their directions of changes.*" }
+```{r, fig.height=8, fig.width=10, fig.cap="*Pathways significantly perturbed by the R5020 treatment, and pathway genes with top 500 magnitudes of changes among all R5020-treated samples. Both pathways and genes were colored by their predicted directions of changes.*" }
 treat_sig %>% 
-    dplyr::filter(FDR < 0.05, Treatment == "E2+R5020") %>%
+    dplyr::filter(FDR < 0.05, Treatment == "R5020") %>%
     mutate(status = ifelse(Estimate > 0, "Activated", "Inhibited")) %>%
     plot_gs2gene(
         gsTopology = gsTopology, 
         colorGsBy = "status", 
-        geneFC = top200_FC, 
+        geneFC = top500_FC, 
         mapEntrezID = entrez2name, 
-        gsNameSize = 3
+        gsNameSize = 3, 
+        filterGeneBy = 0
     ) +
     scale_fill_manual(values = c("darkred", "lightskyblue")) +
     scale_colour_manual(values = c("red", "blue")) +
     theme(panel.background = element_blank())
 ```
-
-We can also filters genes' by their contributions to a pathway perturbations.To help with that, `sSNAPPY` provides an option to rank genes' perturbation scores within each sample for each pathway. 
-
-If in a given pathway, both positive and negative gene-wise perturbation scores exist, positive and negative scores are ranked separately, where the larger a positive rank, the more the gene contributed to the pathway's activation, and the smaller a negative rank, the more the gene contributed to the pathways' inhibition. 
-
-```{r geneRank}
-geneRank <- rank_gene_pert(genePertScore, gsTopology)
-```
-
-Depending on the biological question, it could be interesting to plot only the pathway genes with the same directions of changes as the pathway they belonged to, and ignoring those genes that were antagonizing the pathway perturbation. 
 
 # References
 
