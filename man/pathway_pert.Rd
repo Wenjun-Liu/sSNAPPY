@@ -4,7 +4,7 @@
 \alias{pathway_pert}
 \title{Compute Single-sample Pathway-level Perturbation Score}
 \usage{
-pathway_pert(genePertScore)
+pathway_pert(genePertScore, weightedFC)
 }
 \arguments{
 \item{genePertScore}{List of gene-wise raw perturbation score matrices generated using function \code{raw_gene_pert()}}
@@ -28,7 +28,7 @@ gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
 # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
-pathwayPertScore <- pathway_pert( genePertScore)
+pathwayPertScore <- pathway_pert(genePertScore, ls$weighted_logFC)
 }
 \references{
 Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis.

@@ -3,7 +3,8 @@
 \docType{data}
 \name{metadata_example}
 \alias{metadata_example}
-\title{metadata_example: Sample metadata for malignant breast cancer tumours PDE from 5 ER+ breast cancer patients (GSE80098)}
+\title{metadata_example: Sample metadata for malignant breast cancer tumours PDE from
+5 ER+ breast cancer tumour (GSE80098)}
 \format{
 A \code{data.frame} with 15 rows and 4 columns
 \describe{
@@ -20,6 +21,7 @@ A \code{data.frame} with 15 rows and 4 columns
 data(metadata_example)
 }
 \description{
-metadata_example: Sample metadata for malignant breast cancer tumours PDE from 5 ER+ breast cancer patients (GSE80098)
+metadata_example: Sample metadata for malignant breast cancer tumours PDE from
+5 ER+ breast cancer tumour (GSE80098)
 }
 \keyword{datasets}

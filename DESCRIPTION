@@ -39,7 +39,6 @@ Imports:
     rlang,
     stats,
     graphite,
-    Rcpp,
     tibble,
     ggraph,
     igraph,
@@ -54,9 +53,6 @@ Imports:
     stringr,
     gtools,
     tidyr
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo
 Depends: 
     R (>= 4.3.0),
     ggplot2

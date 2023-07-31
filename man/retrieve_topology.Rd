@@ -2,7 +2,7 @@
 % Please edit documentation in R/pathwayTopology.R
 \name{retrieve_topology}
 \alias{retrieve_topology}
-\title{Retrieve pathway topology as weighted adjacency matrix}
+\title{Retrieve pathway topology as weighted adjacency matrices}
 \usage{
 retrieve_topology(
   database = c("kegg", "pathbank", "wikipathways", "reactome", "panther", "pharmgkb",
@@ -17,7 +17,7 @@ retrieve_topology(
 \arguments{
 \item{database}{A character vector of supported databases.}
 
-\item{species}{One of the supported species,}
+\item{species}{One of the supported species. Currently support \code{c("hsapiens", "athaliana", "btaurus", "celegans", "cfamiliaris", "dmelanogaster", "drerio", "ecoli", "ggallus", "mmusculus","rnorvegicus", "scerevisiae", "sscrofa", "xlaevis")}}
 
 \item{keyword}{Optional. Areas of interests as a character vector.}
 
