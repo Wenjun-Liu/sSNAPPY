@@ -1,0 +1,26 @@
+{
+    "id": "98EA7B07",
+    "path": "~/sSNAPPY/R/normaliseByPermutation.R",
+    "project_path": "R/normaliseByPermutation.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1690434540138.0,
+    "source_on_save": false,
+    "relative_order": 9,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "254,43",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1690772775,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1690772775836,
+    "read_only": false,
+    "read_only_alternatives": []
+}

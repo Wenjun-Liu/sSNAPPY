@@ -1,0 +1,24 @@
+"0","library(graphite)"
+"0","graphite::pathwayDatabases() %>%"
+"0","  dplyr::filter(species ==  ""hsapiens"") %>%"
+"0","  pander::pander()"
+"1","
+-------------------------
+ species      database   
+---------- --------------
+ hsapiens       kegg     
+
+ hsapiens     panther    
+
+ hsapiens     pathbank   
+
+ hsapiens     pharmgkb   
+
+ hsapiens     reactome   
+
+ hsapiens      smpdb     
+
+ hsapiens   wikipathways 
+-------------------------
+
+"

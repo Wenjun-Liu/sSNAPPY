@@ -3,7 +3,8 @@
 \docType{data}
 \name{logCPM_example}
 \alias{logCPM_example}
-\title{logCPM_example: Normalised logCPM of patient-derived explant models obtained from 5 ER-positive primamry breast cancer patients (GSE80098)}
+\title{logCPM_example: Normalised logCPM of patient-derived explant models obtained
+from 5 ER-positive primamry breast cancer tumours (GSE80098)}
 \format{
 A \code{data.frame} with 7672 rows and 15 columns
 }
@@ -14,16 +15,22 @@ A \code{data.frame} with 7672 rows and 15 columns
 data(logCPM_example)
 }
 \description{
-This data was adopted from a study by Singhal H, et al., which was published as \emph{Genomic agonism and phenotypic antagonism between estrogen and progesterone receptors in breast cancer}
+This data was adopted from a study by Singhal H, et al., which was published
+as \emph{Genomic agonism and phenotypic antagonism between estrogen and progesterone receptors in breast cancer}
 in 2016.
 }
 \details{
-In this study, 12 primary malignant breast tissues (8PR+ and 4 PR-) were developed into patient-derived explants and treated with Vehicle, E2, E2+R5020, or R5020 for 24 or 48 hrs.
+In this study, 12 primary malignant breast tissues (8PR+ and 4 PR-) were developed
+into patient-derived explants and treated with Vehicle, E2, E2+R5020, or R5020
+for 24 or 48 hrs.
 
-Raw data for 48-hr Vehicle-, R5020-treated and E2+R5020-treated samples were retrieved from GEO (GSE80098) and pre-processed into raw count. Filtration was sequentially performed to remove undetectable genes
-and the filtered counts were normalised using \href{bioconductor.org/packages/devel/bioc/vignettes/cqn/inst/doc/cqn.pdf}{conditional quantile normalisation} to offset effects of systematic artefacts,
-such as gene length and GC contents.
+Raw data for 48-hr Vehicle-, R5020-treated and E2+R5020-treated samples were
+retrieved from GEO (GSE80098) and pre-processed into raw count. Filtration was
+sequentially performed to remove undetectable genes and the filtered counts
+were normalised using \href{bioconductor.org/packages/devel/bioc/vignettes/cqn/inst/doc/cqn.pdf}{conditional quantile normalisation}
+to offset effects of systematic artefacts, such as gene length and GC contents.
 
-To reduce computing time, we randomly sampled half of the genes after filtration and used their logCPM value as the example data.
+To reduce computing time, we randomly sampled half of the genes after filtration
+and used their logCPM value as the example data.
 }
 \keyword{datasets}

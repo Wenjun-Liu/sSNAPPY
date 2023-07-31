@@ -1,0 +1,4 @@
+"0","pathwayPertScore <- pathway_pert(genePertScore)"
+"2","Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'x' in selecting a method for function 'rownames': argument ""weightedFC"" is missing, with no default
+"

@@ -25,7 +25,7 @@ interesectName <- names(gsTopology[lapply(gsTopology, function(x){length(interse
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ssFC$weighted_logFC, gsTopology)
 # sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
-pathwayPertScore <- pathway_pert(genePertScore)
+pathwayPertScore <- pathway_pert(genePertScore, ssFC$weighted_logFC)
 
 test_that("plot_gene_contribution returns error when expected", {
     expect_error(plot_gene_contribution( genePertScore$`kegg.Chemokine signaling pathway`, topGene = "random"))
