@@ -1,3 +1,0 @@
-"0","#compute weighted single sample logFCs"
-"0","weightedFC <- weight_ssFC(logCPM_example, metadata = metadata_example,"
-"0","factor = ""patient"", control = ""Vehicle"")"

@@ -51,6 +51,7 @@ test_that("raw_gene_pert produces the expected output",{
 
 
     # create an artificial gstopology matrix and FC to test the scoring algorithm
+    # row captures downstream where column capture upstream
     test_gs <- matrix(c(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0 , 0, 0, 0, 0, -1, 0, 0), nrow = 5)
     colnames(test_gs) <- LETTERS[1:5]
     rownames(test_gs) <- LETTERS[1:5]
@@ -65,8 +66,7 @@ test_that("raw_gene_pert produces the expected output",{
     rownames(test_FC) <- LETTERS[1:5]
     test_genePer <- raw_gene_pert( test_FC, list("GS" = test_gs))
     res <- c(1.2, 1.4, -1.6, 3.4, -0.4)
-    names(res) <- LETTERS[1:5]
-    # expect_identical(test_genePer$GS[,1], res)
+
 
 })
 

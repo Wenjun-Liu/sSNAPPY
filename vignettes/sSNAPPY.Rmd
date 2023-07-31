@@ -463,7 +463,6 @@ However, since there are a large number of genes in each pathway, the plot above
 
 For example, we can rank genes by the absolute values of their mean single-sample logFCs and only focus on genes that were ranked in the top 500 of the list.
 
-
 ```{r top500_FC}
 meanFC <- weightedFC$weighted_logFC %>%
     .[, str_detect(colnames(.), "E2", negate = TRUE)] %>%

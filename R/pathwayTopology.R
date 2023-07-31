@@ -128,13 +128,14 @@ retrieve_topology <-  function(
       # sum all interaction matrices for a pathway to derive one matrix B
       g2gInteraction <-   Reduce('+', g2gInteraction)
 
-      if (database == "reactome"){
+      if (str_detect(x, "reactome|wikipathways")){
           g2gInteraction <- t(g2gInteraction)
       }
       # count the nub of downstream genes (the rows capture downstream)
       numDownstream <- apply(g2gInteraction, 1, function(x){sum(x!=0)})
       numDownstream[numDownstream == 0] <- 1
       B <- g2gInteraction/numDownstream
+      # take identity matrix I from interaction matrix B
       diag(B) <- diag(B) - 1
       B
     }

@@ -1,6 +1,0 @@
-"0","set.seed(123)"
-"0","permutedScore <- generate_permuted_scores("
-"0","  expreMatrix  = logCPM_example, "
-"0","  gsTopology = gsTopology, "
-"0","  weight = weightedFC$weight"
-"0",")"

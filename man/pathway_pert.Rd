@@ -7,13 +7,18 @@
 pathway_pert(genePertScore, weightedFC)
 }
 \arguments{
-\item{genePertScore}{List of gene-wise raw perturbation score matrices generated using function \code{raw_gene_pert()}}
+\item{genePertScore}{List of gene-wise raw perturbation score matrices
+generated using function \code{raw_gene_pert()}}
+
+\item{weightedFC}{A matrix of weighted ssFC generated using function \code{weight_ss_fc}}
 }
 \value{
 A data.frame with 3 columns: score (single-sample pathway-level perturbation score), sample, and gs_name (gene-set name)
 }
 \description{
-Sum gene-wise raw perturbation scores within each sample to derive single-sample perturbation scores for each pathway
+Substract ssFC from the raw gene-level perturbation scores within
+each sample and sum gene-wise raw perturbation scores to derive single-sample
+perturbation scores for each pathway.
 }
 \examples{
 #compute weighted single sample logFCs
@@ -27,7 +32,8 @@ groupBy = "patient", treatColumn = "treatment", sampleColumn = "sample")
 gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 # compute raw gene-wise perturbation scores
 genePertScore <- raw_gene_pert(ls$weighted_logFC, gsTopology)
-# sum gene-wise perturbation scores to derive the pathway-level single-sample perturbation scores
+# sum gene-wise perturbation scores to derive the pathway-level single-sample
+# perturbation scores
 pathwayPertScore <- pathway_pert(genePertScore, ls$weighted_logFC)
 }
 \references{

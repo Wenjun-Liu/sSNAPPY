@@ -21,11 +21,13 @@ RoxygenNote: 7.2.3
 Suggests: 
     BiocManager,
     BiocStyle,
+    colorspace,
     cowplot,
     DT,
     htmltools,
     knitr,
     pander,
+    patchwork,
     rmarkdown,
     spelling,
     testthat (>= 3.0.0),
