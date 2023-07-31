@@ -135,6 +135,7 @@ retrieve_topology <-  function(
       numDownstream <- apply(g2gInteraction, 1, function(x){sum(x!=0)})
       numDownstream[numDownstream == 0] <- 1
       B <- g2gInteraction/numDownstream
+      # take identity matrix I from interaction matrix B
       diag(B) <- diag(B) - 1
       B
     }

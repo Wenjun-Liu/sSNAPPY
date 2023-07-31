@@ -1,0 +1,15 @@
+"0","annotation_df <- normalisedScores %>%
+    dplyr::filter(gs_name == ""kegg.Proteoglycans in cancer"") %>%
+    mutate(
+        `Z Range` = cut(
+            robustZ, breaks = seq(-2, 2, length.out = 6), include.lowest = TRUE
+        )
+    ) %>%
+    dplyr::select(sample, `Z Range`) %>%
+    left_join(
+        .,  metadata_example %>%
+            dplyr::select(sample, Treatment = treatment), 
+        unmatched = ""drop""
+    )
+"
+"2","Joining with `by = join_by(sample)`"

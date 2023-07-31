@@ -25,7 +25,8 @@ retrieve_topology(
 each type of gene/protein relation type.See details for more information.}
 }
 \value{
-A list where each element is a matrix corresponding to a pathway
+A list where each element is a weighted directed adjacency
+matrix corresponding to a pathway
 }
 \description{
 Retrieve pathway topology matrices and convert them to normalized
@@ -39,11 +40,11 @@ and pathway-level perturbation score through the scoring algorithm derived
 from the \emph{SPIA} algorithm. See cited document for more details.
 
 The \code{database} parameter may specify multiple databases but only one species
-can provided to the \code{species} parameter.
+can be provided to the \code{species} parameter.
 
 Users can provide areas of interests as keywords, which will be matched to
 pathway names from chosen databases to subset pathways. Cases will be
-ignored in string matchings.
+ignored in string matching.
 
 The beta parameter specifies weights to be assigned to each type of gene-gene
 interaction. It should be a named numeric vector of length 25,
@@ -53,6 +54,11 @@ If unspecified, beta will be set as an integer vector with: a) values of 1
 for interactions which match 'expression' or 'activation'; b) values of -1
 for interactions which match 'repression' or 'inhibition'; and c) 0
 elsewhere.
+
+The retrieved topology matrices will be processed as decribed by \emph{SPIA} to: 1)
+scale gene-gene interactions by the number of downstream genes and 2) subtract
+an identity matrix of the same size from the topology matrix.
+
 The converted weighted adjacent matrices will be stored in a list. We
 recommend users to store the returned list as a file so this step only
 needs to be performed once for each database.

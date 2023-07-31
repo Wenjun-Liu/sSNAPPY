@@ -1,5 +1,5 @@
 "0","treat_sig %>% "
-"0","    dplyr::filter(FDR < 0.05, Treatment == ""E2+R5020"") %>%"
+"0","    dplyr::filter(FDR < 0.05,) %>%"
 "0","    plot_gs2gene("
 "0","        gsTopology = gsTopology, "
 "0","        colorGsBy = ""Estimate"", "

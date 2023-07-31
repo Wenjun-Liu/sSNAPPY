@@ -1,0 +1,2 @@
+"0","pathwayPertScore <- pathway_pert(genePertScore, weightedFC$weighted_logFC)"
+"0","head(pathwayPertScore)"
