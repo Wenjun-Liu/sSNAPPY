@@ -3,3 +3,4 @@
 *.dll
 /doc/
 /Meta/
+.Rproj.user

@@ -218,6 +218,7 @@ The `normalise_by_permu()` function requires the test perturbation scores and pe
 
 ```{r normalisedScores}
 normalisedScores <- normalise_by_permu(permutedScore, pathwayPertScore, sortBy = "pvalue")
+
 ```
 
 In this example dataset, none of the pathway was considered to be significantly perturbed within individual samples using a FDR cut-off of 0.05.
