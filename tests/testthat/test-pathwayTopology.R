@@ -12,8 +12,12 @@ test_that("retrieve_topology returns expected output", {
     expect_true(stringr::str_detect(rownames(temp[[1]])[1], "ENTREZID:"))
 
     # if multiple dataset were provided
-    temp <- retrieve_topology(database = c("kegg", "path"), species = "hsapien",
+    temp <- retrieve_topology(database = c("kegg", "react"), species = "hsapien",
                               keyword = "estrogen")
-    expect_equal(names(temp), c("kegg.Estrogen signaling pathway","pathbank.Androgen and Estrogen Metabolism"))
+    expect_equal(names(temp), c("kegg.Estrogen signaling pathway","reactome.Estrogen biosynthesis",
+                                "reactome.RUNX1 regulates estrogen receptor mediated transcription",
+                                "reactome.Extra-nuclear estrogen signaling","reactome.Estrogen-dependent gene expression",
+                                "reactome.Estrogen-stimulated signaling through PRKCZ",
+                                "reactome.Estrogen-dependent nuclear events downstream of ESR-membrane signaling"))
     expect_true(stringr::str_detect(rownames(temp[[1]])[1], "ENTREZID:"))
 })

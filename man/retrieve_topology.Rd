@@ -5,8 +5,7 @@
 \title{Retrieve pathway topology as weighted adjacency matrices}
 \usage{
 retrieve_topology(
-  database = c("kegg", "pathbank", "wikipathways", "reactome", "panther", "pharmgkb",
-    "smpdb"),
+  database = c("kegg", "wikipathways", "reactome"),
   species = c("hsapiens", "athaliana", "btaurus", "celegans", "cfamiliaris",
     "dmelanogaster", "drerio", "ecoli", "ggallus", "mmusculus", "rnorvegicus",
     "scerevisiae", "sscrofa", "xlaevis"),

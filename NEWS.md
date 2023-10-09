@@ -1,3 +1,6 @@
+# Changes in version 1.4.4 (2023-10-09)
+- Remove databases that are no longer supported: pathbank, panther, pharmgkb, smpdb
+
 # Changes in version 1.4.3 (2023-07-31)
 - Updated the perturbation scoring step to account for the orientiaton of topology 
 matrices for KEGG pathways (row - Downstream genes; column - Upstream genes)
