@@ -70,8 +70,7 @@
 #' }
 retrieve_topology <-  function(
     database = c(
-      "kegg", "pathbank", "wikipathways", "reactome", "panther",
-      "pharmgkb", "smpdb"
+      "kegg", "wikipathways", "reactome"
     ),
     species = c(
       "hsapiens", "athaliana", "btaurus", "celegans", "cfamiliaris",
