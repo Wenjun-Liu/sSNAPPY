@@ -101,7 +101,6 @@ The `weight_ss_fc()` function firstly computes raw ssFC for each gene by subtrac
 
 It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have a larger variance (Law et al. 2014), which is also demonstrated by the plots below. To reduce the impact of this artefact, `weight_ss_fc` also weights each ssFCs by estimating the relationship between the gene-level variance and mean logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
 
-
 ```{r lowess, fig.width=6,fig.height=5, fig.cap="*Gene-wise standard deviations are plotted against the mean logCPM values with mean-variance trend modelled by a loess fit. Genes with low expression values tend to have a larger variance.*"}
 logCPM_example %>%
     as.data.frame() %>%

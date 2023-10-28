@@ -6,6 +6,7 @@
 #' @param genePertScore List of gene-wise raw perturbation score matrices
 #' generated using function `raw_gene_pert()`
 #' @param weightedFC A matrix of weighted ssFC generated using function `weight_ss_fc`
+#' @param drop logic(1). Whether to drop pathways with all zero scores
 #' @importFrom dplyr mutate
 #' @importFrom tibble rownames_to_column
 #' @importFrom magrittr set_colnames
@@ -28,7 +29,7 @@
 #' # perturbation scores
 #' pathwayPertScore <- pathway_pert(genePertScore, ls$weighted_logFC)
 #' @export
-pathway_pert <- function(genePertScore, weightedFC){
+pathway_pert <- function(genePertScore, weightedFC, drop = TRUE){
     # extract all unique pathway genes and find ones that are not expressed
     notExpressed <- setdiff(
         unique(
@@ -41,7 +42,8 @@ pathway_pert <- function(genePertScore, weightedFC){
         colnames(temp) <- colnames(weightedFC)
         # set the weights of unexpressed pathway genes to 0
         weightedFC <- rbind(weightedFC, temp)
-        }
+    }
+
 
     # sum pathway perturbation scores for each pathway
     PF <- lapply(names(genePertScore), function(x){
@@ -58,8 +60,12 @@ pathway_pert <- function(genePertScore, weightedFC){
         # sum within each column to get pathway-level pert
         temp <- as.data.frame(apply(net_per, 2, sum))
         temp <- set_colnames(temp, "score")
-        temp <- rownames_to_column(temp, "sample")
-        temp <- mutate(temp, gs_name = x)
+        if(all(temp$score == 0) & drop){
+            return(NULL)
+        } else{
+            temp <- rownames_to_column(temp, "sample")
+            mutate(temp, gs_name = x)
+        }
     })
 
     bind_rows(PF)
