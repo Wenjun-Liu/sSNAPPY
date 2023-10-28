@@ -84,14 +84,16 @@ test_that("generate_permuted_scores produces the expected outcome", {
                                      gsTopology = gsTopology,
                                      testScore = ssPertScore)
     expect_equal(length(temp[[1]]), ncol(y)*(ncol(y) -1))
-
+    # test that the drop parameter works
+    expect_equal(names(temp), "kegg.Chemokine signaling pathway")
 
 })
 
 test_that("Test data.frame input for generate_permuted_scores", {
     temp <- generate_permuted_scores(as.data.frame(y),
                                      weight = ssFC$weight,
-                                 gsTopology = gsTopology[intersectName])
+                                 gsTopology = gsTopology[intersectName],
+                                 drop = FALSE)
     expect_equal(length(temp), length(intersectName))
     expect_equal(length(temp[[1]]), ncol(y)*(ncol(y) -1))
 })
@@ -99,7 +101,8 @@ test_that("Test data.frame input for generate_permuted_scores", {
 test_that("Test DGEList input for generate_permuted_scores", {
     dge <- edgeR::DGEList(counts = y)
     temp <- generate_permuted_scores(dge,  NB = 2, weight = ssFC$weight,
-                                   gsTopology = gsTopology[intersectName])
+                                   gsTopology = gsTopology[intersectName],
+                                   drop = FALSE)
     expect_equal(length(temp), length(intersectName))
 })
 
@@ -107,7 +110,8 @@ test_that("Test DGEList input for generate_permuted_scores", {
 test_that("Test SummarizedExperiment input for generate_permuted_scores", {
     dge <- SummarizedExperiment::SummarizedExperiment(assays=list(counts=y))
     temp <- generate_permuted_scores(dge, NB = 2, weight = ssFC$weight,
-                                   gsTopology = gsTopology[intersectName])
+                                   gsTopology = gsTopology[intersectName],
+                                   drop = FALSE)
     expect_equal(length(temp), length(intersectName))
 })
 
@@ -130,7 +134,7 @@ test_that("normalise_by_permu produces the expected outcome",{
     )
     genePertScore <- raw_gene_pert(ssFC$weighted_logFC, gsTopology)
     ssPertScore <- pathway_pert( genePertScore, ssFC$weighted_logFC)
-    expect_warning(output <- normalise_by_permu(perS, ssPertScore))
+    output <- normalise_by_permu(perS, ssPertScore)
     expect_equal(levels(output$sample),
                  c("patient1_treat1", "patient1_treat2", "patient2_treat1", "patient2_treat2"))
     expect_equal(levels(output$gs_name), "kegg.Chemokine signaling pathway")

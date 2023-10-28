@@ -4,13 +4,15 @@
 \alias{pathway_pert}
 \title{Compute Single-sample Pathway-level Perturbation Score}
 \usage{
-pathway_pert(genePertScore, weightedFC)
+pathway_pert(genePertScore, weightedFC, drop = TRUE)
 }
 \arguments{
 \item{genePertScore}{List of gene-wise raw perturbation score matrices
 generated using function \code{raw_gene_pert()}}
 
 \item{weightedFC}{A matrix of weighted ssFC generated using function \code{weight_ss_fc}}
+
+\item{drop}{logic(1). Whether to drop pathways with all zero scores}
 }
 \value{
 A data.frame with 3 columns: score (single-sample pathway-level perturbation score), sample, and gs_name (gene-set name)
