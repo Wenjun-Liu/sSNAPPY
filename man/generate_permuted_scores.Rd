@@ -13,7 +13,8 @@ generate_permuted_scores(
   NB = NULL,
   testScore = NULL,
   gsTopology,
-  weight
+  weight,
+  drop = TRUE
 )
 
 \S4method{generate_permuted_scores}{matrix}(
@@ -21,7 +22,8 @@ generate_permuted_scores(
   NB = NULL,
   testScore = NULL,
   gsTopology,
-  weight
+  weight,
+  drop = TRUE
 )
 
 \S4method{generate_permuted_scores}{data.frame}(
@@ -29,7 +31,8 @@ generate_permuted_scores(
   NB = NULL,
   testScore = NULL,
   gsTopology,
-  weight
+  weight,
+  drop = TRUE
 )
 
 \S4method{generate_permuted_scores}{DGEList}(
@@ -37,7 +40,8 @@ generate_permuted_scores(
   NB = NULL,
   testScore = NULL,
   gsTopology,
-  weight
+  weight,
+  drop = TRUE
 )
 
 \S4method{generate_permuted_scores}{SummarizedExperiment}(
@@ -45,7 +49,8 @@ generate_permuted_scores(
   NB = NULL,
   testScore = NULL,
   gsTopology,
-  weight
+  weight,
+  drop = TRUE
 )
 }
 \arguments{
@@ -61,6 +66,8 @@ permutation only to pathways with non-zero test scores in at least one sample.}
 \item{gsTopology}{List of pathway topology matrices generated using function \code{retrieve_topology}}
 
 \item{weight}{A vector of gene-wise weights derived from function \code{weight_ss_fc}}
+
+\item{drop}{logic(1). Whether to drop pathways with all zero scores}
 }
 \value{
 A list where each element is a vector of perturbation scores for a pathway.
