@@ -99,6 +99,7 @@ weightedFC <- weight_ss_fc(logCPM_example, metadata = metadata_example,
 
 The `weight_ss_fc()` function firstly computes raw ssFC for each gene by subtracting logCPM values of the control sample from the logCPM values of treated samples within each patient.
 
+
 It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have a larger variance (Law et al. 2014), which is also demonstrated by the plots below. To reduce the impact of this artefact, `weight_ss_fc` also weights each ssFCs by estimating the relationship between the gene-level variance and mean logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
 
 ```{r lowess, fig.width=6,fig.height=5, fig.cap="*Gene-wise standard deviations are plotted against the mean logCPM values with mean-variance trend modelled by a loess fit. Genes with low expression values tend to have a larger variance.*"}
@@ -133,7 +134,9 @@ The output of the `weight_ss_fc()` function is a list with two element, where on
 
 Therefore, pathway topology information needs to be firstly retrieved from a chosen database and converted to weight adjacency matrices, the format required to apply the scoring algorithm.
 
+
 This step is achieved through a chain of functions that are part of the `r Biocpkg("grapghite")`, which have been nested into one simple function in *sSNAPPY* called `retrieve_topology()`. The `retrieve_topology` function now supports various species and databases. Databases that are currently supported for human are the Kyoto Encyclopaedia of Genes and Genomes (KEGG) database(Ogata et al. 1999), the Reactome(Gillespie et al. 2021) database, and WikiPathways(Martens et al. 2021). 
+
 
 The retrieved topology information will be a list where each element corresponds a pathway. It's recommended to save the list as a file so this step only needs to be performed once for each database.
 
