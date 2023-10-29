@@ -1,12 +1,19 @@
 ---
 title: "sSNAPPY: Singel Sample directioNAl Pathway Perturbation analYsis"
 author:
-- name: Wenjun Nora Liu
-  affiliation: Dame Roma Mitchell Cancer Research Laboratories, Adelaide Medical School, University of Adelaide
-  email: wenjun.liu@adelaide.edu.au
-- name: Stephen Pederson
-  email: stephen.pederson.au@gmail.com
+ - name: Wenjun Nora Liu
+   affiliation: 
+   - Jose Polo Group, Adelaide Centre for Epigenetics, School of Biomedicine, University of Adelaide
+   - Dame Roma Mitchell Cancer Research Laboratories, Adelaide Medical School, University of Adelaide
+   email: wenjun.liu@adelaide.edu.au
+ - name: Stevie Pederson
+   affiliation: 
+   - Black Ochre Data Laboratories, Telethon Kids Institute, Adelaide, Australia
+   - Dame Roma Mitchell Cancer Researc Laboratories, University of Adelaide
+   - John Curtin School of Medical Research, Australian National University
+   email: stephen.pederson.au@gmail.com
 pacakge: sSNAPPY
+bibliography: '`r system.file("bibliography.bib", package = "sSNAPPY")`'
 output: 
     BiocStyle::html_document:
     toc: yes
@@ -24,15 +31,15 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE, crop = NULL)
 
 # Introduction
 
-This vignette demonstrates how to use the package `sSNAPPY` to compute directional single sample pathway perturbation scores by incorporating pathway topologies and changes in gene expression, utilizing sample permutation to test the significance of individual scores and comparing average pathway activities across treatments.
-
+This vignette demonstrates how to use the package *sSNAPPY* to compute directional single sample pathway perturbation scores by incorporating pathway topologies and changes in gene expression, utilizing sample permutation to test the significance of individual scores and comparing average pathway activities across treatments.
+While the method was originally developed for bulk-RNA studies, *sSNAPPY* can also applied to pseudo-bulked scRNA-seq dataset. 
 The package also provides many powerful and easy-to-use visualisation functions that helps visualising significantly perturbed pathways as networks, detecting community structures in pathway networks, and revealing pathway genes' involvement in the perturbation. 
 
 # To get ready
 
 ## Installation
 
-The package `sSNAPPY` can be installed using the package `BiocManager`
+The package *sSNAPPY* can be installed using the package `BiocManager`
 
 ```{r install, eval = FALSE}
 if (!"BiocManager" %in% rownames(installed.packages()))
@@ -57,51 +64,45 @@ library(htmltools)
 library(patchwork)
 ```
 
-## Load data
+## Data
 
 The example dataset used for this tutorial can be loaded with `data()` as shown below. It's a subset of data retrieved from [Singhal H et al. 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4928895/), where ER-positive primary breast cancer tumour tissues collected from 12 patients were split into tissue fragments of equal sizes for different treatments.
 
-For this tutorial, we are only looking at the RNA-seq data from samples that were treated with vehicle, R5020(progesterone) OR E2(estrogen) + R5020 for 48 hrs. Tumour specimens were collected from 5 patients, giving rise to a total of 15 samples. To cut down the computation time, only half the expressed genes were randomly sampled to derive the example logCPM matrix. A more detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
+For this tutorial, we are only looking at the RNA-seq data from samples that were treated with vehicle, R5020(progesterone) OR E2(estrogen) + R5020 for 48 hrs. They were from 5 different patients, giving rise to 15 samples in total. A more detailed description of the dataset can be assessed through the help page (`?logCPM_example` and `?metadata_example`).
 
 ```{r data}
 data(logCPM_example)
 data(metadata_example)
 # check if samples included in the logCPM matrix and metadata dataframe are identical
 setequal(colnames(logCPM_example), metadata_example$sample)
-# View sample metadata
-datatable(metadata_example,  filter = "top")
+head(metadata_example)
 ```
 
-# `sSNAPPY` workflow
+# *sSNAPPY* workflow
 
-## Compute weighted single-sample logFCs (ssLogFCs)
+## Compute weighted single-sample logFCs (ssFCs)
 
-It is expected that the logCPM matrix will be filtered to remove undetectable genes and normalised to correct for library sizes or other systematic artefacts, such as gene length or GC contents, prior to applying the `sSNAPPY` workflow. Filtration and normalisation have been performed on the example dataset.
+It is expected that the logCPM matrix will be filtered to remove undetectable genes and normalised to correct for library sizes or other systematic artefacts, such as gene length or GC contents, prior to applying the *sSNAPPY* workflow. Filtration and normalisation have been performed on the example dataset.
 
-Before single-sample logFC (ssFC) can be computed, row names of the logCPM matrix need to be converted to `entrez ID`. This is because all the pathway topology information retrieved will be in `entrez ID`. The conversion can be achieved through bioconductor packages `AnnotationHub` and `ensembldb`.
+Before single-sample logFCs (ssFCs) can be computed, row names of the logCPM matrix need to be converted to EntrezGene IDs. This is because all the pathway topology information retrieved will be in EntrezGene IDs. The conversion can be achieved through bioconductor packages `AnnotationHub` and `ensembldb`.
 
-```{r logCPM_example, eval=FALSE}
-head(logCPM_example)
-```
+To compute the ssFCs, samples must be in matching pairs. In our example data, treated samples were matched to the corresponding control samples derived from the same patients. Therefore the `groupBy` parameter of the `weight_ss_fc()` functions will be set to be `"patient"`. 
 
-To compute the ssFC, samples must be in matching pairs. In our example data, treated samples were matched to the corresponding control samples derived from the same patients. Therefore the `groupBy` parameter of the `weight_ss_fc()` functions will be set to be "patient". 
-
-`weight_ss_fc()` requires both the logCPM matrix and sample metadata as input. The column names of the logCPM matrix should be sample names, matching a column in the metadata. Name of the sample name column will be provided as the `sampleColumn` parameter. The function also requires the name of the metadata column that contains treatment information to be specified. The column with treatment information must be a factor with the control treatment set to be the reference level.
+`weight_ss_fc()` requires both the logCPM matrix and sample metadata as input. The column names of the logCPM matrix should be sample names, matching a column in the metadata. Name of the column with sample name will be provided as the `sampleColumn` parameter. The function also requires the name of the metadata column containing treatment information to be specified. The column with treatment information must be a factor with the control treatment set to be the reference level.
+It should also be noted that *sSNAPPY* is applicable to any number of treatment/condition levels and that sample numbers within each treatment group are not required to be balanced. 
 
 ```{r ssFC}
-# Check that the baseline level of the treatment column is the control
-levels(metadata_example$treatment)[1]
 #compute weighted single sample logFCs
 weightedFC <- weight_ss_fc(logCPM_example, metadata = metadata_example,
                            groupBy  = "patient", sampleColumn = "sample", 
                            treatColumn = "treatment")
 ```
 
-The `weight_ss_fc()` function firstly computes raw ssFC for each gene by subtracting logCPM values of the control sample from the logCPM values of treated samples within each patient.
+The `weight_ss_fc()` function firstly computes raw ssFCs for each gene by subtracting logCPM values of the control sample from the logCPM values of treated samples for each patient.
 
-It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have larger variances, which is also demonstrated in the plot below. To reduce the impact of this artifact, `weight_ss_fc` also weights each ssFC by estimating the mean-variance relationship of logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
+It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have a larger variance[@Law2014], which is also demonstrated by the plots below. To reduce the impact of this artefact, `weight_ss_fc` also weights each ssFCs by estimating the relationship between the gene-level variance and mean logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
 
-```{r lowess, fig.width=6,fig.height=5, fig.cap="*Gene-wise standard deviations are plotted against the mean logCPM values with mean-variance trend modelled by a loess fit. Genes with low expression values tend to have a larger variance.*"}
+```{r Figure1, out.width='100%',fig.cap="Gene-wise standard deviations are plotted against the mean logCPM values with mean-variance trend modelled by a loess fit. Whilst standard deviations are shown here for the purposes of visualisation, gene-level weights are calculated using variances at this stage of the sSNAPPY algorithm.", echo=FALSE}
 logCPM_example %>%
     as.data.frame() %>%
     mutate(
@@ -125,7 +126,13 @@ logCPM_example %>%
     )
 ```
 
-The output of the `weight_ss_fc()` function is a list with two element, where one is the weighted ssFC matrix (`weighted_logFC`) and the other is a vector of gene-wise weights (`weight`).
+
+The output of the `weight_ss_fc()` function is a list with two element, where one is the weighted ssFCs matrix and the other is a vector of gene-wise weights.
+
+```{r}
+glimpse(weightedFC)
+```
+
 
 ## Retrieve pathway topologies in the required format
 
@@ -133,7 +140,7 @@ The output of the `weight_ss_fc()` function is a list with two element, where on
 
 Therefore, pathway topology information needs to be firstly retrieved from a chosen database and converted to weight adjacency matrices, the format required to apply the scoring algorithm.
 
-This step is achieved through a chain of functions that are part of the `r Biocpkg("grapghite")`, which have been nested into one simple function in `sSNAPPY` called `retrieve_topology()`. The `retrieve_topology` function now supports a large list of species and databases. Databases that are currently supported for human are: KEGG, Reactome, WikiPathway.
+This step is achieved through a chain of functions that are part of the `r Biocpkg("grapghite")`, which have been nested into one simple function in *sSNAPPY* called `retrieve_topology()`. The `retrieve_topology` function now supports various species and databases. Databases that are currently supported for human are the Kyoto Encyclopaedia of Genes and Genomes (KEGG)[@OgataKEGGKyotoEncyclopediaa] database, the Reactome[@reactome2021] database, and WikiPathways[@Martens2021]. 
 
 The retrieved topology information will be a list where each element corresponds a pathway. It's recommended to save the list as a file so this step only needs to be performed once for each database.
 
@@ -144,10 +151,9 @@ gsTopology <- retrieve_topology(database = "kegg", species = "hsapiens")
 head(names(gsTopology))
 ```
 
-
 If only selected biological processes are of interest to your research, it's possible to only retrieve the topologies of those pathways by specifying keywords. For example, to retrieve all metabolism-related *KEGG* pathways:
 
-```{r gsTopology_sub}
+```{r gsTopology_sub, eval=FALSE}
 gsTopology_sub <- retrieve_topology(
   database = "kegg",
   species = "hsapiens", 
@@ -157,7 +163,7 @@ head(names(gsTopology_sub))
 
 It is also possible to provide multiple databases' names and/or multiple keywords for a focused analysis. 
 
-```{r gsTopology_mult, echo=FALSE}
+```{r gsTopology_mult, eval=FALSE}
 gsTopology_mult <- retrieve_topology(
   database = c("kegg", "reactome"),
   species = "hsapiens", 
@@ -175,6 +181,8 @@ genePertScore <- raw_gene_pert(weightedFC$weighted_logFC, gsTopology)
 
 and summed to derive pathway perturbation scores for each pathway in each treated samples.
 
+Pathways where all gene have zero gene-wise perturbation scores or all samples have zero pathway-level scores will be dropped by default. 
+
 ```{r}
 pathwayPertScore <- pathway_pert(genePertScore, weightedFC$weighted_logFC)
 head(pathwayPertScore)
@@ -186,7 +194,7 @@ To derive the empirical p-values for each single-sample perturbation scores and 
 
 In the permutation, all sample labels will be randomly shuffled and put into permuted pairs. Permuted single-sample logFCs will be calculated for each permuted pair of samples, while the reminding pathway perturbation scoring algorithm remains unchanged. Unless otherwise specified through the `NB` parameter, all possible permuted pairs will be used to construct the null distributions of perturbation scores. 
 
-The output of the `generate_permuted_scores()` function is a list where each element is a vector of permuted perturbation scores for a specific pathway.
+The output of the `generate_permuted_scores()` function is a list where each element is a vector of permuted perturbation scores for a specific pathway. Pathways with all zero permuted scores will be dropped by default. 
 
 ```{r permutedScore}
 set.seed(123)
@@ -226,7 +234,7 @@ normalisedScores %>%
 
 In addition to testing pathway perturbations at single-sample level, normalised perturbation scores can also be used to model mean treatment effects within a group, such as within each treatment group. An advantage of this method is that it has a high level of flexibility that allows us to incorporate confounding factors as co-factors or co-variates to offset their effects.
 
-In the example data-set, the key question is how tumour tissues responded to the activation of PR alone or both ER and AR. We can test for the treatment-level pathway perturbation using a linear regression model of the form `~ 0 + treatment`.
+In the example data-set, the key question is how tumour tissues responded to the activation of PR alone or both ER and PR. We can test for the treatment-level pathway perturbation using a linear regression model of the form `~ 0 + treatment`.
 
 ```{r fit}
 fit <- normalisedScores %>%
@@ -286,18 +294,18 @@ treat_sig %>%
 
 If there's a specific pathway that we would like to dig deeper into and explore which pathway genes potentially played a key role in its perturbation, for example, activation of the "Proteoglycans in cancer" in progesterone-treated samples, we can plot the gene-level perturbation scores of genes that are constantly highly perturbed or highly variable in that pathway as a heatmap using the `plot_gene_contribution()` function.
 
-From the heatmap below that we can see that the activation of this pathway was consistently driven by two genes: ENTREZID:1277 and ENTREZID:3688 in all R5020-treated samples while the other genes show some inter-patient heterogeneity.
+<!-- From the heatmap below that we can see that the activation of this pathway was consistently driven by two genes: ENTREZID:1277 and ENTREZID:3688 in all R5020-treated samples while the other genes show some inter-patient heterogeneity. -->
 
-```{r fig.height= 7, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 10 highest absolute mean gene-wise perturbation scores in the kegg.Proteoglycans in cancer gene-set. Only samples treated with R52020 are included.*" }
-plot_gene_contribution(
-    genePertMatr  = genePertScore$`kegg.Proteoglycans in cancer` %>%
-        .[, str_detect(colnames(.), "E2", negate = TRUE)],
-    filterBy = "mean",
-    topGene = 10,
-    color = rev(colorspace::divergex_hcl(100, palette = "RdBu")),
-    breaks = seq(-0.001, 0.001, length.out = 100)
-)
-```
+<!-- ```{r fig.height= 7, fig.width=8, fig.cap="*Gene-level perturbation scores of genes with top 10 highest absolute mean gene-wise perturbation scores in the kegg.Proteoglycans in cancer gene-set. Only samples treated with R52020 are included.*" } -->
+<!-- plot_gene_contribution( -->
+<!--     genePertMatr  = genePertScore$`kegg.Proteoglycans in cancer` %>% -->
+<!--         .[, str_detect(colnames(.), "E2", negate = TRUE)], -->
+<!--     filterBy = "mean", -->
+<!--     topGene = 10, -->
+<!--     color = rev(colorspace::divergex_hcl(100, palette = "RdBu")), -->
+<!--     breaks = seq(-0.001, 0.001, length.out = 100) -->
+<!-- ) -->
+<!-- ``` -->
 
 By default, genes' entrez IDs are used and plotted as row names, which may not be very informative. So the row names could be overwritten by providing a `data.frame` mapping entrez IDs to other identifiers through the `mapRownameTo` parameter. 
 
@@ -435,7 +443,7 @@ pathway2plot %>%
 The `plot_community` function was built in with categorizations of *KEGG* pathways so annotation of *KEGG* communities can be automatically completed without the need to specify the `gsAnnotation` parameter. We also retrieved and curated the categorisation of *Reactome* pathways, which can be loaded using the following code:
 
 ```{r}
-load(system.file("extdata", "gsAnnotation_df_reactome.rda", package = "sSNAPPY"))
+load(system.file("extdata", "gsAnnotation_df.rda", package = "sSNAPPY"))
 ```
 
 Analyses involving other pathway databases may require user-provided pathway categories.
