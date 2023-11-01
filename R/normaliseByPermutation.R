@@ -37,6 +37,7 @@
 #' permutation only to pathways with non-zero test scores in at least one sample.
 #' @param gsTopology List of pathway topology matrices generated using function `retrieve_topology`
 #' @param weight A vector of gene-wise weights derived from function `weight_ss_fc`
+#' @param drop logic(1). Whether to drop pathways with all zero scores
 #' @return A list where each element is a vector of perturbation scores for a pathway.
 #' @examples
 #' #compute weighted single sample logFCs
@@ -56,13 +57,15 @@
 #'  }
 #' @export
 setGeneric("generate_permuted_scores",
-           function(expreMatrix, NB = NULL, testScore = NULL, gsTopology, weight)
+           function(
+        expreMatrix, NB = NULL, testScore = NULL, gsTopology, weight, drop = TRUE)
                standardGeneric("generate_permuted_scores"))
 
 #' @rdname generate_permuted_scores
 setMethod("generate_permuted_scores",
           signature = signature(expreMatrix = "matrix"),
-          function(expreMatrix, NB = NULL, testScore = NULL, gsTopology, weight){
+          function(
+        expreMatrix, NB = NULL, testScore = NULL, gsTopology, weight, drop = TRUE){
               # checks
 
               m <- min(expreMatrix)
@@ -86,7 +89,7 @@ setMethod("generate_permuted_scores",
                   length(
                       intersect(rownames(expreMatrix),
                                 unlist(unname(lapply(gsTopology, rownames)))
-                                )) == 0)
+                      )) == 0)
                   stop("None of the expressed gene was matched to pathways. Check if gene identifiers match")
 
               # Exhaust all possible permutation combinations by default. If NB
@@ -155,34 +158,43 @@ setMethod("generate_permuted_scores",
                   apply(x, 2, sum)
               })
 
-              permute_path
+              # if drop parameter is set to TRUE, drop pathways with all zero scores
+              if (drop){
+                  permute_path[!sapply(permute_path, function(x){all(x == 0)})]
+              } else{
+                  permute_path
+              }
+
 
           })
 
 #' @rdname generate_permuted_scores
 setMethod("generate_permuted_scores",
           signature = signature(expreMatrix = "data.frame"),
-          function(expreMatrix, NB = NULL, testScore = NULL, gsTopology, weight){
-              generate_permuted_scores(as.matrix(expreMatrix), NB,
-                                      testScore, gsTopology, weight)
+          function(
+        expreMatrix, NB = NULL, testScore = NULL, gsTopology, weight, drop = TRUE){
+              generate_permuted_scores(as.matrix(expreMatrix),NB, testScore,
+                                       gsTopology, weight, drop)
           })
 
 #' @rdname generate_permuted_scores
 setMethod("generate_permuted_scores",
           signature = signature(expreMatrix = "DGEList"),
-          function(expreMatrix, NB = NULL, testScore = NULL, gsTopology, weight){
+          function(
+        expreMatrix, NB = NULL, testScore = NULL, gsTopology, weight, drop = TRUE){
               expreMatrix <- cpm(expreMatrix$counts, log = TRUE)
-              generate_permuted_scores(expreMatrix, NB,
-                                       testScore, gsTopology, weight)
+              generate_permuted_scores(expreMatrix, NB, testScore,
+                                       gsTopology, weight, drop)
           })
 
 #' @rdname generate_permuted_scores
 setMethod("generate_permuted_scores",
           signature = signature(expreMatrix = "SummarizedExperiment"),
-          function(expreMatrix, NB = NULL, testScore = NULL, gsTopology, weight){
+          function(
+        expreMatrix, NB = NULL, testScore = NULL, gsTopology, weight, drop = TRUE){
               expreMatrix <- cpm(SummarizedExperiment::assay(expreMatrix), log = TRUE)
-              generate_permuted_scores(expreMatrix, NB,
-                                       testScore, gsTopology, weight)
+              generate_permuted_scores(expreMatrix, NB, testScore,
+                                       gsTopology, weight, drop)
           })
 
 #' @title Normalise test perturbation scores by permutation result and compute
