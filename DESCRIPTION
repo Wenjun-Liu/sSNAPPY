@@ -1,6 +1,6 @@
 Package: sSNAPPY
 Title: Single Sample directioNAl Pathway Perturbation analYsis
-Version: 1.7.0
+Version: 1.7.1
 Authors@R: c(
     person(
         "Wenjun", "Liu", , "wenjun.liu@adelaide.edu.au", role = c("aut", "cre"),
