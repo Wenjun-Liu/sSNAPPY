@@ -1,3 +1,6 @@
+# Changes in version 1.6.1 (2023-11-1)
+- Added `drop` parameter to `path_pert()` and `generate_permuted_scores()` function
+
 # Changes in version 1.4.4 (2023-10-09)
 - Remove databases that are no longer supported: pathbank, panther, pharmgkb, smpdb
 
