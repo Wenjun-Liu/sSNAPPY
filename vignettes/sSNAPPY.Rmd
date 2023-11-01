@@ -99,7 +99,8 @@ weightedFC <- weight_ss_fc(logCPM_example, metadata = metadata_example,
 
 The `weight_ss_fc()` function firstly computes raw ssFC for each gene by subtracting logCPM values of the control sample from the logCPM values of treated samples within each patient.
 
-It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have larger variances, which is also demonstrated in the plot below. To reduce the impact of this artifact, `weight_ss_fc` also weights each ssFC by estimating the mean-variance relationship of logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
+It has been demonstrated previously that in RNA-seq data, lowly expressed genes turn to have a larger variance (Law et al. 2014), which is also demonstrated by the plots below. To reduce the impact of this artefact, `weight_ss_fc` also weights each ssFCs by estimating the relationship between the gene-level variance and mean logCPM, and defining the gene-wise weight to be the inverse of the predicted variance of that gene's mean logCPM value.
+
 
 ```{r lowess, fig.width=6,fig.height=5, fig.cap="*Gene-wise standard deviations are plotted against the mean logCPM values with mean-variance trend modelled by a loess fit. Genes with low expression values tend to have a larger variance.*"}
 logCPM_example %>%
@@ -133,7 +134,7 @@ The output of the `weight_ss_fc()` function is a list with two element, where on
 
 Therefore, pathway topology information needs to be firstly retrieved from a chosen database and converted to weight adjacency matrices, the format required to apply the scoring algorithm.
 
-This step is achieved through a chain of functions that are part of the `r Biocpkg("grapghite")`, which have been nested into one simple function in `sSNAPPY` called `retrieve_topology()`. The `retrieve_topology` function now supports a large list of species and databases. Databases that are currently supported for human are: KEGG, Reactome, WikiPathway.
+This step is achieved through a chain of functions that are part of the `r Biocpkg("grapghite")`, which have been nested into one simple function in *sSNAPPY* called `retrieve_topology()`. The `retrieve_topology` function now supports various species and databases. Databases that are currently supported for human are the Kyoto Encyclopaedia of Genes and Genomes (KEGG) database(Ogata et al. 1999), the Reactome(Gillespie et al. 2021) database, and WikiPathways(Martens et al. 2021). 
 
 The retrieved topology information will be a list where each element corresponds a pathway. It's recommended to save the list as a file so this step only needs to be performed once for each database.
 
@@ -415,7 +416,7 @@ When a large number of pathways were perturbed, it is hard to answer the questio
 
 Using the default Louvain community detection algorithm, two main communities were formed and annotated to be related to cancer and endocrine and sensory system, aligning with the  expected changes in hormone-treated cancer samples. 
 
-```{r, fig.height=7, fig.width=10, fig.cap="*The top 20 ranked pathways in the R5020 treatment group, annotated by the main biological processes each pathways belong to and coloured by pathways' predicted change in direction. The status of pathways that did not pass the significance threshold to be considered as significantly perturbed were deemed as unchanged.*" }
+```{r, fig.height=9, fig.width=12, fig.cap="*The top 20 ranked pathways in the R5020 treatment group, annotated by the main biological processes each pathways belong to and coloured by pathways' predicted change in direction. The status of pathways that did not pass the significance threshold to be considered as significantly perturbed were deemed as unchanged.*" }
 set.seed(123)
 pathway2plot %>%
     plot_community(
@@ -434,7 +435,7 @@ pathway2plot %>%
 
 The `plot_community` function was built in with categorizations of *KEGG* pathways so annotation of *KEGG* communities can be automatically completed without the need to specify the `gsAnnotation` parameter. We also retrieved and curated the categorisation of *Reactome* pathways, which can be loaded using the following code:
 
-```{r}
+```{r eval=TRUE}
 load(system.file("extdata", "gsAnnotation_df_reactome.rda", package = "sSNAPPY"))
 ```
 
@@ -501,8 +502,12 @@ treat_sig %>%
 
 # References
 
--   Sales G, Calura E, Cavalieri D, Romualdi C (2012). "graphite - a Bioconductor package to convert pathway topology to gene network." BMC Bioinformatics. <https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-20>.
--   Tarca, Adi Laurentiu et al. (2009). "A novel signaling pathway impact analysis." Bioinformatics vol. 25,1 : 75-82. <doi:10.1093/bioinformatics/btn577>
+- Charity W Law, Yunshun Chen, Wei Shi, and Gordon K Smyth. voom: precision weights unlock linear model analysis tools for RNA-seq read counts. Genome Biol, 15(2):R29, 2014. doi: 10.1186/gb-2014-15-2-r29.
+- Gabriele Sales, Enrica Calura, Duccio Cavalieri, and Chiara Romualdi. graphite - a Bioconductor package to convert pathway topology to gene network. BMC Bioinformatics, 13(1):20, December 2012. doi: 10.1186/1471-2105-13-20.
+- Adi Laurentiu Tarca, Sorin Draghici, Purvesh Khatri, Sonia S. Hassan, Pooja Mittal, Jung-sun Kim, Chong Jai Kim, Juan Pedro Kusanovic, and Roberto Romero. A novel signaling pathway impact analysis. Bioinformatics, 25(1):75–82, January 2009. doi: 10.1093/bioinformatics/btn577.
+- Minoru Kanehisa and Susumu Goto. KEGG: Kyoto Encyclopedia of Genes and Genomes. Nucleic Acids Research 28.1 (2000), pp. 27–30.
+- Marc Gillespie, Bijay Jassal, Ralf Stephan, Marija Milacic, Karen Rothfels, Andrea Senff-Ribeiro, Johannes Griss, Cristoffer Sevilla, Lisa Matthews, Chuqiao Gong, Chuan Deng, Thawfeek Varusai, Eliot Ragueneau, Yusra Haider, Bruce May, Veronica Shamovsky, Joel Weiser, Timothy Brunson, Nasim Sanati, Liam Beckman, Xiang Shao, Antonio Fabregat, Konstantinos Sidiropoulos, Julieth Murillo, Guilherme Viteri, Justin Cook, Solomon Shorser, Gary Bader, Emek Demir, Chris Sander, Robin Haw, Guanming Wu, Lincoln Stein, Henning Hermjakob, and Peter D’Eustachio. The reactome pathway knowledgebase 2022. Nucleic Acids Research, 50(D1):D687–D692, November 2021. doi: 10.1093/nar/gkab1028.
+- Marvin Martens et al. WikiPathways: connecting communities. Nucleic Acids Research 49.D1 (2021), pp. D613–D621. doi: 10.1093/nar/gkaa1024.
 
 # Session Info
 
